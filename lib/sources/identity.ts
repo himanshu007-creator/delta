@@ -96,7 +96,7 @@ export function statutoryFacts(html: string, url: string): Fact[] {
     });
   }
   const vat = grab(/\bVAT\s*(?:registration\s*)?(?:no|number|id)?\.?:?\s*((?:GB|[A-Z]{2})?\s?\d[\d\s]{6,12})/i);
-  if (vat) f.push({ path: "corporate.vat_id", value: vat.replace(/\s+/g, "").toUpperCase(), sourceUrl: url, confidence: 0.85, quote: quote(vat, 60) });
+  if (vat) f.push(...vatFacts(vat, url, 0.85));
 
   const office = grab(/registered\s+office(?:\s+(?:address|is|at))?\s*:?\s*([^\n]{12,200})/i);
   if (office) f.push({ path: "geo.registered_office", value: quote(office, 220), sourceUrl: url, confidence: 0.85, quote: quote(office, 220) });
@@ -112,6 +112,55 @@ export function statutoryFacts(html: string, url: string): Fact[] {
     f.push({ path: "contact.email", value: email.toLowerCase(), sourceUrl: url, confidence: 0.7 });
   }
   return f;
+}
+
+/**
+ * A VAT identifier carries its country in the prefix, free.
+ *
+ * `NL817154243` is Dutch; `DE811907980` German. So a company that publishes a
+ * VAT number in its footer has also told us where it is registered, which is a
+ * derivation with no extra request and no extra source. Adyen had a Dutch VAT
+ * ID on the page and no country recorded anywhere.
+ *
+ * Mostly ISO 3166-1 alpha-2, with the handful of real exceptions below: VAT
+ * uses EL for Greece and CHE for Switzerland, and XI covers Northern Ireland
+ * under the Windsor Framework.
+ */
+const VAT_COUNTRY: Record<string, string> = { EL: "GR", CHE: "CH", XI: "GB" };
+
+const VAT_PREFIXES = new Set([
+  "AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "HR", "HU",
+  "IE", "IT", "LT", "LU", "LV", "MT", "NL", "PL", "PT", "RO", "SE", "SI", "SK",
+  "EL", "GB", "XI", "CHE", "NO", "CH",
+]);
+
+/**
+ * The VAT fact plus the country it implies.
+ *
+ * One helper rather than three copies: `corporate.vat_id` is emitted from the
+ * schema.org block, the statutory footer and the Impressum, and a derivation
+ * that only fires on one of them is a coverage gap nobody notices.
+ */
+export function vatFacts(raw: string, url: string, confidence: number): Fact[] {
+  const vat = raw.replace(/\s+/g, "").toUpperCase();
+  const out: Fact[] = [
+    { path: "corporate.vat_id", value: vat, sourceUrl: url, confidence, quote: quote(raw, 60) },
+  ];
+
+  // Longest prefix first, or CHE would match as CH and drop a character.
+  const prefix = ["CHE", vat.slice(0, 2)].find((p) => vat.startsWith(p) && VAT_PREFIXES.has(p));
+  if (prefix) {
+    out.push({
+      path: "geo.vat_country",
+      value: VAT_COUNTRY[prefix] ?? prefix,
+      sourceUrl: url,
+      // Derived, not read. One notch below the VAT id it came from, so a page
+      // can tell the difference between an observation and an inference.
+      confidence: Math.min(confidence, 0.9),
+      quote: quote(raw, 60),
+    });
+  }
+  return out;
 }
 
 export const IDENTITY_ADAPTERS: readonly Adapter[] = [
@@ -169,7 +218,7 @@ export const IDENTITY_ADAPTERS: readonly Adapter[] = [
       if (vat) {
         // A VAT ID is the strongest bridge from a website to a legal entity:
         // it is verifiable against VIES, unlike a name.
-        f.push({ path: "corporate.vat_id", value: vat.replace(/\s+/g, "").toUpperCase(), sourceUrl: url, confidence: 0.9, quote: quote(vat, 60) });
+        f.push(...vatFacts(vat, url, 0.9));
       }
       const founded = ldString(best.foundingDate);
       if (founded) f.push({ path: "corporate.founded", value: founded.slice(0, 10), sourceUrl: url, confidence: 0.85 });
@@ -219,7 +268,7 @@ export const IDENTITY_ADAPTERS: readonly Adapter[] = [
       const grab = (re: RegExp): string | null => text.match(re)?.[1]?.replace(/\s+/g, " ").trim() || null;
 
       const vat = grab(/(?:USt[-\s]?IdNr\.?|Umsatzsteuer-Identifikationsnummer|VAT(?:\s+ID)?)[:\s.]*([A-Z]{2}\s?[0-9A-Z\s]{6,14})/i);
-      if (vat) f.push({ path: "corporate.vat_id", value: vat.replace(/\s+/g, "").toUpperCase(), sourceUrl: url, confidence: 1, quote: quote(vat, 60) });
+      if (vat) f.push(...vatFacts(vat, url, 1));
 
       const reg = grab(/\b(?:Handelsregister|Registernummer|Reg\.?-?Nr\.?)[:\s.]*((?:HRB|HRA|FN)\s?[0-9]{2,10}\s?[a-z]?)/i)
         ?? grab(/\b((?:HRB|HRA)\s?[0-9]{2,10})/i);

@@ -110,4 +110,50 @@ const LINEAR = [
   assert.ok(facts.some((f) => f.path === "stack.vendor.anthropic" && f.value === true));
 }
 
+
+// --- The 59 fake vendors that reached production -------------------------
+// Each of these had its own /stack/[vendor] page. A data product that invents
+// a vendor called `luijxbjbtj8ievtb9ah-o9p` has no credibility left to spend.
+{
+  const LEAKED = [
+    "luijxbjbtj8ievtb9ah-o9p",          // hyphen skipped the whole nonce test
+    "cp80qssojoe48ceuuom-owslqg",
+    "generaltranslation-token-v9jzx73y70trn67eqp0zxgbr",
+    "00d300000006woeeaa",               // a Salesforce org id
+    "epwebxx6t8gleuy2",
+    "1wwwhuggingfaceco",                // a URL that lost its punctuation
+    "domainverification",               // describes the act, names no vendor
+    "directfedauthurl",
+    "identrustvalidate",
+    "cloudpiercer",
+    "azurewebsites",
+  ];
+  for (const v of LEAKED) {
+    assert.deepEqual(parseVendors([v]), [], `bare "${v}" must not become a vendor`);
+    assert.deepEqual(parseVendors([`${v}=1`]), [], `keyed "${v}" must not become a vendor`);
+  }
+}
+
+// --- ...without deleting real vendors ------------------------------------
+// Tightening the vowel ratio to catch the above deleted `launchdarkly`, which
+// is 25% vowels exactly like the nonce it was trying to catch. Pronounceability
+// (consonant RUN length) is the signal that actually separates them.
+{
+  const EXPECTED: ReadonlyArray<[string, string]> = [
+    ["launchdarkly-site-verification=k", "launchdarkly"],
+    ["1password-site-verification=q", "1password"],       // a leading digit is fine
+    ["atlassian-domain-verification=x", "atlassian"],
+    ["mongodb-site-verification=m", "mongodb"],
+    ["wiz-domain-verification=w", "wiz"],
+    ["MS=ms123", "microsoft-365"],
+    // A BARE scope suffix must be stripped too, or each vendor gets a second
+    // page: /stack/browserstack AND /stack/browserstack-domain.
+    ["browserstack-domain=b", "browserstack"],
+    ["rippling-domain=r", "rippling"],
+  ];
+  for (const [record, want] of EXPECTED) {
+    assert.deepEqual(parseVendors([record]), [want], `${record} must resolve to ${want}`);
+  }
+}
+
 console.log("✓ vendors: real DNS fixtures parse to clean vendor lists, nonces and noise stripped");

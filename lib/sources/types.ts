@@ -39,6 +39,27 @@ export type Company = {
 };
 
 /** A single normalised observation. These are what we diff and what we sell. */
+/**
+ * Extractor version.
+ *
+ * **Bump this whenever a change to extraction logic could alter a value for
+ * unchanged input.** When the stored version differs from this one, the store
+ * updates the value but records NO change — because our parser changed, not
+ * the world, and the change feed is the one thing customers pay for.
+ *
+ * This is not hypothetical. Tightening nonce detection removed fake vendors
+ * from 70 companies and fixing locale validation corrected 14 more; without
+ * this guard all 151 were written to `changes` as though those companies had
+ * done something, on a day none of them had.
+ *
+ * History: 1 — initial. 2 — nonce detection, locale ISO-639-1 validation,
+ * GLEIF exact-match-only, VAT-derived country, sitemap-index phrasing.
+ * 3 — an ambiguous GLEIF match now contributes no identity facts at all.
+ * 4 — GLEIF corroboration: sole-candidate, single-country group, or ccTLD
+ *     agreement resolve soundly; everything else is a low-confidence lead.
+ */
+export const EXTRACTOR_VERSION = 4;
+
 export type Fact = {
   /** Dotted, stable, machine-readable. e.g. "pricing.tier.pro.amount_cents" */
   path: string;

@@ -159,3 +159,91 @@ export const FREE_ROWS = 25;
 
 /** The same number, named for what it actually meters now. */
 export const FREE_CALLS_PER_DAY = FREE_ROWS;
+
+// ---------------------------------------------------------------------------
+// Custom plans
+// ---------------------------------------------------------------------------
+
+/**
+ * Rates for a plan built to order.
+ *
+ * A custom plan is an EXTENSION of the largest standard tier, never an
+ * alternative to the smaller ones. The first formula tried was a flat
+ * per-unit model, and it quoted $15 for Starter's exact specification against
+ * a listed $19 — so the configurator undercut the price list and every buyer
+ * would have routed around it. Pricing the excess over Agency instead means a
+ * custom quote can never be cheaper than the tier it builds on.
+ *
+ * The rates are low because `companies` is deduped globally: the marginal cost
+ * of a customer tracking Notion or Slack is ~zero, and cost is driven by
+ * long-tail unique companies and by call volume, not by headcount.
+ *
+ * A quote is an estimate we will honour, not a number designed to anchor.
+ */
+export const CUSTOM = {
+  /** Per company beyond the top tier's allowance. */
+  perCompany: 0.065,
+  /** Per call of daily quota beyond the top tier's allowance. */
+  perCall: 0.003,
+  /** Per seat beyond the top tier's allowance. */
+  perSeat: 5,
+  limits: { companies: 5_000, calls: 100_000, seats: 50 },
+} as const;
+
+/** The tier a custom plan extends: the largest standard one. */
+export const TOP_TIER = TIERS[TIERS.length - 1];
+
+export type PlanRequest = { companies: number; calls: number; seats: number };
+
+const clamp = (n: number, lo: number, hi: number) =>
+  Math.min(hi, Math.max(lo, Number.isFinite(n) ? Math.floor(n) : lo));
+
+export function normalisePlan(r: PlanRequest): PlanRequest {
+  return {
+    companies: clamp(r.companies, 1, CUSTOM.limits.companies),
+    calls: clamp(r.calls, 25, CUSTOM.limits.calls),
+    seats: clamp(r.seats, 1, CUSTOM.limits.seats),
+  };
+}
+
+/**
+ * Monthly price for a built-to-order plan.
+ *
+ * Only the EXCESS over the top tier is charged, so the quote is monotonic and
+ * always at least the top tier's price.
+ */
+export function customPrice(req: PlanRequest): number {
+  const r = normalisePlan(req);
+  const over = (actual: number, included: number) => Math.max(0, actual - included);
+  const extra =
+    over(r.companies, TOP_TIER.companies) * CUSTOM.perCompany +
+    over(r.calls, TOP_TIER.calls) * CUSTOM.perCall +
+    over(r.seats, TOP_TIER.seats) * CUSTOM.perSeat;
+  return Math.round((TOP_TIER.monthly ?? 149) + extra);
+}
+
+/**
+ * The cheapest STANDARD tier that covers a request, if one does.
+ *
+ * This exists so the configurator can talk a customer out of a custom plan.
+ * Quoting someone for something Pro already covers is a worse outcome than the
+ * smaller sale: they find out later, and then the pricing page was the thing
+ * that misled them.
+ */
+export function tierCovering(req: PlanRequest): Tier | null {
+  const r = normalisePlan(req);
+  return (
+    TIERS.find(
+      (t) => t.companies >= r.companies && t.calls >= r.calls && t.seats >= r.seats,
+    ) ?? null
+  );
+}
+
+/** A standard tier whenever one fits; a quote only when none does. */
+export function bestPlan(req: PlanRequest):
+  | { kind: "tier"; tier: Tier; monthly: number }
+  | { kind: "custom"; monthly: number } {
+  const tier = tierCovering(req);
+  if (tier && tier.monthly !== null) return { kind: "tier", tier, monthly: tier.monthly };
+  return { kind: "custom", monthly: customPrice(req) };
+}

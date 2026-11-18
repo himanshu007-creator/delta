@@ -12,7 +12,7 @@
  * dataset in a worse state than one that reports partial failure.
  */
 
-import type { Fact } from "./sources/types";
+import { EXTRACTOR_VERSION, type Fact } from "./sources/types";
 
 const url = () => (process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/\/$/, "");
 // SERVICE ROLE, server-only. It bypasses row-level security by design, so it
@@ -101,6 +101,7 @@ export const recordSurface = (domain: string, kind: string, hash: string | null,
     p_domain: domain,
     p_kind: kind,
     p_hash: hash,
+    p_version: EXTRACTOR_VERSION,
     p_facts: facts.map((f) => ({
       path: f.path,
       value: f.value === null || f.value === undefined ? null : String(f.value),

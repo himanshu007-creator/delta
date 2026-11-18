@@ -55,6 +55,40 @@ const HANDLE_PATTERNS: ReadonlyArray<[string, RegExp, string]> = [
 /** Reject the obvious non-handles a homepage is full of. */
 const JUNK_HANDLE = /^(about|home|index|login|signup|search|sponsors|topics|features|pricing|site|www|en|us|readme|license|security|orgs|users|new|explore|marketplace|collections|trending|apps|settings)$/i;
 
+/**
+ * ISO 639-1 language codes.
+ *
+ * Used to tell a locale path from a product path. Without it any two-letter
+ * URL segment became a "market".
+ */
+const ISO_639_1 = new Set(
+  ("aa ab ae af ak am an ar as av ay az ba be bg bh bi bm bn bo br bs ca ce ch co cr cs cu cv cy " +
+   "da de dv dz ee el en eo es et eu fa ff fi fj fo fr fy ga gd gl gn gu gv ha he hi ho hr ht hu " +
+   "hy hz ia id ie ig ii ik io is it iu ja jv ka kg ki kj kk kl km kn ko kr ks ku kv kw ky la lb " +
+   "lg li ln lo lt lu lv mg mh mi mk ml mn mr ms mt my na nb nd ne ng nl nn no nr nv ny oc oj om " +
+   "or os pa pi pl ps pt qu rm rn ro ru rw sa sc sd se sg si sk sl sm sn so sq sr ss st su sv sw " +
+   "ta te tg th ti tk tl tn to tr ts tt tw ty ug uk ur uz ve vi vo wa wo xh yi yo za zh zu").split(" "),
+);
+
+/**
+ * Country implied by a ccTLD, used to corroborate a registry match.
+ *
+ * A company on `.co.uk` whose exact-name registry entity is also GB is a sound
+ * resolution; the same name match with no agreeing signal is not. This is the
+ * cheapest corroborating evidence available — it costs no request.
+ */
+const CCTLD_COUNTRY: Record<string, string> = {
+  uk: "GB", de: "DE", fr: "FR", nl: "NL", es: "ES", it: "IT", se: "SE", no: "NO",
+  dk: "DK", fi: "FI", ie: "IE", ca: "CA", au: "AU", in: "IN", jp: "JP", sg: "SG",
+  ch: "CH", at: "AT", be: "BE", pl: "PL", pt: "PT", br: "BR", mx: "MX", nz: "NZ",
+  za: "ZA", il: "IL", cz: "CZ", ro: "RO", hu: "HU", gr: "GR", tr: "TR", kr: "KR",
+};
+
+const tldCountry = (domain: string): string | null => {
+  const tld = domain.split(".").pop()?.toLowerCase() ?? "";
+  return CCTLD_COUNTRY[tld] ?? null;
+};
+
 export const UNIVERSAL_ADAPTERS: readonly Adapter[] = [
   {
     kind: "discover",
@@ -133,10 +167,25 @@ export const UNIVERSAL_ADAPTERS: readonly Adapter[] = [
         f.push({ path: "site.sections", value: ranked.slice(0, 40).map(([s]) => s).sort().join(","), sourceUrl: url, confidence: 1 });
         f.push({ path: "site.sections.count", value: ranked.length, sourceUrl: url, confidence: 1 });
       }
-      // Locale paths: /de/, /fr-fr/ — a new one is a market entry.
+      /*
+       * Locale paths: /de/, /fr-fr/ — a new one is a market entry.
+       *
+       * The language subtag is checked against ISO 639-1, because a bare
+       * two-letter path segment is NOT a locale. GitLab's sitemap gave us
+       * "ai, ci, ci-cd, dd, fe, go, kb, pb, pq, ux" as markets — those are
+       * product and docs pages, and /ai/ read as Anguilla is precisely the
+       * kind of confident nonsense this product exists to avoid.
+       */
       const locales = new Set(locs.flatMap((l) => {
-        const m = l.match(/\/([a-z]{2}(?:-[a-z]{2})?)\//i);
-        return m && m[1].toLowerCase() !== "en" ? [m[1].toLowerCase()] : [];
+        const m = l.match(/\/([a-z]{2})(?:-([a-z]{2}))?\//i);
+        if (!m) return [];
+        const lang = m[1].toLowerCase();
+        if (!ISO_639_1.has(lang)) return [];
+        // Bare `en` is the default language and says nothing about markets,
+        // but `en-gb` and `en-sg` name specific ones — Adyen publishes
+        // en_AE, en_AU, en_GB, en_IN and en_SG, which is its market map.
+        if (!m[2]) return lang === "en" ? [] : [lang];
+        return [`${lang}-${m[2].toLowerCase()}`];
       }));
       if (locales.size) {
         f.push({ path: "geo.locales", value: [...locales].sort().join(","), sourceUrl: url, confidence: 0.7 });
@@ -206,40 +255,77 @@ export const UNIVERSAL_ADAPTERS: readonly Adapter[] = [
       const best = scored[0];
       const e = asObj<NonNullable<Attr["entity"]>>(best.a.entity);
 
+      const countryOf = (x: typeof best) =>
+        asObj<{ country?: string }>(asObj<NonNullable<Attr["entity"]>>(x.a.entity).legalAddress).country ?? null;
+
       /*
-       * An exact name match is necessary but not sufficient.
+       * RESOLUTION, in three outcomes rather than two.
        *
-       * GLEIF's filter is a contains-search, so "Linear" returns ten entities.
-       * If exactly one of them matches the name exactly, that is strong
-       * evidence. If it matched exactly but nine other companies also carry
-       * the term, the registry cannot tell us which one owns this domain —
-       * name matching has run out of information, and the honest output is an
-       * answer carrying its own doubt rather than a confident wrong one.
+       * GLEIF's filter is a contains-search returning up to ten entities, so
+       * "Stripe" yields a Belgian company literally named STRIPE while the
+       * real Stripe, Inc. falls off the truncated page entirely. Taking the
+       * exact match put Belgium and a 2007 incorporation date on Stripe's
+       * page. Refusing every multi-candidate result instead threw away ~50
+       * correct resolutions, including Gymshark and Great Portland Estates.
        *
-       * Resolving these properly needs a second signal: a VAT ID verified
-       * through VIES, or a national registry (Companies House, SEC EDGAR).
-       * Until then the ambiguity is published, not hidden.
+       * Neither extreme is right, because a name match alone genuinely cannot
+       * separate them. So the match is CORROBORATED where possible, and
+       * demoted to an explicitly unverified lead where it is not:
+       *
+       *   1. One exact match, and nothing else returned → sound.
+       *   2. Several exact matches all in ONE country → one group sharing a
+       *      registered name (GYMSHARK LTD and GYMSHARK GROUP LIMITED, both
+       *      GB). Take the shortest name and report the rest as related.
+       *   3. One exact match whose country agrees with the ccTLD → sound.
+       *      `gpe.co.uk` matching a GB entity is corroboration; `.com` is not.
+       *   4. Anything else → a candidate, at low confidence, under its own
+       *      paths. It never reaches the headline identity or the map.
        */
-      const ambiguous = recs.length > 1;
-      const conf = ambiguous ? 0.8 : 1;
-      const f: Fact[] = [
-        { path: "corporate.gleif.lei", value: best.a.lei ?? null, sourceUrl: url, confidence: conf, quote: quote(best.nm, 120) },
-        { path: "corporate.legal_name", value: best.nm, sourceUrl: url, confidence: conf, quote: quote(best.nm, 120) },
-        { path: "corporate.gleif.matched", value: true, sourceUrl: url, confidence: 1 },
-      ];
-      if (ambiguous) {
-        f.push({ path: "corporate.gleif.ambiguous", value: true, sourceUrl: url, confidence: 1 });
-        f.push({ path: "corporate.gleif.candidates", value: recs.length, sourceUrl: url, confidence: 1 });
+      const exactCountries = new Set(scored.map(countryOf).filter(Boolean));
+      const oneGroup = scored.length > 1 && exactCountries.size === 1;
+      const hint = tldCountry(company.domain);
+      const corroborated = hint !== null && countryOf(best) === hint;
+      const soleCandidate = recs.length === 1;
+
+      const sound = soleCandidate || oneGroup || corroborated;
+
+      if (!sound) {
+        return [
+          { path: "corporate.gleif.matched", value: true, sourceUrl: url, confidence: 1 },
+          { path: "corporate.gleif.ambiguous", value: true, sourceUrl: url, confidence: 1 },
+          { path: "corporate.gleif.candidates", value: recs.length, sourceUrl: url, confidence: 1 },
+          /*
+           * Deliberately NOT `corporate.legal_name` or `geo.legal_country`.
+           * Those feed the page headline and the map, and an unverified name
+           * match has no business in either. Under their own `candidate_`
+           * paths they are a lead a reader can check, which is useful and
+           * honest; promoted, they would be a fabricated identity.
+           */
+          { path: "corporate.gleif.candidate_name", value: best.nm, sourceUrl: url, confidence: 0.4, quote: quote(best.nm, 120) },
+          { path: "corporate.gleif.candidate_country", value: countryOf(best), sourceUrl: url, confidence: 0.4 },
+          { path: "corporate.gleif.candidate_lei", value: best.a.lei ?? null, sourceUrl: url, confidence: 0.4 },
+        ];
       }
-      if (e.status) f.push({ path: "corporate.status", value: e.status, sourceUrl: url, confidence: conf });
-      const country = asObj<{ country?: string }>(e.legalAddress).country;
-      if (country) f.push({ path: "geo.legal_country", value: country, sourceUrl: url, confidence: conf });
-      if (e.creationDate) f.push({ path: "corporate.incorporated_at", value: e.creationDate, sourceUrl: url, confidence: conf });
-      // Several EXACT matches means subsidiaries or incentive vehicles sharing
-      // a registered name, which is genuinely informative about group
-      // structure. Near-misses are excluded above and never counted here.
+
+      // In a one-group result the shortest exact name is the parent, not an
+      // employee-benefit vehicle with a longer name.
+      if (oneGroup) scored.sort((x, y) => x.nm.length - y.nm.length);
+
+      // A sound resolution: report the filing data at full confidence.
+      const chosen = scored[0];
+      const ent = asObj<NonNullable<Attr["entity"]>>(chosen.a.entity);
+      const f: Fact[] = [
+        { path: "corporate.gleif.matched", value: true, sourceUrl: url, confidence: 1 },
+        { path: "corporate.gleif.lei", value: chosen.a.lei ?? null, sourceUrl: url, confidence: 1, quote: quote(chosen.nm, 120) },
+        { path: "corporate.legal_name", value: chosen.nm, sourceUrl: url, confidence: 1, quote: quote(chosen.nm, 120) },
+        { path: "corporate.gleif.basis", value: soleCandidate ? "sole-candidate" : oneGroup ? "single-country-group" : "cctld-corroborated", sourceUrl: url, confidence: 1 },
+      ];
+      if (ent.status) f.push({ path: "corporate.status", value: ent.status, sourceUrl: url, confidence: 1 });
+      const country = asObj<{ country?: string }>(ent.legalAddress).country;
+      if (country) f.push({ path: "geo.legal_country", value: country, sourceUrl: url, confidence: 1 });
+      if (ent.creationDate) f.push({ path: "corporate.incorporated_at", value: ent.creationDate, sourceUrl: url, confidence: 1 });
       if (scored.length > 1) {
-        f.push({ path: "corporate.related_entities", value: scored.length - 1, sourceUrl: url, confidence: 0.6 });
+        f.push({ path: "corporate.related_entities", value: scored.length - 1, sourceUrl: url, confidence: 0.8 });
       }
       return f;
     },

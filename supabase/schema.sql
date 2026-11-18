@@ -326,8 +326,13 @@ $$;
  * A fact's FIRST observation is not a change. Recording one would make every
  * newly tracked company look like it changed everything on day one.
  */
+
+-- Which extractor version produced this fact. A value that differs only
+-- because our parser improved is NOT a change in the world.
+alter table facts add column if not exists extractor_version integer not null default 1;
+
 create or replace function record_surface(
-  p_domain text, p_kind text, p_hash text, p_facts jsonb
+  p_domain text, p_kind text, p_hash text, p_facts jsonb, p_version integer default 1
 ) returns integer language plpgsql volatile security definer set search_path = public as $$
 declare
   v_changes  integer := 0;
@@ -338,6 +343,7 @@ declare
   v_old      text;
   v_old_kind text;
   v_old_conf real;
+  v_old_ver  integer;
   v_seen     boolean;
   v_touched  text[] := '{}';
 begin
@@ -348,8 +354,8 @@ begin
     v_new_conf := nullif(v_fact->>'confidence', '')::real;
 
     v_seen := false;
-    select f.value, f.kind, f.confidence, true
-      into v_old, v_old_kind, v_old_conf, v_seen
+    select f.value, f.kind, f.confidence, f.extractor_version, true
+      into v_old, v_old_kind, v_old_conf, v_old_ver, v_seen
       from facts f
      where f.company_domain = p_domain and f.path = v_path;
 
@@ -384,7 +390,7 @@ begin
     if v_path = any(v_touched) then
       update facts set value = v_new, confidence = v_new_conf,
              source_url = v_fact->>'source_url', quote = v_fact->>'quote',
-             kind = p_kind, updated_at = now()
+             kind = p_kind, extractor_version = coalesce(p_version, 1), updated_at = now()
        where company_domain = p_domain and path = v_path;
       continue;
     end if;
@@ -397,21 +403,32 @@ begin
        * first observation is not a change either, or every newly tracked
        * company would look like it changed everything on day one.
        */
-      if v_seen and v_old_kind = p_kind then
+      /*
+       * OUR PARSER CHANGING IS NOT THE WORLD CHANGING.
+       *
+       * When the stored fact came from an older extractor, a different value
+       * may simply mean we read the same page better. Recording that as a
+       * change would put a false event in the feed on a day nothing happened —
+       * which is exactly what occurred when nonce detection was tightened: 70
+       * companies' vendor lists "changed" at once.
+       */
+      if v_seen and v_old_kind = p_kind
+         and coalesce(v_old_ver, 1) = coalesce(p_version, 1) then
         insert into changes (company_domain, kind, path, old_value, new_value, source_url, quote)
         values (p_domain, p_kind, v_path, v_old, v_new, v_fact->>'source_url', v_fact->>'quote');
         v_changes := v_changes + 1;
       end if;
 
-      insert into facts (company_domain, path, value, confidence, source_url, quote, kind, updated_at)
-      values (p_domain, v_path, v_new, v_new_conf, v_fact->>'source_url', v_fact->>'quote', p_kind, now())
+      insert into facts (company_domain, path, value, confidence, source_url, quote, kind, extractor_version, updated_at)
+      values (p_domain, v_path, v_new, v_new_conf, v_fact->>'source_url', v_fact->>'quote', p_kind, coalesce(p_version, 1), now())
       on conflict (company_domain, path) do update
-        set value      = excluded.value,
-            confidence = excluded.confidence,
-            source_url = excluded.source_url,
-            quote      = excluded.quote,
-            kind       = excluded.kind,
-            updated_at = now();
+        set value             = excluded.value,
+            confidence        = excluded.confidence,
+            source_url        = excluded.source_url,
+            quote             = excluded.quote,
+            kind              = excluded.kind,
+            extractor_version = excluded.extractor_version,
+            updated_at        = now();
     end if;
   end loop;
 

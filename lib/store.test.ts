@@ -118,7 +118,7 @@ import { assertStore, currentWindow, storeConfigured } from "./store";
     "a different source with lower or equal confidence must not overwrite a fact",
   );
   assert.ok(
-    /if v_seen and v_old_kind = p_kind then/.test(sql),
+    /if v_seen and v_old_kind = p_kind\b/.test(sql),
     "only the SAME source moving its value over time is a change; a disagreement between sources is not",
   );
   // REGRESSION: the pricing parser emitted two different `pricing.note` values
@@ -127,6 +127,17 @@ import { assertStore, currentWindow, storeConfigured } from "./store";
   assert.ok(
     /if v_path = any\(v_touched\) then/.test(sql),
     "a path repeated within one batch must not record a change — it is not a value moving over time",
+  );
+  // REGRESSION: tightening nonce detection changed stack.vendors.list on 70
+  // companies and locale validation changed geo.locales on 14 more. All 151
+  // were written to `changes` as though those companies had done something.
+  assert.ok(
+    /coalesce\(v_old_ver, 1\) = coalesce\(p_version, 1\)/.test(sql),
+    "a value that differs because OUR extractor changed must not record a change",
+  );
+  assert.ok(
+    /extractor_version = coalesce\(p_version, 1\)|extractor_version = excluded\.extractor_version/.test(sql),
+    "the extractor version must be persisted, or the guard can never fire",
   );
   for (const t of ["companies", "watchlists", "surfaces", "facts", "changes"]) {
     assert.ok(
@@ -141,6 +152,17 @@ import { assertStore, currentWindow, storeConfigured } from "./store";
   // Global dedupe is the economic core: one row per domain, users elsewhere.
   assert.ok(/create table if not exists companies \(\s*\n\s*domain\s+text primary key/.test(sql),
     "companies must be keyed by domain alone — that is what makes a new customer cost nothing");
+}
+
+{
+  const types = readFileSync(new URL("./sources/types.ts", import.meta.url), "utf8");
+  const v = types.match(/EXTRACTOR_VERSION = (\d+)/)?.[1];
+  assert.ok(v, "EXTRACTOR_VERSION must be findable and numeric");
+  const client = readFileSync(new URL("./store.ts", import.meta.url), "utf8");
+  assert.ok(
+    client.includes("p_version: EXTRACTOR_VERSION"),
+    "recordSurface must send the version, or every write looks like the same extractor",
+  );
 }
 
 console.log("✓ store: 12h window boundaries, fail-closed, constant-time cron auth, SKIP LOCKED claim, RLS on every table");

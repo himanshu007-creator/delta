@@ -12,7 +12,7 @@ import { UNIVERSAL_ADAPTERS } from "./universal";
 const gleif = UNIVERSAL_ADAPTERS.find((a) => a.kind === "corporate.gleif")!;
 assert.ok(gleif, "the corporate.gleif adapter must exist");
 
-const entity = (name: string, country = "BE", creationDate = "2025-10-03T00:00:00Z") => ({
+const entity = (name: string, country = "XX", creationDate = "2025-10-03T00:00:00Z") => ({
   attributes: {
     lei: `LEI${name.replace(/\W/g, "").toUpperCase().slice(0, 17)}`,
     entity: {
@@ -24,11 +24,17 @@ const entity = (name: string, country = "BE", creationDate = "2025-10-03T00:00:0
   },
 });
 
-const run = (companyName: string, names: string[]) =>
+/** `names` may be "NAME" or "NAME|CC" to set that entity's country. */
+const run = (companyName: string, names: string[], domain = "example.com") =>
   gleif.extract(
-    { data: names.map((n) => entity(n)) },
     {
-      company: { domain: "example.com", name: companyName },
+      data: names.map((n) => {
+        const [nm, cc] = n.split("|");
+        return entity(nm, cc ?? "XX");
+      }),
+    },
+    {
+      company: { domain, name: companyName },
       url: "https://api.gleif.org/probe",
       raw: "",
     },
@@ -86,19 +92,54 @@ const valueOf = (facts: ReturnType<typeof run>, path: string) =>
   assert.ok(pathsOf(facts).has("corporate.incorporated_at"), "a real match carries its filing data");
 }
 
-// --- A real match among decoys: asserted, but carrying its doubt ---------
+// --- Corroboration: the three ways a match becomes sound -----------------
 {
-  const facts = run("Linear", ["Linear Consulting", "LINEAR", "LINEAR S.R.L."]);
-  assert.equal(valueOf(facts, "corporate.legal_name"), "LINEAR", "the exact match must win over the decoys");
+  // 1. Several exact matches, all in ONE country: a group sharing a registered
+  //    name. GLEIF returns GYMSHARK LTD and GYMSHARK GROUP LIMITED, both GB.
+  //    Refusing these threw away ~50 correct resolutions.
+  const gym = run("Gymshark", ["GYMSHARK GROUP LIMITED|GB", "GYMSHARK LTD|GB"]);
+  assert.equal(valueOf(gym, "corporate.legal_name"), "GYMSHARK LTD", "the shortest name is the parent, not a benefit vehicle");
+  assert.equal(valueOf(gym, "corporate.gleif.basis"), "single-country-group");
+  assert.equal(valueOf(gym, "geo.legal_country"), "GB");
+  assert.equal(valueOf(gym, "corporate.related_entities"), 1);
+
+  // 2. ccTLD corroboration: gpe.co.uk matching a GB entity agrees.
+  const gpe = run("Great Portland Estates",
+    ["GREAT PORTLAND ESTATES PLC LTIP EST|GG", "GREAT PORTLAND ESTATES P L C|GB"], "gpe.co.uk");
+  assert.equal(valueOf(gpe, "corporate.legal_name"), "GREAT PORTLAND ESTATES P L C");
+  assert.equal(valueOf(gpe, "corporate.gleif.basis"), "cctld-corroborated");
+
+  // ...and the same match WITHOUT an agreeing ccTLD stays unverified.
+  const gpeCom = run("Great Portland Estates",
+    ["GREAT PORTLAND ESTATES PLC LTIP EST|GG", "GREAT PORTLAND ESTATES P L C|GB"], "gpe.com");
+  assert.ok(!pathsOf(gpeCom).has("corporate.legal_name"), ".com offers no corroborating signal");
+
+  // 3. A sole candidate needs no corroboration: nothing competes with it.
+  const sole = run("Monzo", ["MONZO|GB"]);
+  assert.equal(valueOf(sole, "corporate.gleif.basis"), "sole-candidate");
+}
+
+// --- An exact match among decoys resolves to NOTHING ---------------------
+// stripe.com matched a Belgian company genuinely named "Stripe", incorporated
+// 2007, and the page showed "Registered: Belgium · founded 2007" with a
+// crosshair on a map. Both facts belonged to somebody else entirely.
+{
+  // The real Stripe case: one exact match, in Belgium, on a .com domain, with
+  // nine other entities returned. The genuine Stripe, Inc. was not even on the
+  // truncated page.
+  const facts = run("Stripe",
+    ["STRIPE|BE", "Stripe 158|IE", "Stripe 157|IE", "STRIPE 156|IE", "STRIPE 151|IE"], "stripe.com");
+  assert.equal(valueOf(facts, "corporate.gleif.ambiguous"), true);
+  for (const leaked of ["corporate.legal_name", "geo.legal_country", "corporate.incorporated_at", "corporate.status", "corporate.gleif.lei"]) {
+    assert.ok(!pathsOf(facts).has(leaked), `${leaked} must not be attributed — it belongs to a Belgian company`);
+  }
+  // Kept as a checkable lead under its own path, never promoted.
+  assert.equal(valueOf(facts, "corporate.gleif.candidate_name"), "STRIPE");
+  assert.equal(valueOf(facts, "corporate.gleif.candidate_country"), "BE");
   assert.equal(
-    valueOf(facts, "corporate.gleif.ambiguous"),
-    true,
-    "an exact match among nine other same-word entities is still ambiguous, and must say so",
-  );
-  assert.equal(
-    facts.find((f) => f.path === "corporate.legal_name")?.confidence,
-    0.8,
-    "an ambiguous match must not claim full confidence",
+    facts.find((f) => f.path === "corporate.gleif.candidate_name")?.confidence,
+    0.4,
+    "a lead must be low confidence so nothing downstream treats it as identity",
   );
 }
 
@@ -108,6 +149,7 @@ const valueOf = (facts: ReturnType<typeof run>, path: string) =>
   assert.equal(valueOf(facts, "corporate.legal_name"), "MONZO", "one exact candidate, no ambiguity");
   assert.ok(!pathsOf(facts).has("corporate.gleif.ambiguous"), "one candidate is not ambiguous");
   assert.equal(facts.find((f) => f.path === "corporate.legal_name")?.confidence, 1);
+  assert.ok(pathsOf(facts).has("geo.legal_country"), "a sound resolution does carry its filing data");
 }
 
 // --- The deliberate under-resolution ------------------------------------

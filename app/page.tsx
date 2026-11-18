@@ -32,6 +32,7 @@ import {
 import { Faq, SectionHead, SiteFooter, ThemeToggle, WaveRule } from "./ui";
 import { SearchBox } from "./search";
 import { AskAbout } from "./ask";
+import { PlanBuilder } from "./plan";
 import { JsonLd } from "./jsonld";
 
 export const metadata: Metadata = {
@@ -187,7 +188,7 @@ export default function Home() {
       />
 
       <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:py-12">
-        <nav className="mb-14 flex items-center justify-between gap-4">
+        <nav className="nav-sticky mb-14 flex items-center justify-between gap-4">
           <span className="mono t-small">{SITE_NAME}</span>
           <div className="flex items-center gap-4">
             <Link href="/stack" className="t-small no-underline">Vendors</Link>
@@ -311,6 +312,16 @@ export default function Home() {
                 </ul>
               </div>
             ))}
+          </div>
+
+          {/* Build-your-own. Deliberately placed AFTER the tiers: most people
+              are served by one of them, and the builder says so. */}
+          <div className="mt-6">
+            <PlanBuilder supportEmail={process.env.NEXT_PUBLIC_SUPPORT_EMAIL} />
+            <p className="t-micro muted mt-3">
+              Move the sliders. If a standard tier already covers it, this tells you which one
+              instead of quoting you more.
+            </p>
           </div>
 
           <LifetimeOffer />

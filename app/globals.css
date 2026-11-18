@@ -262,6 +262,233 @@ input:disabled, select:disabled, textarea:disabled { opacity: 0.55; cursor: not-
 :root[data-theme="dark"] .art-light { display: none; }
 .receipt { font-family: var(--font-mono); white-space: pre; line-height: 1.35; font-size: 13px; }
 
+/* --- Sticky nav ---------------------------------------------------------- */
+.nav-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  /* The page has a fixed radial wash behind it, so a transparent sticky bar
+     would let text scroll visibly underneath. Blur plus a near-opaque tint
+     keeps it legible without a hard edge. */
+  background: color-mix(in oklab, var(--bg) 82%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid transparent;
+  margin-inline: -1rem;
+  padding: 0.75rem 1rem;
+  transition: border-color 0.2s;
+}
+/* Scroll-driven hairline: only visible once the page has moved, so the top of
+   the page stays clean. Progressive enhancement — no support means no line. */
+@supports (animation-timeline: scroll()) {
+  .nav-sticky {
+    animation: nav-settle linear both;
+    animation-timeline: scroll();
+    animation-range: 0 80px;
+  }
+  @keyframes nav-settle {
+    to { border-bottom-color: var(--border); }
+  }
+}
+
+/* --- Plan sliders -------------------------------------------------------- */
+.plan-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  margin-top: 0.6rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface-2);
+  /* The control is 4px tall but the THUMB must stay a 44px target, so the
+     hit area is widened with padding on the thumb rather than the track. */
+  cursor: pointer;
+}
+.plan-range:focus-visible { outline: 2px solid var(--ocean); outline-offset: 4px; }
+
+.plan-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--coral);
+  border: 3px solid var(--surface);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+.plan-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--coral);
+  border: 3px solid var(--surface);
+  cursor: pointer;
+}
+
+/* --- Signal tiles (bento) ------------------------------------------------ */
+.bento {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) { .bento { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 960px) { .bento { grid-template-columns: repeat(4, 1fr); } }
+
+.tile {
+  display: block;
+  padding: 1.15rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  /* A hairline of accent along the top edge, so a grid of tiles has rhythm
+     without each one shouting. The tone variants below change only this. */
+  box-shadow: inset 0 2px 0 var(--border);
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.12s;
+}
+/* `lg` spans two columns at the 4-up breakpoint: pricing and the vendor stack
+   carry the longest sentences and would otherwise wrap to five lines. */
+@media (min-width: 960px) { .tile-lg { grid-column: span 2; } }
+
+.tile-good { box-shadow: inset 0 2px 0 var(--ocean); }
+.tile-warn { box-shadow: inset 0 2px 0 var(--mango); }
+
+/* Only a LINKED tile reacts to the cursor. A hover state on something
+   unclickable is a promise the page does not keep. */
+a.tile:hover {
+  border-color: var(--ocean);
+  transform: translateY(-1px);
+}
+
+.tile-headline {
+  font-size: 1.25rem;
+  line-height: 1.2;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+/* --- Chips --------------------------------------------------------------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.82rem;
+  line-height: 1.3;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+}
+.chip:hover { background: var(--mint); color: var(--on-mint); border-color: transparent; }
+
+/* --- Fact table ---------------------------------------------------------- */
+.fact-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.fact-table th,
+.fact-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.6rem 0.75rem 0.6rem 0;
+  border-top: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+.fact-table thead th {
+  border-top: 0;
+  padding-top: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+.fact-table tbody th { font-weight: 500; width: 34%; }
+.fact-table tbody tr:hover { background: var(--surface-2); }
+
+/* The table has three columns of prose; below 640px it has to scroll rather
+   than compress every cell to two characters wide. */
+@media (max-width: 639.98px) {
+  .fact-table { display: block; overflow-x: auto; white-space: normal; }
+  .fact-table tbody th { width: auto; }
+}
+
+/* --- Footprint map ------------------------------------------------------- */
+.map-frame {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(120% 90% at 50% -20%, color-mix(in oklab, var(--ocean) 10%, transparent), transparent 65%),
+    var(--surface);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.map-svg { display: block; width: 100%; height: auto; }
+
+/* The landmass. `currentColor` is set here so one <path> follows the theme. */
+.map-land {
+  color: var(--ink-muted);
+  stroke: currentColor;
+  opacity: 0.3;
+}
+
+.map-market { fill: var(--ocean); opacity: 0.8; }
+
+.map-cross {
+  stroke: var(--coral);
+  stroke-width: 0.12;
+  opacity: 0.4;
+  stroke-dasharray: 1 1.4;
+}
+
+.map-pin { fill: var(--coral); }
+
+/* Two rings, offset in time, so the marker reads as a live signal rather than
+   a static dot. `transform-box: fill-box` keeps the scale centred on the
+   circle instead of on the SVG's origin. */
+.map-pulse {
+  fill: none;
+  stroke: var(--coral);
+  stroke-width: 0.3;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: delta-ping 3.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+.map-pulse-2 { animation-delay: 1.7s; }
+
+@keyframes delta-ping {
+  0%   { transform: scale(0.6); opacity: 0.75; }
+  70%  { transform: scale(3.4); opacity: 0; }
+  100% { transform: scale(3.4); opacity: 0; }
+}
+
+/* A still marker when motion is unwelcome: the ring stays, it just stops. */
+@media (prefers-reduced-motion: reduce) {
+  .map-pulse { animation: none; opacity: 0.4; transform: scale(1.6); }
+  .map-pulse-2 { display: none; }
+}
+
+.map-legend {
+  position: absolute;
+  top: 0.9rem;
+  left: 1rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  /* Readable over dots without hiding them. */
+  background: color-mix(in oklab, var(--surface) 86%, transparent);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(6px);
+}
+.map-legend-end { left: auto; right: 1rem; text-align: right; }
+
+/* On a phone the two legends would collide, so the second one stands down. */
+@media (max-width: 639.98px) {
+  .map-legend { top: 0.5rem; left: 0.5rem; padding: 0.45rem 0.6rem; }
+  .map-legend-end { display: none; }
+}
+
 /* --- Search -------------------------------------------------------------- */
 .search-wrap { position: relative; width: 100%; }
 

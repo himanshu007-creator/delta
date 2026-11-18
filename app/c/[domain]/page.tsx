@@ -23,8 +23,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { cachedDossier } from "@/lib/cached-dossier";
-import { factLabel, isPublicFact, publicDomain } from "@/lib/public-dossier";
+import { factsFor } from "@/lib/cached-dossier";
+import { factLabel, publicDomain } from "@/lib/public-dossier";
+import { footprintOf, identityOf, interpret, type Signal } from "@/lib/interpret";
+import { countryName } from "@/lib/worldmap";
+import { FootprintMap, hasFootprint } from "../../footprint";
 import { CHECKOUT_URL } from "@/lib/offer";
 import { abs, SITE_NAME } from "@/lib/site";
 import { JsonLd } from "../../jsonld";
@@ -129,136 +132,184 @@ function Loading() {
 }
 
 async function Dossier({ domain }: { domain: string }) {
-  const d = await cachedDossier(domain);
+  const { facts, source } = await factsFor(domain);
 
-  if (!d.factCount) {
+  if (facts.size === 0) {
     return (
-      <div className="card">
-        <h2 className="t-h3">Nothing readable yet</h2>
+      <div className="card p-6">
+        <h2 className="t-h3 m-0">Nothing readable yet</h2>
         <p className="t-body mt-2">
           We could not read anything public for <span className="mono">{domain}</span>. That usually means the
           site blocks automated readers, is behind a login, or the domain is not live.
         </p>
-        {d.unavailable.length > 0 && (
-          <p className="t-small muted mt-3">
-            Tried and could not read: {d.unavailable.map((u) => `${u.label} (${u.reason})`).join(", ")}.
-          </p>
-        )}
       </div>
     );
   }
 
+  const id = identityOf(facts);
+  const signals = interpret(facts);
+  const footprint = footprintOf(facts);
+  const vendors = (facts.get("stack.vendors.list")?.value ?? "")
+    .split(",").map((v) => v.trim()).filter(Boolean);
+  const h1 = facts.get("positioning.h1")?.value ?? null;
+
   return (
     <>
-      <section className="mb-10">
-        <div className="card">
-          <p className="t-body">
-            <strong>{d.factCount} facts</strong> from <strong>{d.sources.length} public sources</strong>
-            {d.companyType && d.companyType !== "unknown" ? <> · classified as <strong>{d.companyType}</strong></> : null}
-            {d.title ? <> · “{d.title}”</> : null}
-          </p>
-          <p className="t-small muted mt-2">
-            Everything below is current state, read from public sources, each one linked. Checked in {(d.ms / 1000).toFixed(1)}s.
-          </p>
+      {/* --- Identity. Who this is, before anything is claimed about them. */}
+      <header className="mb-8">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+          <h1 className="t-display break-words m-0">{domain}</h1>
+          {id.type && id.type !== "unknown" && <span className="pill t-micro">{id.type}</span>}
         </div>
-      </section>
 
-      {d.groups.map((g) => {
-        const facts = g.facts.filter(isPublicFact);
-        if (!facts.length) return null;
-        return (
-          <section key={g.module} className="mb-10">
-            <SectionHead eyebrow={g.module.replace(/^\d+\.\s*/, "")} title={titleFor(g.module)} />
-            <div className="card">
-              <dl className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
-                {facts.map((f) => (
-                  <div key={f.path} className="min-w-0">
-                    <dt className="t-micro muted">{factLabel(f.path)}</dt>
-                    <dd className="t-body break-words" style={{ overflowWrap: "anywhere" }}>
-                      {renderValue(f.value)}
-                      {/* Confidence is DISCLOSED, not hidden: a parsed number is
-                          weaker evidence than a published one, and saying so is
-                          the difference between data and a guess. */}
-                      {typeof f.confidence === "number" && f.confidence < 0.85 && (
-                        <span className="t-micro muted"> · ~{Math.round(f.confidence * 100)}% confident</span>
-                      )}
-                    </dd>
-                    {f.quote && (
-                      <p className="t-micro muted mt-1" style={{ overflowWrap: "anywhere" }}>
-                        “{f.quote}”
-                      </p>
-                    )}
-                    {f.sourceUrl && (
-                      <p className="t-micro mt-1" style={{ overflowWrap: "anywhere" }}>
-                        <Source url={f.sourceUrl} />
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </dl>
-            </div>
-          </section>
-        );
-      })}
+        {/* The legal line. An unresolved entity says so rather than going blank,
+            because "we looked and could not tell" is itself information. */}
+        <p className="t-small muted mt-3 mb-0">
+          {id.legalName ? (
+            <strong style={{ color: "var(--ink)" }}>{id.legalName}</strong>
+          ) : id.candidateName ? (
+            /* A registry entity shares this name but could not be tied to this
+               company, so it is offered as a lead and labelled as one. */
+            <>
+              Legal entity unconfirmed — registry has{" "}
+              <em>{id.candidateName}</em>
+              {id.candidateCountry ? ` (${id.candidateCountry})` : ""} among{" "}
+              {id.candidates ?? "several"} same-name entities
+            </>
+          ) : id.unresolved ? (
+            <>Legal entity not resolved — no exact match in the registry</>
+          ) : null}
+          {id.vat && <> · VAT {id.vat}</>}
+          {id.founded && <> · founded {id.founded.slice(0, 4)}</>}
+          {footprint.registered && <> · {countryName(footprint.registered)}</>}
+        </p>
 
-      {/* THE PAYWALL, and the honest upgrade reason. */}
-      <section className="mb-10">
-        <SectionHead eyebrow="History" title="What changed, and when" />
-        <div className="card card-shell">
-          <p className="t-body">
-            This page shows what is true <strong>today</strong>. The part nobody else has is the{" "}
-            <strong>time series</strong> — every price change, tier rename, licence change and new
-            subdomain, with the date it happened and the page it came from.
-          </p>
-          <p className="t-body mt-3">
-            Pricing history is back-filled from public archives, so it starts years before we
-            did — one company we checked goes back to October 2017.
-          </p>
-          <p className="t-small muted mt-3">
-            Anyone can read a pricing page today. Knowing what it said last March is the product.
-          </p>
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <a href={CHECKOUT_URL} className="btn btn-primary no-underline">See the history</a>
-            <Link href="/#pricing" className="t-small no-underline">Plans from $19/mo</Link>
-          </div>
-        </div>
-      </section>
+        {/* Their own words, quoted. The cheapest read on positioning there is. */}
+        {h1 && <p className="t-h3 mt-4 mb-0" style={{ maxWidth: "40ch" }}>“{h1}”</p>}
+      </header>
 
-      {d.unavailable.length > 0 && (
-        <section className="mb-10">
-          <SectionHead eyebrow="Coverage" title="What we could not read" />
-          <div className="card card-quiet">
-            <p className="t-small">
-              Stated rather than hidden — a dossier with silent gaps is a lie by omission.
-            </p>
-            <ul className="t-small muted mt-2 list-disc pl-5">
-              {d.unavailable.map((u) => (
-                <li key={u.label}>
-                  {u.label} — {u.reason}
-                </li>
-              ))}
-            </ul>
+      {hasFootprint(footprint) && <FootprintMap footprint={footprint} domain={domain} />}
+
+      {/* --- The signals. Each tile is a sentence, not a key-value pair. */}
+      {signals.length > 0 && (
+        <section className="mb-12">
+          <SectionHead eyebrow="what matters" title="Read in one pass" />
+          <div className="bento">
+            {signals.map((s) => <Tile key={s.id} signal={s} />)}
           </div>
         </section>
       )}
 
-      <AskAbout
-        className="mb-10"
-        path={`/c/${domain}`}
-        ask={`What has ${domain} changed recently, and what do their pricing, hiring and vendor choices suggest about where they are heading?`}
-      />
+      {/* --- Navigation out. Every vendor is a page of its own. */}
+      {vendors.length > 0 && (
+        <section className="mb-12">
+          <SectionHead eyebrow="what they run on" title={`${vendors.length} vendors, from public DNS`} />
+          <div className="flex flex-wrap gap-2">
+            {vendors.map((v) => (
+              <Link key={v} href={`/stack/${v}`} className="chip no-underline">
+                {v.split("-").map((w) => (w.length <= 3 ? w.toUpperCase() : w[0].toUpperCase() + w.slice(1))).join(" ")}
+              </Link>
+            ))}
+          </div>
+          <p className="t-micro muted mt-3">
+            A verification record proves a relationship with the vendor, not its size or price.
+            Each one links to every other company we see using it.
+          </p>
+        </section>
+      )}
 
-      <footer className="t-small muted border-t pt-6" style={{ borderColor: "var(--border)" }}>
-        <p>
-          Read from public sources only. We honour robots.txt, never scrape sites that ask us not to,
-          and never use LinkedIn.
+      {/* --- The paywall, stated as the honest difference it is. */}
+      <section className="mb-12">
+        <div className="card card-shell p-6 sm:flex sm:items-center sm:justify-between sm:gap-8">
+          <div>
+            <p className="eyebrow mb-2">The part you cannot look up</p>
+            <h2 className="t-h3 m-0">What did this page say last March?</h2>
+            <p className="t-body mt-2 mb-0" style={{ maxWidth: "48ch" }}>
+              Everything above is current state, and you could verify all of it yourself today.
+              What you cannot get is the version from three months ago — the tier that moved, the
+              vendor that appeared, the week the hiring stopped.
+            </p>
+          </div>
+          <div className="mt-5 sm:mt-0 shrink-0">
+            <a href={CHECKOUT_URL} className="btn btn-primary no-underline">See the history</a>
+          </div>
+        </div>
+      </section>
+
+      {/* --- The raw table, available but not thrown at the reader. */}
+      <section className="mb-12">
+        <details className="card">
+          <summary className="t-h3" style={{ cursor: "pointer", padding: "1rem 1.25rem", listStyle: "none" }}>
+            Every fact we hold · {facts.size}
+            <span className="t-micro muted"> — with sources</span>
+          </summary>
+          <div style={{ padding: "0 1.25rem 1.25rem" }}>
+            <table className="fact-table">
+              <thead>
+                <tr>
+                  <th scope="col">Fact</th>
+                  <th scope="col">Value</th>
+                  <th scope="col">Source</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...facts.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([path, f]) => (
+                  <tr key={path}>
+                    <th scope="row">
+                      {factLabel(path)}
+                      <span className="mono t-micro muted block">{path}</span>
+                    </th>
+                    <td>
+                      {renderValue(f.value)}
+                      {/* Confidence is DISCLOSED, not hidden: a parsed value is
+                          weaker evidence than a published one. */}
+                      {typeof f.confidence === "number" && f.confidence < 0.85 && (
+                        <span className="t-micro muted"> · ~{Math.round(f.confidence * 100)}%</span>
+                      )}
+                      {f.quote && <span className="t-micro muted block mt-1">“{f.quote}”</span>}
+                    </td>
+                    <td>{f.sourceUrl ? <Source url={f.sourceUrl} /> : <span className="muted">—</span>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+        <p className="t-micro muted mt-2">
+          {source === "store"
+            ? "From our index, refreshed at 00:00 and 12:00 UTC."
+            : "Read live from public sources just now, because this company is not tracked yet."}
         </p>
-        <p className="mt-2">
-          <Link href="/">{SITE_NAME}</Link> · <Link href="/privacy">Privacy</Link> ·{" "}
-          <Link href="/terms">Terms</Link>
-        </p>
-      </footer>
+      </section>
     </>
+  );
+}
+
+/**
+ * One signal.
+ *
+ * The headline is what a person would say; the line under it is why it
+ * matters. The source link is what separates this from an opinion.
+ */
+function Tile({ signal: s }: { signal: Signal }) {
+  const body = (
+    <>
+      <p className="eyebrow mb-2">{s.label}</p>
+      <p className="tile-headline m-0">{s.headline}</p>
+      <p className="t-small muted mt-2 mb-0">{s.meaning}</p>
+      {s.sourceUrl && (
+        <p className="t-micro mt-3 mb-0" style={{ overflowWrap: "anywhere" }}>
+          <Source url={s.sourceUrl} />
+        </p>
+      )}
+    </>
+  );
+
+  const cls = `tile tile-${s.size}${s.tone === "good" ? " tile-good" : s.tone === "warn" ? " tile-warn" : ""}`;
+  return s.href ? (
+    <Link href={s.href} className={`${cls} no-underline`}>{body}</Link>
+  ) : (
+    <div className={cls}>{body}</div>
   );
 }
 

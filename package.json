@@ -16,6 +16,7 @@
     "@vercel/speed-insights": "^2.1.0",
     "cheerio": "^1.2.0",
     "disposable-email-domains": "^1.0.62",
+    "dotted-map": "^3.1.0",
     "next": "16.4.6",
     "papaparse": "^5.7.1",
     "react": "19.3.0",
