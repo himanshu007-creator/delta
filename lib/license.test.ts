@@ -75,9 +75,17 @@ assert.ok(
 // now the only enforceable chokepoint. The assertions are unchanged in substance.
 const route = readFileSync(new URL("../app/api/v1/[query]/route.ts", import.meta.url), "utf8");
 assert.ok(route.includes("useLicense("), "/api/v1 must check a licence");
+// `runQuery` is the METERED path; `runFree` serves public current-state
+// queries that are deliberately unmetered. The invariant is about the paid
+// path, so it is asserted against runQuery specifically — which is why the
+// free path has a different name rather than reusing this one.
 assert.ok(
   route.indexOf("useLicense(") < route.indexOf("await runQuery("),
-  "the licence must be charged BEFORE the work, or concurrent runs all slip through",
+  "the licence must be charged BEFORE the metered work, or concurrent runs all slip through",
+);
+assert.ok(
+  route.includes("runFree(") && route.includes('def.tier === "public"'),
+  "the unmetered path must be gated on tier === public, not on anything a caller controls",
 );
 assert.ok(route.includes("status: 402"), "an unlicensed request must return 402, not 200");
 

@@ -1,0 +1,221 @@
+/**
+ * The MCP server — Streamable HTTP, one tool per named query.
+ *
+ * This is the surface the product is really sold through. The MCP directories
+ * are the whole marketing budget (ad spend is subtracted from profit), so the
+ * server is free to install and free to try: every `public` query works with
+ * no key at all, because it returns current state that is already on our own
+ * public pages. The `licensed` queries read history, and those need a key.
+ * That split is the upgrade prompt, and it is a far better one than a hard
+ * call cap on a server nobody has installed.
+ *
+ * ponytail: the JSON-RPC subset is implemented here rather than pulling in
+ * @modelcontextprotocol/sdk. A stateless tools-only server needs initialize,
+ * tools/list, tools/call and ping — about eighty lines — and the SDK's
+ * transports expect Node req/res objects that a Next route handler does not
+ * hand out. Add the SDK if we ever need sessions, resources or sampling.
+ *
+ * No `export const runtime`: Cache Components is on and rejects it.
+ */
+
+import { useLicense } from "@/lib/license";
+import { QUERIES, byName } from "@/lib/queries";
+import { SITE_NAME } from "@/lib/site";
+
+export const maxDuration = 300;
+
+/** Protocol revisions this server knows how to speak. */
+const SUPPORTED = ["2025-06-18", "2025-03-26", "2024-11-05"] as const;
+const LATEST = SUPPORTED[0];
+
+/**
+ * CORS. MCP clients include browser-based ones, and `mcp-session-id` has to be
+ * exposed or a client that does use sessions cannot read it back.
+ */
+const CORS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "POST, GET, OPTIONS",
+  "access-control-allow-headers": "content-type, authorization, x-license-key, mcp-protocol-version, mcp-session-id",
+  "access-control-expose-headers": "mcp-session-id, mcp-protocol-version",
+} as const;
+
+type RpcId = string | number | null;
+
+const ok = (id: RpcId, result: unknown) =>
+  Response.json({ jsonrpc: "2.0", id, result }, { headers: CORS });
+
+const err = (id: RpcId, code: number, message: string, data?: unknown) =>
+  Response.json({ jsonrpc: "2.0", id, error: { code, message, ...(data ? { data } : {}) } }, { headers: CORS });
+
+/** JSON Schema for a query's parameters, built from the registry. */
+function schemaFor(q: (typeof QUERIES)[number]) {
+  const properties: Record<string, { type: string; description: string }> = {};
+  for (const p of q.params) {
+    properties[p.name] = { type: p.type, description: p.describe };
+  }
+  return {
+    type: "object",
+    properties,
+    required: q.params.filter((p) => p.required).map((p) => p.name),
+    additionalProperties: false,
+  };
+}
+
+function toolsList() {
+  return {
+    tools: QUERIES.map((q) => ({
+      name: q.name,
+      // The tier is in the description on purpose: an agent that knows a tool
+      // needs a key can say so to its user instead of retrying blindly.
+      description:
+        q.describe +
+        (q.tier === "licensed"
+          ? " Requires a licence key (historical data)."
+          : " Free, no key required."),
+      inputSchema: schemaFor(q),
+    })),
+  };
+}
+
+const licenseFrom = (req: Request): string | null =>
+  req.headers.get("x-license-key") ??
+  req.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
+  null;
+
+/** A tool result. `isError` is how MCP reports a failure the model should see. */
+const content = (payload: unknown, isError = false) => ({
+  content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
+  isError,
+});
+
+async function callTool(req: Request, params: Record<string, unknown>) {
+  const name = typeof params.name === "string" ? params.name : "";
+  const args = (params.arguments as Record<string, unknown>) ?? {};
+
+  const def = byName(name);
+  if (!def) {
+    return content(
+      { error: `Unknown tool "${name}".`, available: QUERIES.map((q) => q.name) },
+      true,
+    );
+  }
+
+  const licenseKey = licenseFrom(req);
+
+  if (def.tier === "licensed") {
+    // Charge before the work, for the same reason the REST route does: a flood
+    // of concurrent calls would otherwise all read the same stale count.
+    const license = await useLicense(licenseKey, def.units);
+    if (!license.ok) {
+      return content(
+        license.reason === "unconfigured"
+          ? { error: "Licensing is not configured on this deployment.", reason: license.reason }
+          : {
+              error: `"${name}" returns historical data, which needs a licence key.`,
+              reason: license.reason,
+              remedy: "Set the key as a Bearer token. Plans: /#pricing",
+              freeAlternative: `"company_dossier" returns current state with no key.`,
+            },
+        true,
+      );
+    }
+  }
+
+  const result = await def.run(args, { licenseKey });
+  if (!result.ok) return content({ error: result.error }, true);
+
+  return content({
+    query: def.name,
+    data: result.data,
+    meta: {
+      ...result.meta,
+      // Provenance travels with the answer, so a model quoting this can say
+      // where it came from and how fresh it is.
+      refresh: "00:00 and 12:00 UTC",
+      note: "Every fact carries its source URL. Do not state a value without it.",
+    },
+  });
+}
+
+export async function POST(req: Request) {
+  let msg: Record<string, unknown>;
+  try {
+    msg = (await req.json()) as Record<string, unknown>;
+  } catch {
+    return err(null, -32700, "Parse error: body is not valid JSON.");
+  }
+
+  // Batches are legal JSON-RPC. Handled by recursion rather than refused,
+  // because a client that sends one gets a confusing hang otherwise.
+  if (Array.isArray(msg)) {
+    return err(null, -32600, "Batched requests are not supported; send one message per request.");
+  }
+
+  const id = (msg.id ?? null) as RpcId;
+  const method = typeof msg.method === "string" ? msg.method : "";
+  const params = (msg.params as Record<string, unknown>) ?? {};
+
+  switch (method) {
+    case "initialize": {
+      const asked = typeof params.protocolVersion === "string" ? params.protocolVersion : "";
+      // Echo the client's revision when we know it, else name ours and let the
+      // client decide whether it can proceed. Guessing would break on both.
+      const version = (SUPPORTED as readonly string[]).includes(asked) ? asked : LATEST;
+      return ok(id, {
+        protocolVersion: version,
+        capabilities: { tools: { listChanged: false } },
+        serverInfo: { name: SITE_NAME.toLowerCase(), version: "1.0.0" },
+        instructions:
+          `${SITE_NAME} tracks what companies publish — pricing, vendor stack, releases, hiring, ` +
+          `security posture, legal entity — and what changed, from public records only. ` +
+          `Current state is free; the change history needs a licence key sent as a Bearer token. ` +
+          `Every fact carries a source URL and a quote: cite them, and report gaps as gaps rather ` +
+          `than filling them in.`,
+      });
+    }
+
+    // Notifications carry no id and must get no JSON-RPC response at all.
+    case "notifications/initialized":
+    case "notifications/cancelled":
+      return new Response(null, { status: 202, headers: CORS });
+
+    case "ping":
+      return ok(id, {});
+
+    case "tools/list":
+      return ok(id, toolsList());
+
+    case "tools/call":
+      return ok(id, await callTool(req, params));
+
+    // Declared unsupported in `capabilities`, so a conforming client will not
+    // ask — but an exploring one gets an empty list rather than an error.
+    case "resources/list":
+      return ok(id, { resources: [] });
+    case "prompts/list":
+      return ok(id, { prompts: [] });
+
+    default:
+      return err(id, -32601, `Method not found: ${method}`);
+  }
+}
+
+/**
+ * Streamable HTTP uses GET to open a server-to-client SSE stream. This server
+ * never initiates anything, so there is nothing to stream and the spec allows
+ * refusing it. Clients that try GET first fall back to POST.
+ */
+export async function GET() {
+  return Response.json(
+    {
+      error: "This MCP server is POST-only; it does not push server-initiated messages.",
+      transport: "streamable-http",
+      tools: QUERIES.length,
+    },
+    { status: 405, headers: { ...CORS, allow: "POST, OPTIONS" } },
+  );
+}
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: CORS });
+}

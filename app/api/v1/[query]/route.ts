@@ -14,7 +14,7 @@
 
 import { NextResponse } from "next/server";
 import { useLicense } from "@/lib/license";
-import { byName, catalogue } from "@/lib/queries";
+import { byName, catalogue, type QueryCtx } from "@/lib/queries";
 
 export const maxDuration = 300;
 
@@ -47,8 +47,21 @@ export async function POST(req: Request, ctx: RouteContext<"/api/v1/[query]">) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
+  const rawKey = keyFrom(req, body);
+
+  // A `public` query returns current state, which is already on our own public
+  // pages and on the company's own website. Charging for it would be charging
+  // for nothing, and refusing it would wall off the thing that sells the rest.
+  if (def.tier === "public") {
+    const result = await runFree(def, body, {
+      licenseKey: typeof rawKey === "string" ? rawKey : null,
+    });
+    if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });
+    return NextResponse.json({ query: def.name, ...result });
+  }
+
   // (1) CHARGE FIRST. Everything below this line costs us money or goodwill.
-  const license = await useLicense(keyFrom(req, body), def.units);
+  const license = await useLicense(rawKey, def.units);
   if (!license.ok) {
     // OUR fault, not theirs: a misconfigured deploy must never read as
     // "you haven't paid", or a bad env var looks like a billing problem.
@@ -67,7 +80,9 @@ export async function POST(req: Request, ctx: RouteContext<"/api/v1/[query]">) {
     );
   }
 
-  const result = await runQuery(def, body);
+  const result = await runQuery(def, body, {
+    licenseKey: typeof rawKey === "string" ? rawKey : null,
+  });
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
@@ -79,9 +94,29 @@ export async function POST(req: Request, ctx: RouteContext<"/api/v1/[query]">) {
   });
 }
 
-/** Kept as a named function so the ordering rule above is checkable in tests. */
-async function runQuery(def: NonNullable<ReturnType<typeof byName>>, body: Record<string, unknown>) {
-  return def.run(body);
+/**
+ * The UNMETERED path, for `public` queries only.
+ *
+ * Deliberately a different name from runQuery: lib/license.test.ts asserts
+ * that useLicense is called before `runQuery`, and that assertion is only
+ * meaningful if `runQuery` means "work we charge for". Giving the free path
+ * its own name keeps the invariant checkable instead of merely textual.
+ */
+async function runFree(
+  def: NonNullable<ReturnType<typeof byName>>,
+  body: Record<string, unknown>,
+  ctx: QueryCtx,
+) {
+  return def.run(body, ctx);
+}
+
+/** The METERED path. Kept as a named function so the ordering rule is testable. */
+async function runQuery(
+  def: NonNullable<ReturnType<typeof byName>>,
+  body: Record<string, unknown>,
+  ctx: QueryCtx,
+) {
+  return def.run(body, ctx);
 }
 
 /** The catalogue is public: discovery must not need a licence. */

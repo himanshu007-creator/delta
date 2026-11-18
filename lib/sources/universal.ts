@@ -176,28 +176,68 @@ export const UNIVERSAL_ADAPTERS: readonly Adapter[] = [
         .map((a) => {
           const nm = asObj<{ name?: string }>(asObj<NonNullable<Attr["entity"]>>(a.entity).legalName).name ?? "";
           const got = norm(nm);
-          // Exact normalised match, or one fully containing the other.
-          const score = got === want ? 1 : got.startsWith(want) || want.startsWith(got) ? 0.75 : 0;
-          return { a, nm, score };
+          /*
+           * EXACT normalised match only.
+           *
+           * This used to accept a prefix match at 0.75 confidence, which is
+           * how linear.app acquired the legal identity of "Linear Consulting",
+           * a Belgian company incorporated in October 2025: GLEIF's name
+           * filter returns every entity whose name merely contains the term —
+           * LINEAR ENTERPRISES, LINEAR S.R.L., THE LINEAR TRUST — and
+           * "linearconsulting".startsWith("linear") is true.
+           *
+           * A shared first word is not evidence of identity. Publishing
+           * another company's incorporation date and country as this
+           * company's is worse than publishing nothing, so a near-miss now
+           * resolves to "not matched" and emits no legal name at all.
+           */
+          return { a, nm, score: got === want && got.length > 0 ? 1 : 0 };
         })
-        .filter((x) => x.score > 0)
-        .sort((x, y) => y.score - x.score);
+        .filter((x) => x.score > 0);
 
       if (!scored.length) {
-        return [{ path: "corporate.gleif.matched", value: false, sourceUrl: url, confidence: 1 }];
+        return [
+          { path: "corporate.gleif.matched", value: false, sourceUrl: url, confidence: 1 },
+          // How many near-misses there were, so the gap is visibly "we could
+          // not tell which" rather than "the registry has nothing".
+          { path: "corporate.gleif.candidates", value: recs.length, sourceUrl: url, confidence: 1 },
+        ];
       }
       const best = scored[0];
       const e = asObj<NonNullable<Attr["entity"]>>(best.a.entity);
+
+      /*
+       * An exact name match is necessary but not sufficient.
+       *
+       * GLEIF's filter is a contains-search, so "Linear" returns ten entities.
+       * If exactly one of them matches the name exactly, that is strong
+       * evidence. If it matched exactly but nine other companies also carry
+       * the term, the registry cannot tell us which one owns this domain —
+       * name matching has run out of information, and the honest output is an
+       * answer carrying its own doubt rather than a confident wrong one.
+       *
+       * Resolving these properly needs a second signal: a VAT ID verified
+       * through VIES, or a national registry (Companies House, SEC EDGAR).
+       * Until then the ambiguity is published, not hidden.
+       */
+      const ambiguous = recs.length > 1;
+      const conf = ambiguous ? 0.8 : 1;
       const f: Fact[] = [
-        { path: "corporate.gleif.lei", value: best.a.lei ?? null, sourceUrl: url, confidence: best.score, quote: quote(best.nm, 120) },
-        { path: "corporate.legal_name", value: best.nm, sourceUrl: url, confidence: best.score, quote: quote(best.nm, 120) },
+        { path: "corporate.gleif.lei", value: best.a.lei ?? null, sourceUrl: url, confidence: conf, quote: quote(best.nm, 120) },
+        { path: "corporate.legal_name", value: best.nm, sourceUrl: url, confidence: conf, quote: quote(best.nm, 120) },
+        { path: "corporate.gleif.matched", value: true, sourceUrl: url, confidence: 1 },
       ];
-      if (e.status) f.push({ path: "corporate.status", value: e.status, sourceUrl: url, confidence: best.score });
+      if (ambiguous) {
+        f.push({ path: "corporate.gleif.ambiguous", value: true, sourceUrl: url, confidence: 1 });
+        f.push({ path: "corporate.gleif.candidates", value: recs.length, sourceUrl: url, confidence: 1 });
+      }
+      if (e.status) f.push({ path: "corporate.status", value: e.status, sourceUrl: url, confidence: conf });
       const country = asObj<{ country?: string }>(e.legalAddress).country;
-      if (country) f.push({ path: "geo.legal_country", value: country, sourceUrl: url, confidence: best.score });
-      if (e.creationDate) f.push({ path: "corporate.incorporated_at", value: e.creationDate, sourceUrl: url, confidence: best.score });
-      // Several near-matches usually means subsidiaries or incentive vehicles,
-      // which is itself informative about group structure.
+      if (country) f.push({ path: "geo.legal_country", value: country, sourceUrl: url, confidence: conf });
+      if (e.creationDate) f.push({ path: "corporate.incorporated_at", value: e.creationDate, sourceUrl: url, confidence: conf });
+      // Several EXACT matches means subsidiaries or incentive vehicles sharing
+      // a registered name, which is genuinely informative about group
+      // structure. Near-misses are excluded above and never counted here.
       if (scored.length > 1) {
         f.push({ path: "corporate.related_entities", value: scored.length - 1, sourceUrl: url, confidence: 0.6 });
       }
