@@ -1,0 +1,41 @@
+{
+  "name": "1mmrr",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test": "tsx lib/theme.test.ts && tsx lib/fetch.test.ts && tsx lib/sources/vendors.test.ts && tsx lib/sources/pricing.test.ts && tsx lib/sources/github.test.ts && tsx lib/sources/registry.test.ts && tsx lib/public-dossier.test.ts && tsx lib/store.test.ts && tsx lib/grounding.test.ts && tsx lib/signals.test.ts && tsx lib/limiter.test.ts && tsx lib/usage-store.test.ts && tsx lib/license.test.ts",
+    "samples": "tsx scripts/gen-samples.ts"
+  },
+  "dependencies": {
+    "@next/third-parties": "^16.4.6",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.1.0",
+    "cheerio": "^1.2.0",
+    "disposable-email-domains": "^1.0.62",
+    "next": "16.4.6",
+    "papaparse": "^5.7.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "robots-parser": "^3.0.1",
+    "validator": "^13.15.35",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "4.3.3",
+    "@types/node": "^20",
+    "@types/papaparse": "^5.5.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/validator": "^13.15.10",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "tailwindcss": "4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "^5"
+  }
+}

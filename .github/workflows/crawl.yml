@@ -1,0 +1,46 @@
+# The 12-hour crawl trigger.
+#
+# Vercel Hobby allows one cron per DAY, which cannot drive a 12h cadence. GitHub
+# Actions scheduled workflows are free and support per-minute precision, so the
+# schedule lives here and Vercel just serves the endpoint.
+#
+# The endpoint self-chains, so this only needs to fire once per window.
+#
+# Requires two repository secrets:
+#   DELTA_BASE_URL  e.g. https://your-domain.com
+#   CRON_SECRET     the same value set in the Vercel environment
+name: crawl window
+
+on:
+  schedule:
+    # 00:00 and 12:00 UTC — the fixed windows the store expects.
+    - cron: "0 0,12 * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  # Never overlap windows: the SQL claim is safe, but a pile-up wastes budget.
+  group: crawl-window
+  cancel-in-progress: false
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Open the window
+        env:
+          BASE_URL: ${{ secrets.DELTA_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BASE_URL:-}" ]; then
+            echo "DELTA_BASE_URL secret is not set"; exit 1
+          fi
+          # Fail the job on a non-2xx so a broken crawl is visible rather than silent.
+          code=$(curl -sS -o /tmp/out.json -w '%{http_code}' --max-time 300 \
+            -H "x-cron-secret: ${CRON_SECRET:-}" \
+            "${BASE_URL%/}/api/cron/window")
+          echo "HTTP $code"
+          cat /tmp/out.json
+          echo
+          case "$code" in 2*) ;; *) exit 1 ;; esac

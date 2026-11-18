@@ -1,0 +1,313 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   LEDE — "Sunrise"
+   Hawaiian in mood, grown-up in execution.
+
+   THE CONTRAST CONTRACT
+   Pastels fail when a light fill meets light text. So every filled colour has
+   a paired --on-* foreground, one deep neutral carries all body copy, and the
+   pastels (mint, shell, mango) are SURFACES ONLY — never text backgrounds
+   without their partner. lib/theme.test.ts parses this file and fails the
+   build if any pair drops below WCAG.
+   ========================================================================= */
+
+@theme {
+  --font-display: var(--font-sans-var), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-var), ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+/* --- Light: Sunrise ------------------------------------------------------ */
+:root {
+  color-scheme: light;
+
+  --bg: #fffbf6;
+  --surface: #ffffff;
+  --surface-2: #fdf4ea;
+  --border: #e4d5c3;
+  /* 3.57:1 on white — inputs must be findable, not just pretty. */
+  --border-strong: #9e8363;
+
+  --ink: #16302e;
+  --ink-muted: #556b68;
+
+  --coral: #c0392b;
+  --on-coral: #ffffff;
+  --ocean: #0d6e6b;
+  --on-ocean: #ffffff;
+  --mango: #f6b73c;
+  --on-mango: #16302e;
+
+  --mint: #d6f0e2;
+  --on-mint: #16302e;
+  --shell: #ffe1da;
+  --on-shell: #16302e;
+
+  --warn: #8a5000;
+  --danger: #a81f14;
+  --ok: #0d6e6b;
+
+  --scrim: rgba(22, 48, 46, 0.42);
+  --shadow: 0 1px 2px rgba(22, 48, 46, 0.06), 0 8px 24px rgba(22, 48, 46, 0.06);
+  --radius: 14px;
+}
+
+/* --- Dark: Night Reef ----------------------------------------------------
+   Light-theme accents go muddy on dark, so they are lifted, not reused. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0c1a1e;
+    --surface: #12252b;
+    --surface-2: #183039;
+    --border: #2a4752;
+    --border-strong: #567f8d;
+    --ink: #e9f4f1;
+    --ink-muted: #a3bab7;
+    --coral: #ff9080;
+    --on-coral: #0c1a1e;
+    --ocean: #5fd6c8;
+    --on-ocean: #0c1a1e;
+    --mango: #ffce73;
+    --on-mango: #0c1a1e;
+    --mint: #1f4d43;
+    --on-mint: #e9f4f1;
+    --shell: #5a3733;
+    --on-shell: #e9f4f1;
+    --warn: #ffc46b;
+    --danger: #ff8a80;
+    --ok: #5fd6c8;
+    --scrim: rgba(4, 12, 14, 0.72);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0c1a1e;
+  --surface: #12252b;
+  --surface-2: #183039;
+  --border: #2a4752;
+  /* 3.63:1 on the dark surface. */
+  --border-strong: #567f8d;
+  --ink: #e9f4f1;
+  --ink-muted: #a3bab7;
+  --coral: #ff9080;
+  --on-coral: #0c1a1e;
+  --ocean: #5fd6c8;
+  --on-ocean: #0c1a1e;
+  --mango: #ffce73;
+  --on-mango: #0c1a1e;
+  --mint: #1f4d43;
+  --on-mint: #e9f4f1;
+  --shell: #5a3733;
+  --on-shell: #e9f4f1;
+  --warn: #ffc46b;
+  --danger: #ff8a80;
+  --ok: #5fd6c8;
+  --scrim: rgba(4, 12, 14, 0.72);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* --- Base ---------------------------------------------------------------- */
+html,
+body {
+  background: var(--bg);
+  color: var(--ink);
+  /* Sans for prose. Mono is reserved for ASCII, the receipt and numbers —
+     monospace body copy at one size is what made this read as a wall. */
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Soft sunrise wash. Subtle enough never to fight text. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(900px 420px at 12% -8%, color-mix(in oklab, var(--mango) 26%, transparent), transparent 70%),
+    radial-gradient(760px 380px at 92% 4%, color-mix(in oklab, var(--shell) 40%, transparent), transparent 72%);
+  opacity: 0.7;
+}
+
+/* --- Type scale ---------------------------------------------------------- */
+.t-display { font-size: clamp(2rem, 5vw, 3.25rem); line-height: 1.08; letter-spacing: -0.02em; font-weight: 700; }
+.t-h2      { font-size: clamp(1.35rem, 2.6vw, 1.9rem); line-height: 1.2; letter-spacing: -0.01em; font-weight: 650; }
+.t-h3      { font-size: 1.05rem; line-height: 1.35; font-weight: 620; }
+.t-body    { font-size: 1rem; }
+.t-small   { font-size: 0.875rem; }
+.t-micro   { font-size: 0.78rem; letter-spacing: 0.02em; }
+.muted     { color: var(--ink-muted); }
+.mono      { font-family: var(--font-mono); font-variant-ligatures: none; }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ocean);
+}
+
+/* --- Surfaces ------------------------------------------------------------ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.card-quiet { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); }
+.card-mint  { background: var(--mint); color: var(--on-mint); border-radius: var(--radius); }
+.card-shell { background: var(--shell); color: var(--on-shell); border-radius: var(--radius); }
+
+.rail {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* --- Controls ------------------------------------------------------------ */
+input,
+select,
+textarea,
+button { font-family: inherit; font-size: inherit; color: inherit; }
+
+input,
+select,
+textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  color: var(--ink);
+  padding: 0.6rem 0.75rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--ocean);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ocean) 22%, transparent);
+}
+input::placeholder, textarea::placeholder { color: var(--ink-muted); opacity: 0.75; }
+input:disabled, select:disabled, textarea:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.6rem 1.1rem;
+  min-height: 44px;
+  font-size: 0.9rem;
+  font-weight: 560;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.08s;
+}
+.btn:hover:not(:disabled) { background: var(--surface-2); border-color: var(--ocean); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn-primary { background: var(--coral); color: var(--on-coral); border-color: var(--coral); }
+.btn-primary:hover:not(:disabled) { background: color-mix(in oklab, var(--coral) 88%, black); border-color: transparent; }
+
+.btn-ocean { background: var(--ocean); color: var(--on-ocean); border-color: var(--ocean); }
+.btn-ocean:hover:not(:disabled) { background: color-mix(in oklab, var(--ocean) 88%, black); border-color: transparent; }
+
+.btn-sm { padding: 0.4rem 0.8rem; min-height: 36px; font-size: 0.82rem; }
+
+/* --- Pills and badges ---------------------------------------------------- */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--border);
+  color: var(--ink-muted);
+  background: var(--surface-2);
+}
+.pill-strong { background: var(--mint); color: var(--on-mint); border-color: transparent; }
+.pill-warn   { background: color-mix(in oklab, var(--mango) 32%, transparent); color: var(--warn); border-color: transparent; }
+
+/* --- ASCII --------------------------------------------------------------- */
+.ascii {
+  font-family: var(--font-mono);
+  white-space: pre;
+  line-height: 1.25;
+  letter-spacing: 0;
+  font-variant-ligatures: none;
+}
+.ascii-wave { color: var(--ocean); opacity: 0.5; overflow: hidden; }
+
+/* Dense glyphs read as BRIGHT on dark and DARK on light, so each scene ships
+   both renderings and we show the one whose tonality matches the theme. */
+.art-dark { display: none; }
+.art-light { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .art-dark { display: block; }
+  :root:not([data-theme="light"]) .art-light { display: none; }
+}
+:root[data-theme="dark"] .art-dark { display: block; }
+:root[data-theme="dark"] .art-light { display: none; }
+.receipt { font-family: var(--font-mono); white-space: pre; line-height: 1.35; font-size: 13px; }
+
+/* --- Links --------------------------------------------------------------- */
+a { color: var(--ocean); text-underline-offset: 3px; }
+a:hover { color: var(--coral); }
+::selection { background: var(--mango); color: var(--on-mango); }
+
+/* --- Motion -------------------------------------------------------------- */
+@keyframes lede-pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.85; } }
+@keyframes lede-drift { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+@media (max-width: 639.98px) {
+  html,
+  body {
+    font-size: 15px;
+  }
+
+  /*
+   * iOS Safari auto-zooms on focus for any control under 16px. With the root
+   * at 15px and controls inheriting it, EVERY field on /run zoomed the page
+   * and left the user scrolled sideways — the single worst mobile defect.
+   *
+   * Fixed by raising the controls, NOT by locking maximum-scale, which would
+   * disable pinch-zoom for everyone and is an accessibility failure.
+   */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  /* Small text carries real content here (result labels, source URLs), so
+     the mobile floor is raised rather than shrunk. */
+  .t-micro { font-size: 0.8rem; }
+  .eyebrow { font-size: 0.75rem; }
+  .pill { font-size: 0.75rem; }
+
+  /* The receipt is 48 fixed-width chars. Rather than 10px text you have to
+     scroll sideways to read, let it size itself to the viewport. */
+  .receipt {
+    font-size: clamp(7px, 2.35vw, 11px);
+  }
+
+  /* The sunrise wash is tuned for a wide viewport; at 390px it overwhelms. */
+  body::before { opacity: 0.4; }
+}

@@ -1,0 +1,7048 @@
+{
+ "generatedAt": "2026-11-18T18:59:07.126Z",
+ "domainsAttempted": 111,
+ "domainsIndexed": 108,
+ "vendors": [
+  {
+   "vendor": "apple",
+   "domains": [
+    "adyen.com",
+    "airtable.com",
+    "allbirds.com",
+    "amplitude.com",
+    "apollo.io",
+    "arup.com",
+    "ashbyhq.com",
+    "atlassian.com",
+    "bellroy.com",
+    "box.com",
+    "braze.com",
+    "brex.com",
+    "britishland.com",
+    "calendly.com",
+    "carta.com",
+    "castore.com",
+    "checkout.com",
+    "circleci.com",
+    "cloudflare.com",
+    "cohere.com",
+    "cursor.com",
+    "datadoghq.com",
+    "docker.com",
+    "docusign.com",
+    "drift.com",
+    "dropbox.com",
+    "duo.com",
+    "dyson.com",
+    "elevenlabs.io",
+    "figma.com",
+    "fly.io",
+    "gitlab.com",
+    "glossier.com",
+    "gocardless.com",
+    "gpe.co.uk",
+    "greenhouse.io",
+    "gusto.com",
+    "gymshark.com",
+    "hackerone.com",
+    "hashicorp.com",
+    "hubspot.com",
+    "huel.com",
+    "huggingface.co",
+    "klarna.com",
+    "klaviyo.com",
+    "lever.co",
+    "linear.app",
+    "loom.com",
+    "lusha.com",
+    "mailchimp.com",
+    "miro.com",
+    "mollie.com",
+    "monday.com",
+    "mongodb.com",
+    "monzo.com",
+    "oatly.com",
+    "okta.com",
+    "openai.com",
+    "patagonia.com",
+    "perplexity.ai",
+    "plaid.com",
+    "planetscale.com",
+    "proofpoint.com",
+    "railway.app",
+    "ramp.com",
+    "remote.com",
+    "render.com",
+    "replicate.com",
+    "resend.com",
+    "revolut.com",
+    "rippling.com",
+    "rolls-royce.com",
+    "semrush.com",
+    "sentry.io",
+    "siemens.com",
+    "snyk.io",
+    "stripe.com",
+    "vercel.com",
+    "warbyparker.com",
+    "wise.com",
+    "wiz.io",
+    "workable.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "microsoft-365",
+   "domains": [
+    "adyen.com",
+    "ahrefs.com",
+    "airtable.com",
+    "allbirds.com",
+    "amplitude.com",
+    "anthropic.com",
+    "apollo.io",
+    "arup.com",
+    "ashbyhq.com",
+    "atlassian.com",
+    "basecamp.com",
+    "bellroy.com",
+    "box.com",
+    "braze.com",
+    "brex.com",
+    "britishland.com",
+    "brompton.com",
+    "calendly.com",
+    "carta.com",
+    "castore.com",
+    "checkout.com",
+    "clickup.com",
+    "cloudflare.com",
+    "cohere.com",
+    "cursor.com",
+    "datadoghq.com",
+    "deel.com",
+    "docker.com",
+    "docusign.com",
+    "dropbox.com",
+    "dyson.com",
+    "elevenlabs.io",
+    "figma.com",
+    "gitlab.com",
+    "gocardless.com",
+    "gpe.co.uk",
+    "greenhouse.io",
+    "gusto.com",
+    "gymshark.com",
+    "hackerone.com",
+    "hubspot.com",
+    "huel.com",
+    "huggingface.co",
+    "klarna.com",
+    "klaviyo.com",
+    "landsec.com",
+    "lever.co",
+    "linear.app",
+    "loom.com",
+    "lusha.com",
+    "mailchimp.com",
+    "mimecast.com",
+    "miro.com",
+    "mixpanel.com",
+    "mongodb.com",
+    "monzo.com",
+    "netlify.com",
+    "oatly.com",
+    "openai.com",
+    "patagonia.com",
+    "perplexity.ai",
+    "planetscale.com",
+    "proofpoint.com",
+    "ramp.com",
+    "remote.com",
+    "revolut.com",
+    "rippling.com",
+    "rolls-royce.com",
+    "segment.com",
+    "semrush.com",
+    "sentry.io",
+    "siemens.com",
+    "snyk.io",
+    "stripe.com",
+    "vercel.com",
+    "warbyparker.com",
+    "wise.com",
+    "wiz.io",
+    "workable.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "atlassian",
+   "domains": [
+    "1password.com",
+    "adyen.com",
+    "airtable.com",
+    "amplitude.com",
+    "anthropic.com",
+    "apollo.io",
+    "arup.com",
+    "asana.com",
+    "atlassian.com",
+    "basecamp.com",
+    "bellroy.com",
+    "box.com",
+    "braze.com",
+    "brex.com",
+    "brompton.com",
+    "calendly.com",
+    "carta.com",
+    "checkout.com",
+    "circleci.com",
+    "cloudflare.com",
+    "cursor.com",
+    "datadoghq.com",
+    "deel.com",
+    "docker.com",
+    "docusign.com",
+    "drift.com",
+    "dropbox.com",
+    "dyson.com",
+    "elastic.co",
+    "figma.com",
+    "gitlab.com",
+    "glossier.com",
+    "gocardless.com",
+    "gong.io",
+    "greenhouse.io",
+    "gusto.com",
+    "gymshark.com",
+    "hackerone.com",
+    "hashicorp.com",
+    "hubspot.com",
+    "huel.com",
+    "intercom.com",
+    "klarna.com",
+    "klaviyo.com",
+    "landsec.com",
+    "lever.co",
+    "loom.com",
+    "lusha.com",
+    "mailchimp.com",
+    "mimecast.com",
+    "miro.com",
+    "mollie.com",
+    "mongodb.com",
+    "monzo.com",
+    "oatly.com",
+    "ocado.com",
+    "okta.com",
+    "openai.com",
+    "outreach.io",
+    "patagonia.com",
+    "personio.com",
+    "plaid.com",
+    "planetscale.com",
+    "proofpoint.com",
+    "ramp.com",
+    "revolut.com",
+    "rippling.com",
+    "segment.com",
+    "semrush.com",
+    "sentry.io",
+    "siemens.com",
+    "snyk.io",
+    "starlingbank.com",
+    "stripe.com",
+    "warbyparker.com",
+    "wise.com",
+    "wiz.io",
+    "workable.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "docusign",
+   "domains": [
+    "adyen.com",
+    "airtable.com",
+    "allbirds.com",
+    "amplitude.com",
+    "apollo.io",
+    "arup.com",
+    "asana.com",
+    "atlassian.com",
+    "box.com",
+    "braze.com",
+    "brex.com",
+    "britishland.com",
+    "calendly.com",
+    "carta.com",
+    "checkout.com",
+    "circleci.com",
+    "clickup.com",
+    "cohere.com",
+    "cursor.com",
+    "datadoghq.com",
+    "docker.com",
+    "docusign.com",
+    "drift.com",
+    "dropbox.com",
+    "dyson.com",
+    "elastic.co",
+    "elevenlabs.io",
+    "figma.com",
+    "gitlab.com",
+    "glossier.com",
+    "gocardless.com",
+    "gong.io",
+    "gusto.com",
+    "hackerone.com",
+    "hashicorp.com",
+    "hubspot.com",
+    "klarna.com",
+    "klaviyo.com",
+    "lever.co",
+    "linear.app",
+    "loom.com",
+    "lusha.com",
+    "mailchimp.com",
+    "mimecast.com",
+    "miro.com",
+    "mollie.com",
+    "monday.com",
+    "monzo.com",
+    "oatly.com",
+    "ocado.com",
+    "okta.com",
+    "outreach.io",
+    "patagonia.com",
+    "perplexity.ai",
+    "plaid.com",
+    "planetscale.com",
+    "proofpoint.com",
+    "railway.app",
+    "remote.com",
+    "render.com",
+    "revolut.com",
+    "rolls-royce.com",
+    "segment.com",
+    "sentry.io",
+    "snyk.io",
+    "starlingbank.com",
+    "stripe.com",
+    "vercel.com",
+    "wise.com",
+    "wiz.io",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "anthropic",
+   "domains": [
+    "adyen.com",
+    "ahrefs.com",
+    "amplitude.com",
+    "apollo.io",
+    "ashbyhq.com",
+    "atlassian.com",
+    "bellroy.com",
+    "box.com",
+    "braze.com",
+    "brex.com",
+    "brompton.com",
+    "carta.com",
+    "checkout.com",
+    "circleci.com",
+    "clickup.com",
+    "cursor.com",
+    "datadoghq.com",
+    "deel.com",
+    "docker.com",
+    "docusign.com",
+    "dropbox.com",
+    "elastic.co",
+    "elevenlabs.io",
+    "figma.com",
+    "glossier.com",
+    "gocardless.com",
+    "greenhouse.io",
+    "gusto.com",
+    "gymshark.com",
+    "hackerone.com",
+    "huel.com",
+    "huggingface.co",
+    "klarna.com",
+    "klaviyo.com",
+    "linear.app",
+    "lusha.com",
+    "mimecast.com",
+    "miro.com",
+    "mixpanel.com",
+    "mollie.com",
+    "monday.com",
+    "mongodb.com",
+    "monzo.com",
+    "netlify.com",
+    "oatly.com",
+    "okta.com",
+    "outreach.io",
+    "patagonia.com",
+    "perplexity.ai",
+    "plaid.com",
+    "planetscale.com",
+    "proofpoint.com",
+    "ramp.com",
+    "remote.com",
+    "render.com",
+    "resend.com",
+    "revolut.com",
+    "rippling.com",
+    "semrush.com",
+    "sentry.io",
+    "snyk.io",
+    "starlingbank.com",
+    "stripe.com",
+    "vercel.com",
+    "warbyparker.com",
+    "workable.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "google-workspace",
+   "domains": [
+    "1password.com",
+    "ahrefs.com",
+    "airtable.com",
+    "amplitude.com",
+    "anthropic.com",
+    "asana.com",
+    "ashbyhq.com",
+    "atlassian.com",
+    "bellroy.com",
+    "box.com",
+    "braze.com",
+    "calendly.com",
+    "carta.com",
+    "clerk.com",
+    "clickup.com",
+    "cloudflare.com",
+    "cohere.com",
+    "cursor.com",
+    "datadoghq.com",
+    "deel.com",
+    "docker.com",
+    "docusign.com",
+    "drift.com",
+    "dropbox.com",
+    "duo.com",
+    "elevenlabs.io",
+    "figma.com",
+    "fly.io",
+    "gocardless.com",
+    "gong.io",
+    "greenhouse.io",
+    "gusto.com",
+    "hackerone.com",
+    "huggingface.co",
+    "intercom.com",
+    "klarna.com",
+    "klaviyo.com",
+    "lever.co",
+    "linear.app",
+    "loom.com",
+    "mailchimp.com",
+    "miro.com",
+    "mixpanel.com",
+    "mollie.com",
+    "monday.com",
+    "monzo.com",
+    "netlify.com",
+    "ocado.com",
+    "openai.com",
+    "outreach.io",
+    "perplexity.ai",
+    "plaid.com",
+    "railway.app",
+    "ramp.com",
+    "redis.io",
+    "remote.com",
+    "render.com",
+    "replicate.com",
+    "resend.com",
+    "revolut.com",
+    "semrush.com",
+    "sentry.io",
+    "starlingbank.com",
+    "supabase.com",
+    "warbyparker.com",
+    "wiz.io",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "openai",
+   "domains": [
+    "1password.com",
+    "adyen.com",
+    "ahrefs.com",
+    "airtable.com",
+    "amplitude.com",
+    "apollo.io",
+    "ashbyhq.com",
+    "atlassian.com",
+    "box.com",
+    "braze.com",
+    "brex.com",
+    "calendly.com",
+    "carta.com",
+    "checkout.com",
+    "clickup.com",
+    "datadoghq.com",
+    "deel.com",
+    "docker.com",
+    "dropbox.com",
+    "dyson.com",
+    "elastic.co",
+    "elevenlabs.io",
+    "figma.com",
+    "gitlab.com",
+    "gong.io",
+    "greenhouse.io",
+    "gusto.com",
+    "gymshark.com",
+    "hackerone.com",
+    "hubspot.com",
+    "huel.com",
+    "huggingface.co",
+    "klarna.com",
+    "klaviyo.com",
+    "linear.app",
+    "lusha.com",
+    "mimecast.com",
+    "miro.com",
+    "mixpanel.com",
+    "monday.com",
+    "mongodb.com",
+    "monzo.com",
+    "netlify.com",
+    "openai.com",
+    "outreach.io",
+    "patagonia.com",
+    "perplexity.ai",
+    "planetscale.com",
+    "proofpoint.com",
+    "ramp.com",
+    "remote.com",
+    "render.com",
+    "revolut.com",
+    "rippling.com",
+    "semrush.com",
+    "sentry.io",
+    "siemens.com",
+    "snyk.io",
+    "stripe.com",
+    "vercel.com",
+    "warbyparker.com",
+    "wise.com",
+    "wiz.io",
+    "workable.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "stripe",
+   "domains": [
+    "ahrefs.com",
+    "airtable.com",
+    "amplitude.com",
+    "anthropic.com",
+    "apollo.io",
+    "asana.com",
+    "ashbyhq.com",
+    "atlassian.com",
+    "bellroy.com",
+    "calendly.com",
+    "carta.com",
+    "clickup.com",
+    "cloudflare.com",
+    "datadoghq.com",
+    "deel.com",
+    "docker.com",
+    "docusign.com",
+    "dropbox.com",
+    "elastic.co",
+    "elevenlabs.io",
+    "figma.com",
+    "fly.io",
+    "gitlab.com",
+    "glossier.com",
+    "gpe.co.uk",
+    "greenhouse.io",
+    "hackerone.com",
+    "hashicorp.com",
+    "hubspot.com",
+    "huel.com",
+    "huggingface.co",
+    "klarna.com",
+    "klaviyo.com",
+    "linear.app",
+    "loom.com",
+    "lusha.com",
+    "miro.com",
+    "monday.com",
+    "mongodb.com",
+    "monzo.com",
+    "netlify.com",
+    "okta.com",
+    "openai.com",
+    "perplexity.ai",
+    "planetscale.com",
+    "ramp.com",
+    "remote.com",
+    "render.com",
+    "replicate.com",
+    "resend.com",
+    "rippling.com",
+    "sentry.io",
+    "snyk.io",
+    "stripe.com",
+    "vercel.com",
+    "warbyparker.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "cursor",
+   "domains": [
+    "ahrefs.com",
+    "airtable.com",
+    "allbirds.com",
+    "amplitude.com",
+    "anthropic.com",
+    "apollo.io",
+    "asana.com",
+    "ashbyhq.com",
+    "atlassian.com",
+    "box.com",
+    "braze.com",
+    "brex.com",
+    "calendly.com",
+    "carta.com",
+    "checkout.com",
+    "circleci.com",
+    "clickup.com",
+    "cohere.com",
+    "datadoghq.com",
+    "deel.com",
+    "docker.com",
+    "dropbox.com",
+    "elastic.co",
+    "elevenlabs.io",
+    "figma.com",
+    "greenhouse.io",
+    "gusto.com",
+    "hubspot.com",
+    "huggingface.co",
+    "klarna.com",
+    "klaviyo.com",
+    "linear.app",
+    "lusha.com",
+    "mimecast.com",
+    "miro.com",
+    "monday.com",
+    "mongodb.com",
+    "monzo.com",
+    "perplexity.ai",
+    "plaid.com",
+    "planetscale.com",
+    "proofpoint.com",
+    "ramp.com",
+    "remote.com",
+    "render.com",
+    "revolut.com",
+    "semrush.com",
+    "sentry.io",
+    "snyk.io",
+    "stripe.com",
+    "vercel.com",
+    "warbyparker.com",
+    "wiz.io",
+    "workable.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "adobe",
+   "domains": [
+    "adyen.com",
+    "amplitude.com",
+    "arup.com",
+    "asana.com",
+    "atlassian.com",
+    "braze.com",
+    "brex.com",
+    "brompton.com",
+    "calendly.com",
+    "carta.com",
+    "checkout.com",
+    "circleci.com",
+    "clickup.com",
+    "cohere.com",
+    "deel.com",
+    "docker.com",
+    "docusign.com",
+    "dropbox.com",
+    "dyson.com",
+    "elastic.co",
+    "figma.com",
+    "gitlab.com",
+    "greenhouse.io",
+    "gusto.com",
+    "gymshark.com",
+    "hackerone.com",
+    "hashicorp.com",
+    "hubspot.com",
+    "intercom.com",
+    "klarna.com",
+    "klaviyo.com",
+    "lever.co",
+    "mailchimp.com",
+    "miro.com",
+    "mixpanel.com",
+    "monday.com",
+    "mongodb.com",
+    "monzo.com",
+    "okta.com",
+    "outreach.io",
+    "patagonia.com",
+    "plaid.com",
+    "proofpoint.com",
+    "ramp.com",
+    "remote.com",
+    "revolut.com",
+    "rippling.com",
+    "semrush.com",
+    "siemens.com",
+    "snyk.io",
+    "wise.com",
+    "wiz.io"
+   ]
+  },
+  {
+   "vendor": "zoom",
+   "domains": [
+    "1password.com",
+    "adyen.com",
+    "ahrefs.com",
+    "apollo.io",
+    "asana.com",
+    "ashbyhq.com",
+    "atlassian.com",
+    "basecamp.com",
+    "box.com",
+    "braze.com",
+    "brex.com",
+    "calendly.com",
+    "carta.com",
+    "checkout.com",
+    "circleci.com",
+    "cloudflare.com",
+    "deel.com",
+    "docusign.com",
+    "drift.com",
+    "elevenlabs.io",
+    "figma.com",
+    "glossier.com",
+    "gocardless.com",
+    "gong.io",
+    "greenhouse.io",
+    "gusto.com",
+    "gymshark.com",
+    "hackerone.com",
+    "hubspot.com",
+    "klaviyo.com",
+    "linear.app",
+    "loom.com",
+    "lusha.com",
+    "miro.com",
+    "monday.com",
+    "monzo.com",
+    "okta.com",
+    "openai.com",
+    "patagonia.com",
+    "perplexity.ai",
+    "planetscale.com",
+    "proofpoint.com",
+    "ramp.com",
+    "render.com",
+    "rippling.com",
+    "sentry.io",
+    "snyk.io",
+    "supabase.com",
+    "vercel.com",
+    "wise.com",
+    "wiz.io"
+   ]
+  },
+  {
+   "vendor": "jamf",
+   "domains": [
+    "adyen.com",
+    "airtable.com",
+    "arup.com",
+    "asana.com",
+    "atlassian.com",
+    "braze.com",
+    "brex.com",
+    "calendly.com",
+    "carta.com",
+    "checkout.com",
+    "circleci.com",
+    "cloudflare.com",
+    "datadoghq.com",
+    "docker.com",
+    "docusign.com",
+    "dropbox.com",
+    "dyson.com",
+    "elastic.co",
+    "elevenlabs.io",
+    "gitlab.com",
+    "glossier.com",
+    "gong.io",
+    "greenhouse.io",
+    "gusto.com",
+    "gymshark.com",
+    "hubspot.com",
+    "huel.com",
+    "klarna.com",
+    "klaviyo.com",
+    "mimecast.com",
+    "miro.com",
+    "mixpanel.com",
+    "mollie.com",
+    "monday.com",
+    "mongodb.com",
+    "monzo.com",
+    "ocado.com",
+    "okta.com",
+    "openai.com",
+    "outreach.io",
+    "patagonia.com",
+    "proofpoint.com",
+    "ramp.com",
+    "revolut.com",
+    "warbyparker.com",
+    "workable.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "docker",
+   "domains": [
+    "1password.com",
+    "adyen.com",
+    "airtable.com",
+    "amplitude.com",
+    "asana.com",
+    "ashbyhq.com",
+    "brex.com",
+    "checkout.com",
+    "circleci.com",
+    "cloudflare.com",
+    "datadoghq.com",
+    "docker.com",
+    "docusign.com",
+    "dropbox.com",
+    "elastic.co",
+    "gocardless.com",
+    "gusto.com",
+    "hashicorp.com",
+    "intercom.com",
+    "klarna.com",
+    "klaviyo.com",
+    "mimecast.com",
+    "miro.com",
+    "mollie.com",
+    "monday.com",
+    "mongodb.com",
+    "monzo.com",
+    "okta.com",
+    "openai.com",
+    "outreach.io",
+    "patagonia.com",
+    "proofpoint.com",
+    "render.com",
+    "semrush.com",
+    "sentry.io",
+    "siemens.com",
+    "snyk.io",
+    "stripe.com",
+    "warbyparker.com",
+    "wiz.io",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "miro",
+   "domains": [
+    "allbirds.com",
+    "amplitude.com",
+    "arup.com",
+    "atlassian.com",
+    "braze.com",
+    "brex.com",
+    "brompton.com",
+    "calendly.com",
+    "checkout.com",
+    "cloudflare.com",
+    "deel.com",
+    "docker.com",
+    "docusign.com",
+    "drift.com",
+    "dropbox.com",
+    "dyson.com",
+    "glossier.com",
+    "gocardless.com",
+    "greenhouse.io",
+    "huel.com",
+    "huggingface.co",
+    "klarna.com",
+    "mimecast.com",
+    "miro.com",
+    "monday.com",
+    "mongodb.com",
+    "netlify.com",
+    "okta.com",
+    "openai.com",
+    "patagonia.com",
+    "personio.com",
+    "remote.com",
+    "semrush.com",
+    "sentry.io",
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "zendesk",
+   "domains": [
+    "1password.com",
+    "amplitude.com",
+    "asana.com",
+    "bellroy.com",
+    "clickup.com",
+    "cloudflare.com",
+    "deel.com",
+    "docker.com",
+    "dropbox.com",
+    "elevenlabs.io",
+    "figma.com",
+    "gocardless.com",
+    "greenhouse.io",
+    "hackerone.com",
+    "huggingface.co",
+    "klaviyo.com",
+    "lever.co",
+    "loom.com",
+    "miro.com",
+    "mixpanel.com",
+    "mollie.com",
+    "monday.com",
+    "outreach.io",
+    "plaid.com",
+    "planetscale.com",
+    "ramp.com",
+    "remote.com",
+    "revolut.com",
+    "semrush.com",
+    "sentry.io",
+    "siemens.com",
+    "slack.com",
+    "starlingbank.com",
+    "wiz.io",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "onetrust",
+   "domains": [
+    "adyen.com",
+    "airtable.com",
+    "atlassian.com",
+    "box.com",
+    "braze.com",
+    "brex.com",
+    "calendly.com",
+    "checkout.com",
+    "cloudflare.com",
+    "deel.com",
+    "docker.com",
+    "docusign.com",
+    "dyson.com",
+    "gitlab.com",
+    "glossier.com",
+    "gong.io",
+    "gusto.com",
+    "gymshark.com",
+    "hackerone.com",
+    "hubspot.com",
+    "huel.com",
+    "klarna.com",
+    "klaviyo.com",
+    "loom.com",
+    "lusha.com",
+    "mailchimp.com",
+    "miro.com",
+    "mongodb.com",
+    "okta.com",
+    "openai.com",
+    "siemens.com",
+    "wise.com",
+    "wiz.io",
+    "workable.com"
+   ]
+  },
+  {
+   "vendor": "notion",
+   "domains": [
+    "ahrefs.com",
+    "airtable.com",
+    "amplitude.com",
+    "apollo.io",
+    "ashbyhq.com",
+    "atlassian.com",
+    "cohere.com",
+    "dropbox.com",
+    "figma.com",
+    "gusto.com",
+    "hubspot.com",
+    "klarna.com",
+    "klaviyo.com",
+    "linear.app",
+    "lusha.com",
+    "netlify.com",
+    "ocado.com",
+    "okta.com",
+    "openai.com",
+    "perplexity.ai",
+    "planetscale.com",
+    "ramp.com",
+    "remote.com",
+    "render.com",
+    "replicate.com",
+    "resend.com",
+    "semrush.com",
+    "sentry.io",
+    "snyk.io",
+    "vercel.com",
+    "wiz.io"
+   ]
+  },
+  {
+   "vendor": "salesforce",
+   "domains": [
+    "airtable.com",
+    "atlassian.com",
+    "braze.com",
+    "brompton.com",
+    "carta.com",
+    "clickup.com",
+    "cloudflare.com",
+    "cohere.com",
+    "deel.com",
+    "docker.com",
+    "dropbox.com",
+    "duo.com",
+    "elevenlabs.io",
+    "gocardless.com",
+    "greenhouse.io",
+    "gusto.com",
+    "klaviyo.com",
+    "landsec.com",
+    "lever.co",
+    "loom.com",
+    "miro.com",
+    "monday.com",
+    "ocado.com",
+    "patagonia.com",
+    "plaid.com",
+    "render.com",
+    "revolut.com",
+    "semrush.com",
+    "starlingbank.com",
+    "vercel.com",
+    "wiz.io"
+   ]
+  },
+  {
+   "vendor": "linear",
+   "domains": [
+    "ahrefs.com",
+    "brex.com",
+    "circleci.com",
+    "cohere.com",
+    "datadoghq.com",
+    "elevenlabs.io",
+    "figma.com",
+    "klaviyo.com",
+    "linear.app",
+    "loom.com",
+    "mixpanel.com",
+    "mollie.com",
+    "monzo.com",
+    "netlify.com",
+    "okta.com",
+    "openai.com",
+    "plaid.com",
+    "planetscale.com",
+    "proofpoint.com",
+    "ramp.com",
+    "remote.com",
+    "render.com",
+    "resend.com",
+    "semrush.com",
+    "sentry.io",
+    "snyk.io",
+    "stripe.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "slack",
+   "domains": [
+    "adyen.com",
+    "anthropic.com",
+    "apollo.io",
+    "ashbyhq.com",
+    "calendly.com",
+    "carta.com",
+    "checkout.com",
+    "cohere.com",
+    "cursor.com",
+    "deel.com",
+    "docusign.com",
+    "dropbox.com",
+    "elevenlabs.io",
+    "gusto.com",
+    "hackerone.com",
+    "klaviyo.com",
+    "linear.app",
+    "loom.com",
+    "miro.com",
+    "perplexity.ai",
+    "ramp.com",
+    "remote.com",
+    "starlingbank.com",
+    "wise.com",
+    "wiz.io"
+   ]
+  },
+  {
+   "vendor": "amazon-ses",
+   "domains": [
+    "1password.com",
+    "arup.com",
+    "asana.com",
+    "atlassian.com",
+    "braze.com",
+    "carta.com",
+    "clickup.com",
+    "cohere.com",
+    "datadoghq.com",
+    "deel.com",
+    "drift.com",
+    "dropbox.com",
+    "hackerone.com",
+    "huggingface.co",
+    "intercom.com",
+    "linear.app",
+    "monzo.com",
+    "netlify.com",
+    "oatly.com",
+    "plaid.com",
+    "semrush.com",
+    "starlingbank.com",
+    "vercel.com",
+    "wiz.io"
+   ]
+  },
+  {
+   "vendor": "zapier",
+   "domains": [
+    "airtable.com",
+    "asana.com",
+    "ashbyhq.com",
+    "brex.com",
+    "clickup.com",
+    "docker.com",
+    "dropbox.com",
+    "figma.com",
+    "gitlab.com",
+    "hackerone.com",
+    "hashicorp.com",
+    "hubspot.com",
+    "huggingface.co",
+    "intercom.com",
+    "lusha.com",
+    "mailchimp.com",
+    "monday.com",
+    "okta.com",
+    "perplexity.ai",
+    "plaid.com",
+    "render.com",
+    "revolut.com",
+    "segment.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "hubspot",
+   "domains": [
+    "ashbyhq.com",
+    "box.com",
+    "circleci.com",
+    "deel.com",
+    "dropbox.com",
+    "elevenlabs.io",
+    "klaviyo.com",
+    "linear.app",
+    "miro.com",
+    "mixpanel.com",
+    "mollie.com",
+    "monday.com",
+    "netlify.com",
+    "openai.com",
+    "planetscale.com",
+    "ramp.com",
+    "remote.com",
+    "render.com",
+    "segment.com",
+    "starlingbank.com",
+    "supabase.com",
+    "wise.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "mongodb",
+   "domains": [
+    "amplitude.com",
+    "anthropic.com",
+    "atlassian.com",
+    "box.com",
+    "carta.com",
+    "datadoghq.com",
+    "elevenlabs.io",
+    "figma.com",
+    "gong.io",
+    "greenhouse.io",
+    "huel.com",
+    "huggingface.co",
+    "linear.app",
+    "lusha.com",
+    "mongodb.com",
+    "okta.com",
+    "openai.com",
+    "rippling.com",
+    "semrush.com",
+    "siemens.com",
+    "snyk.io",
+    "wise.com",
+    "workable.com"
+   ]
+  },
+  {
+   "vendor": "canva",
+   "domains": [
+    "amplitude.com",
+    "asana.com",
+    "atlassian.com",
+    "britishland.com",
+    "carta.com",
+    "checkout.com",
+    "cloudflare.com",
+    "deel.com",
+    "docusign.com",
+    "gusto.com",
+    "hackerone.com",
+    "hashicorp.com",
+    "hubspot.com",
+    "klaviyo.com",
+    "miro.com",
+    "monday.com",
+    "okta.com",
+    "openai.com",
+    "outreach.io",
+    "stripe.com",
+    "wise.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "marketo",
+   "domains": [
+    "amplitude.com",
+    "arup.com",
+    "asana.com",
+    "calendly.com",
+    "clickup.com",
+    "cohere.com",
+    "datadoghq.com",
+    "docker.com",
+    "dropbox.com",
+    "duo.com",
+    "greenhouse.io",
+    "gusto.com",
+    "hackerone.com",
+    "intercom.com",
+    "lever.co",
+    "openai.com",
+    "outreach.io",
+    "plaid.com",
+    "redis.io",
+    "semrush.com",
+    "sentry.io",
+    "vercel.com"
+   ]
+  },
+  {
+   "vendor": "postman",
+   "domains": [
+    "adyen.com",
+    "airtable.com",
+    "apollo.io",
+    "atlassian.com",
+    "calendly.com",
+    "circleci.com",
+    "clickup.com",
+    "elastic.co",
+    "figma.com",
+    "gocardless.com",
+    "gusto.com",
+    "klaviyo.com",
+    "lusha.com",
+    "miro.com",
+    "mollie.com",
+    "okta.com",
+    "openai.com",
+    "railway.app",
+    "resend.com",
+    "segment.com",
+    "stripe.com",
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "drift",
+   "domains": [
+    "1password.com",
+    "airtable.com",
+    "asana.com",
+    "box.com",
+    "circleci.com",
+    "cloudflare.com",
+    "docusign.com",
+    "elastic.co",
+    "figma.com",
+    "gitlab.com",
+    "gocardless.com",
+    "greenhouse.io",
+    "hackerone.com",
+    "klaviyo.com",
+    "mimecast.com",
+    "netlify.com",
+    "plaid.com",
+    "remote.com",
+    "revolut.com",
+    "segment.com",
+    "snyk.io"
+   ]
+  },
+  {
+   "vendor": "globalsign",
+   "domains": [
+    "arup.com",
+    "asana.com",
+    "braze.com",
+    "brex.com",
+    "datadoghq.com",
+    "elastic.co",
+    "gitlab.com",
+    "greenhouse.io",
+    "gymshark.com",
+    "hashicorp.com",
+    "klaviyo.com",
+    "mimecast.com",
+    "mollie.com",
+    "monday.com",
+    "mongodb.com",
+    "proofpoint.com",
+    "rippling.com",
+    "snyk.io",
+    "starlingbank.com",
+    "workable.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "status-page",
+   "domains": [
+    "1password.com",
+    "asana.com",
+    "ashbyhq.com",
+    "atlassian.com",
+    "box.com",
+    "checkout.com",
+    "cloudflare.com",
+    "cursor.com",
+    "datadoghq.com",
+    "drift.com",
+    "elastic.co",
+    "fly.io",
+    "gong.io",
+    "greenhouse.io",
+    "hubspot.com",
+    "intercom.com",
+    "lever.co",
+    "monday.com",
+    "render.com",
+    "rippling.com",
+    "segment.com"
+   ]
+  },
+  {
+   "vendor": "hubspot-developer",
+   "domains": [
+    "amplitude.com",
+    "apollo.io",
+    "asana.com",
+    "atlassian.com",
+    "calendly.com",
+    "clickup.com",
+    "datadoghq.com",
+    "docusign.com",
+    "dropbox.com",
+    "gong.io",
+    "gusto.com",
+    "hubspot.com",
+    "intercom.com",
+    "lusha.com",
+    "openai.com",
+    "perplexity.ai",
+    "rippling.com",
+    "segment.com",
+    "semrush.com",
+    "slack.com"
+   ]
+  },
+  {
+   "vendor": "atlassian-sending",
+   "domains": [
+    "amplitude.com",
+    "anthropic.com",
+    "apollo.io",
+    "atlassian.com",
+    "braze.com",
+    "brompton.com",
+    "deel.com",
+    "gpe.co.uk",
+    "greenhouse.io",
+    "klarna.com",
+    "mimecast.com",
+    "patagonia.com",
+    "proofpoint.com",
+    "ramp.com",
+    "revolut.com",
+    "rippling.com",
+    "sentry.io",
+    "siemens.com",
+    "snyk.io"
+   ]
+  },
+  {
+   "vendor": "asv",
+   "domains": [
+    "anthropic.com",
+    "box.com",
+    "cloudflare.com",
+    "cohere.com",
+    "datadoghq.com",
+    "drift.com",
+    "elevenlabs.io",
+    "figma.com",
+    "gitlab.com",
+    "gymshark.com",
+    "klaviyo.com",
+    "loom.com",
+    "mixpanel.com",
+    "planetscale.com",
+    "proofpoint.com",
+    "siemens.com",
+    "stripe.com",
+    "warbyparker.com"
+   ]
+  },
+  {
+   "vendor": "sendgrid",
+   "domains": [
+    "ahrefs.com",
+    "bellroy.com",
+    "box.com",
+    "braze.com",
+    "brompton.com",
+    "drift.com",
+    "gocardless.com",
+    "gusto.com",
+    "klarna.com",
+    "oatly.com",
+    "perplexity.ai",
+    "planetscale.com",
+    "ramp.com",
+    "rolls-royce.com",
+    "sentry.io",
+    "vercel.com",
+    "warbyparker.com"
+   ]
+  },
+  {
+   "vendor": "segment",
+   "domains": [
+    "anthropic.com",
+    "asana.com",
+    "atlassian.com",
+    "circleci.com",
+    "clickup.com",
+    "figma.com",
+    "glossier.com",
+    "gocardless.com",
+    "loom.com",
+    "netlify.com",
+    "plaid.com",
+    "planetscale.com",
+    "ramp.com",
+    "render.com",
+    "rippling.com",
+    "snyk.io"
+   ]
+  },
+  {
+   "vendor": "wiz",
+   "domains": [
+    "anthropic.com",
+    "braze.com",
+    "brex.com",
+    "carta.com",
+    "clickup.com",
+    "deel.com",
+    "figma.com",
+    "gocardless.com",
+    "gong.io",
+    "greenhouse.io",
+    "lusha.com",
+    "netlify.com",
+    "plaid.com",
+    "planetscale.com",
+    "revolut.com",
+    "wiz.io"
+   ]
+  },
+  {
+   "vendor": "1password",
+   "domains": [
+    "amplitude.com",
+    "anthropic.com",
+    "basecamp.com",
+    "box.com",
+    "britishland.com",
+    "castore.com",
+    "clickup.com",
+    "cohere.com",
+    "elevenlabs.io",
+    "figma.com",
+    "mollie.com",
+    "mongodb.com",
+    "ramp.com",
+    "remote.com",
+    "wiz.io"
+   ]
+  },
+  {
+   "vendor": "cisco-ci",
+   "domains": [
+    "arup.com",
+    "asana.com",
+    "bellroy.com",
+    "cloudflare.com",
+    "cohere.com",
+    "docusign.com",
+    "elastic.co",
+    "gong.io",
+    "hashicorp.com",
+    "miro.com",
+    "mongodb.com",
+    "monzo.com",
+    "outreach.io",
+    "sentry.io",
+    "siemens.com"
+   ]
+  },
+  {
+   "vendor": "dropbox",
+   "domains": [
+    "amplitude.com",
+    "atlassian.com",
+    "brex.com",
+    "carta.com",
+    "circleci.com",
+    "figma.com",
+    "glossier.com",
+    "gusto.com",
+    "hashicorp.com",
+    "klaviyo.com",
+    "loom.com",
+    "monday.com",
+    "monzo.com",
+    "openai.com",
+    "sentry.io"
+   ]
+  },
+  {
+   "vendor": "mgverify",
+   "domains": [
+    "airtable.com",
+    "circleci.com",
+    "datadoghq.com",
+    "docusign.com",
+    "dropbox.com",
+    "elastic.co",
+    "gitlab.com",
+    "gong.io",
+    "greenhouse.io",
+    "klaviyo.com",
+    "lusha.com",
+    "monzo.com",
+    "okta.com",
+    "openai.com",
+    "sentry.io"
+   ]
+  },
+  {
+   "vendor": "mailchimp",
+   "domains": [
+    "ahrefs.com",
+    "basecamp.com",
+    "britishland.com",
+    "brompton.com",
+    "carta.com",
+    "cloudflare.com",
+    "duo.com",
+    "greenhouse.io",
+    "intercom.com",
+    "monday.com",
+    "oatly.com",
+    "plaid.com",
+    "replicate.com",
+    "starlingbank.com"
+   ]
+  },
+  {
+   "vendor": "mixpanel-domain",
+   "domains": [
+    "adyen.com",
+    "docusign.com",
+    "dropbox.com",
+    "gymshark.com",
+    "klarna.com",
+    "mixpanel.com",
+    "monday.com",
+    "mongodb.com",
+    "remote.com",
+    "render.com",
+    "vercel.com",
+    "warbyparker.com",
+    "wise.com",
+    "wiz.io"
+   ]
+  },
+  {
+   "vendor": "airtable",
+   "domains": [
+    "apollo.io",
+    "atlassian.com",
+    "checkout.com",
+    "docker.com",
+    "dyson.com",
+    "glossier.com",
+    "hashicorp.com",
+    "huel.com",
+    "openai.com",
+    "render.com",
+    "segment.com",
+    "wise.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "figma",
+   "domains": [
+    "cursor.com",
+    "figma.com",
+    "gocardless.com",
+    "gymshark.com",
+    "hashicorp.com",
+    "hubspot.com",
+    "mimecast.com",
+    "monday.com",
+    "openai.com",
+    "render.com",
+    "rolls-royce.com",
+    "siemens.com",
+    "warbyparker.com"
+   ]
+  },
+  {
+   "vendor": "smartsheet-site-validation",
+   "domains": [
+    "brex.com",
+    "deel.com",
+    "elastic.co",
+    "gitlab.com",
+    "greenhouse.io",
+    "hubspot.com",
+    "huel.com",
+    "mailchimp.com",
+    "mongodb.com",
+    "okta.com",
+    "openai.com",
+    "proofpoint.com",
+    "siemens.com"
+   ]
+  },
+  {
+   "vendor": "cloudflare-sso",
+   "domains": [
+    "airtable.com",
+    "apollo.io",
+    "ashbyhq.com",
+    "dyson.com",
+    "elastic.co",
+    "figma.com",
+    "gocardless.com",
+    "miro.com",
+    "planetscale.com",
+    "resend.com",
+    "sentry.io",
+    "stripe.com"
+   ]
+  },
+  {
+   "vendor": "twilio",
+   "domains": [
+    "atlassian.com",
+    "brex.com",
+    "clickup.com",
+    "deel.com",
+    "figma.com",
+    "gocardless.com",
+    "greenhouse.io",
+    "hashicorp.com",
+    "klarna.com",
+    "okta.com",
+    "openai.com"
+   ]
+  },
+  {
+   "vendor": "uber",
+   "domains": [
+    "adyen.com",
+    "calendly.com",
+    "cloudflare.com",
+    "deel.com",
+    "elastic.co",
+    "gitlab.com",
+    "huggingface.co",
+    "monday.com",
+    "openai.com",
+    "ramp.com",
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "box",
+   "domains": [
+    "airtable.com",
+    "calendly.com",
+    "circleci.com",
+    "hackerone.com",
+    "mimecast.com",
+    "mongodb.com",
+    "openai.com",
+    "vercel.com",
+    "wiz.io",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "parallels",
+   "domains": [
+    "adyen.com",
+    "calendly.com",
+    "checkout.com",
+    "clickup.com",
+    "dropbox.com",
+    "dyson.com",
+    "hashicorp.com",
+    "lever.co",
+    "monzo.com",
+    "remote.com"
+   ]
+  },
+  {
+   "vendor": "ps-cd",
+   "domains": [
+    "amplitude.com",
+    "apollo.io",
+    "clickup.com",
+    "gong.io",
+    "gusto.com",
+    "lusha.com",
+    "mixpanel.com",
+    "netlify.com",
+    "rippling.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "hcp",
+   "domains": [
+    "arup.com",
+    "dropbox.com",
+    "gusto.com",
+    "hashicorp.com",
+    "huggingface.co",
+    "monday.com",
+    "mongodb.com",
+    "netlify.com",
+    "siemens.com"
+   ]
+  },
+  {
+   "vendor": "jetbrains",
+   "domains": [
+    "anthropic.com",
+    "ashbyhq.com",
+    "brex.com",
+    "calendly.com",
+    "elevenlabs.io",
+    "hackerone.com",
+    "hubspot.com",
+    "klaviyo.com",
+    "revolut.com"
+   ]
+  },
+  {
+   "vendor": "loom",
+   "domains": [
+    "calendly.com",
+    "clickup.com",
+    "gong.io",
+    "hashicorp.com",
+    "klarna.com",
+    "okta.com",
+    "render.com",
+    "rippling.com",
+    "vercel.com"
+   ]
+  },
+  {
+   "vendor": "mandrill",
+   "domains": [
+    "carta.com",
+    "checkout.com",
+    "cloudflare.com",
+    "docusign.com",
+    "intercom.com",
+    "loom.com",
+    "mailchimp.com",
+    "patagonia.com",
+    "semrush.com"
+   ]
+  },
+  {
+   "vendor": "pendo",
+   "domains": [
+    "atlassian.com",
+    "box.com",
+    "calendly.com",
+    "carta.com",
+    "clickup.com",
+    "greenhouse.io",
+    "hashicorp.com",
+    "proofpoint.com",
+    "siemens.com"
+   ]
+  },
+  {
+   "vendor": "rippling",
+   "domains": [
+    "ahrefs.com",
+    "allbirds.com",
+    "cohere.com",
+    "fly.io",
+    "linear.app",
+    "loom.com",
+    "perplexity.ai",
+    "render.com",
+    "rippling.com"
+   ]
+  },
+  {
+   "vendor": "verificationtoken",
+   "domains": [
+    "gitlab.com",
+    "gong.io",
+    "mimecast.com",
+    "mollie.com",
+    "perplexity.ai",
+    "proofpoint.com",
+    "ramp.com",
+    "revolut.com",
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "elevenlabs",
+   "domains": [
+    "anthropic.com",
+    "datadoghq.com",
+    "hubspot.com",
+    "klarna.com",
+    "mimecast.com",
+    "monday.com",
+    "okta.com",
+    "stripe.com"
+   ]
+  },
+  {
+   "vendor": "mailgun",
+   "domains": [
+    "airtable.com",
+    "amplitude.com",
+    "datadoghq.com",
+    "gong.io",
+    "gpe.co.uk",
+    "perplexity.ai",
+    "remote.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "paloaltonetworks",
+   "domains": [
+    "anthropic.com",
+    "box.com",
+    "deel.com",
+    "klarna.com",
+    "mongodb.com",
+    "okta.com",
+    "plaid.com",
+    "siemens.com"
+   ]
+  },
+  {
+   "vendor": "serval",
+   "domains": [
+    "brex.com",
+    "calendly.com",
+    "gitlab.com",
+    "klaviyo.com",
+    "perplexity.ai",
+    "ramp.com",
+    "revolut.com",
+    "vercel.com"
+   ]
+  },
+  {
+   "vendor": "lovable",
+   "domains": [
+    "ahrefs.com",
+    "ashbyhq.com",
+    "checkout.com",
+    "dropbox.com",
+    "huel.com",
+    "remote.com",
+    "render.com"
+   ]
+  },
+  {
+   "vendor": "ahrefs",
+   "domains": [
+    "ahrefs.com",
+    "gocardless.com",
+    "miro.com",
+    "monzo.com",
+    "remote.com",
+    "vercel.com"
+   ]
+  },
+  {
+   "vendor": "bugcrowd",
+   "domains": [
+    "atlassian.com",
+    "brex.com",
+    "docusign.com",
+    "drift.com",
+    "gusto.com",
+    "segment.com"
+   ]
+  },
+  {
+   "vendor": "dtm",
+   "domains": [
+    "asana.com",
+    "klaviyo.com",
+    "mollie.com",
+    "openai.com",
+    "rolls-royce.com",
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "ossrh",
+   "domains": [
+    "braze.com",
+    "circleci.com",
+    "cohere.com",
+    "resend.com",
+    "siemens.com",
+    "slack.com"
+   ]
+  },
+  {
+   "vendor": "reachdesk",
+   "domains": [
+    "1password.com",
+    "amplitude.com",
+    "deel.com",
+    "figma.com",
+    "greenhouse.io",
+    "miro.com"
+   ]
+  },
+  {
+   "vendor": "remote",
+   "domains": [
+    "ashbyhq.com",
+    "mixpanel.com",
+    "mollie.com",
+    "remote.com",
+    "vercel.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "astro",
+   "domains": [
+    "circleci.com",
+    "docker.com",
+    "hashicorp.com",
+    "okta.com",
+    "ramp.com"
+   ]
+  },
+  {
+   "vendor": "citrix",
+   "domains": [
+    "asana.com",
+    "calendly.com",
+    "dropbox.com",
+    "hackerone.com",
+    "mixpanel.com"
+   ]
+  },
+  {
+   "vendor": "detectify",
+   "domains": [
+    "box.com",
+    "docker.com",
+    "hubspot.com",
+    "intercom.com",
+    "workable.com"
+   ]
+  },
+  {
+   "vendor": "klaviyo",
+   "domains": [
+    "bellroy.com",
+    "castore.com",
+    "glossier.com",
+    "klaviyo.com",
+    "patagonia.com"
+   ]
+  },
+  {
+   "vendor": "neat-pulse",
+   "domains": [
+    "brex.com",
+    "hubspot.com",
+    "klaviyo.com",
+    "okta.com",
+    "stripe.com"
+   ]
+  },
+  {
+   "vendor": "pinterest",
+   "domains": [
+    "asana.com",
+    "bellroy.com",
+    "mollie.com",
+    "starlingbank.com",
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "profound",
+   "domains": [
+    "atlassian.com",
+    "checkout.com",
+    "mimecast.com",
+    "okta.com",
+    "ramp.com"
+   ]
+  },
+  {
+   "vendor": "shopify",
+   "domains": [
+    "castore.com",
+    "figma.com",
+    "glossier.com",
+    "huel.com",
+    "patagonia.com"
+   ]
+  },
+  {
+   "vendor": "teamviewer-sso",
+   "domains": [
+    "brex.com",
+    "datadoghq.com",
+    "deel.com",
+    "dyson.com",
+    "klaviyo.com"
+   ]
+  },
+  {
+   "vendor": "vercel",
+   "domains": [
+    "braze.com",
+    "circleci.com",
+    "klaviyo.com",
+    "personio.com",
+    "stripe.com"
+   ]
+  },
+  {
+   "vendor": "webflow",
+   "domains": [
+    "arup.com",
+    "checkout.com",
+    "monday.com",
+    "notion.so",
+    "wiz.io"
+   ]
+  },
+  {
+   "vendor": "whimsical",
+   "domains": [
+    "klaviyo.com",
+    "monzo.com",
+    "openai.com",
+    "stripe.com",
+    "vercel.com"
+   ]
+  },
+  {
+   "vendor": "adobe-sign",
+   "domains": [
+    "gymshark.com",
+    "intercom.com",
+    "mongodb.com",
+    "siemens.com"
+   ]
+  },
+  {
+   "vendor": "cloudhealth",
+   "domains": [
+    "lusha.com",
+    "netlify.com",
+    "siemens.com",
+    "snyk.io"
+   ]
+  },
+  {
+   "vendor": "d365mktkey",
+   "domains": [
+    "arup.com",
+    "gpe.co.uk",
+    "rolls-royce.com",
+    "siemens.com"
+   ]
+  },
+  {
+   "vendor": "doordash",
+   "domains": [
+    "amplitude.com",
+    "cursor.com",
+    "perplexity.ai",
+    "vercel.com"
+   ]
+  },
+  {
+   "vendor": "gamma",
+   "domains": [
+    "checkout.com",
+    "gusto.com",
+    "hubspot.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "gc-ai",
+   "domains": [
+    "figma.com",
+    "gusto.com",
+    "klaviyo.com",
+    "mongodb.com"
+   ]
+  },
+  {
+   "vendor": "hj-ownership",
+   "domains": [
+    "checkout.com",
+    "intercom.com",
+    "mongodb.com",
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "liveramp",
+   "domains": [
+    "cloudflare.com",
+    "dropbox.com",
+    "stripe.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "logmein",
+   "domains": [
+    "box.com",
+    "calendly.com",
+    "cloudflare.com",
+    "patagonia.com"
+   ]
+  },
+  {
+   "vendor": "monday-com",
+   "domains": [
+    "deel.com",
+    "glossier.com",
+    "hackerone.com",
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "perplexity-ai",
+   "domains": [
+    "datadoghq.com",
+    "hubspot.com",
+    "perplexity.ai",
+    "ramp.com"
+   ]
+  },
+  {
+   "vendor": "plain",
+   "domains": [
+    "ashbyhq.com",
+    "elevenlabs.io",
+    "resend.com",
+    "vercel.com"
+   ]
+  },
+  {
+   "vendor": "protonmail",
+   "domains": [
+    "datadoghq.com",
+    "hackerone.com",
+    "perplexity.ai",
+    "remote.com"
+   ]
+  },
+  {
+   "vendor": "pylon",
+   "domains": [
+    "airtable.com",
+    "ashbyhq.com",
+    "mixpanel.com",
+    "openai.com"
+   ]
+  },
+  {
+   "vendor": "wrike",
+   "domains": [
+    "gymshark.com",
+    "mongodb.com",
+    "openai.com",
+    "starlingbank.com"
+   ]
+  },
+  {
+   "vendor": "yahoo",
+   "domains": [
+    "hubspot.com",
+    "outreach.io",
+    "perplexity.ai",
+    "semrush.com"
+   ]
+  },
+  {
+   "vendor": "carta",
+   "domains": [
+    "calendly.com",
+    "gocardless.com",
+    "vercel.com"
+   ]
+  },
+  {
+   "vendor": "cloudfront",
+   "domains": [
+    "atlassian.com",
+    "intercom.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "decagon",
+   "domains": [
+    "dropbox.com",
+    "figma.com",
+    "gitlab.com"
+   ]
+  },
+  {
+   "vendor": "directfedauthurl",
+   "domains": [
+    "cloudflare.com",
+    "hubspot.com",
+    "monzo.com"
+   ]
+  },
+  {
+   "vendor": "foxit",
+   "domains": [
+    "adyen.com",
+    "britishland.com",
+    "revolut.com"
+   ]
+  },
+  {
+   "vendor": "heroku",
+   "domains": [
+    "klaviyo.com",
+    "plaid.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "hibp",
+   "domains": [
+    "britishland.com",
+    "ocado.com",
+    "openai.com"
+   ]
+  },
+  {
+   "vendor": "mintlify",
+   "domains": [
+    "mixpanel.com",
+    "planetscale.com",
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "postmark",
+   "domains": [
+    "cursor.com",
+    "linear.app",
+    "vercel.com"
+   ]
+  },
+  {
+   "vendor": "sinch",
+   "domains": [
+    "docker.com",
+    "mixpanel.com",
+    "okta.com"
+   ]
+  },
+  {
+   "vendor": "spycloud",
+   "domains": [
+    "intercom.com",
+    "loom.com",
+    "slack.com"
+   ]
+  },
+  {
+   "vendor": "tiktok-developers",
+   "domains": [
+    "ahrefs.com",
+    "clickup.com",
+    "semrush.com"
+   ]
+  },
+  {
+   "vendor": "visa",
+   "domains": [
+    "adyen.com",
+    "revolut.com",
+    "stripe.com"
+   ]
+  },
+  {
+   "vendor": "work-accounts",
+   "domains": [
+    "box.com",
+    "klaviyo.com",
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "access",
+   "domains": [
+    "gymshark.com",
+    "starlingbank.com"
+   ]
+  },
+  {
+   "vendor": "actively-ai",
+   "domains": [
+    "deel.com",
+    "klaviyo.com"
+   ]
+  },
+  {
+   "vendor": "amazon-business",
+   "domains": [
+    "huggingface.co",
+    "ramp.com"
+   ]
+  },
+  {
+   "vendor": "amp-by-sourcegraph",
+   "domains": [
+    "vercel.com",
+    "wiz.io"
+   ]
+  },
+  {
+   "vendor": "autodesk",
+   "domains": [
+    "arup.com",
+    "openai.com"
+   ]
+  },
+  {
+   "vendor": "azurewebsites",
+   "domains": [
+    "landsec.com",
+    "patagonia.com"
+   ]
+  },
+  {
+   "vendor": "browserstack",
+   "domains": [
+    "klaviyo.com",
+    "miro.com"
+   ]
+  },
+  {
+   "vendor": "calendly",
+   "domains": [
+    "calendly.com",
+    "openai.com"
+   ]
+  },
+  {
+   "vendor": "ccisso",
+   "domains": [
+    "circleci.com",
+    "okta.com"
+   ]
+  },
+  {
+   "vendor": "cko",
+   "domains": [
+    "mollie.com",
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "dell-technologies",
+   "domains": [
+    "adyen.com",
+    "docusign.com"
+   ]
+  },
+  {
+   "vendor": "digicert",
+   "domains": [
+    "mailchimp.com",
+    "mollie.com"
+   ]
+  },
+  {
+   "vendor": "dynatrace",
+   "domains": [
+    "gong.io",
+    "greenhouse.io"
+   ]
+  },
+  {
+   "vendor": "ecostruxure-it",
+   "domains": [
+    "arup.com",
+    "hubspot.com"
+   ]
+  },
+  {
+   "vendor": "ethiack",
+   "domains": [
+    "hackerone.com",
+    "remote.com"
+   ]
+  },
+  {
+   "vendor": "gather",
+   "domains": [
+    "figma.com",
+    "vercel.com"
+   ]
+  },
+  {
+   "vendor": "google-gws-recovery",
+   "domains": [
+    "mailchimp.com",
+    "perplexity.ai"
+   ]
+  },
+  {
+   "vendor": "gradle",
+   "domains": [
+    "figma.com",
+    "segment.com"
+   ]
+  },
+  {
+   "vendor": "handlecrew",
+   "domains": [
+    "gocardless.com",
+    "okta.com"
+   ]
+  },
+  {
+   "vendor": "ibmid",
+   "domains": [
+    "airtable.com",
+    "klarna.com"
+   ]
+  },
+  {
+   "vendor": "infoblox-domain-mastery",
+   "domains": [
+    "dropbox.com",
+    "siemens.com"
+   ]
+  },
+  {
+   "vendor": "intercom",
+   "domains": [
+    "ahrefs.com",
+    "hackerone.com"
+   ]
+  },
+  {
+   "vendor": "kiro",
+   "domains": [
+    "checkout.com",
+    "mimecast.com"
+   ]
+  },
+  {
+   "vendor": "knowbe4",
+   "domains": [
+    "atlassian.com",
+    "mongodb.com"
+   ]
+  },
+  {
+   "vendor": "krisp",
+   "domains": [
+    "atlassian.com",
+    "gong.io"
+   ]
+  },
+  {
+   "vendor": "launchdarkly",
+   "domains": [
+    "figma.com",
+    "linear.app"
+   ]
+  },
+  {
+   "vendor": "lucidlink",
+   "domains": [
+    "datadoghq.com",
+    "dyson.com"
+   ]
+  },
+  {
+   "vendor": "msfpkey",
+   "domains": [
+    "arup.com",
+    "siemens.com"
+   ]
+  },
+  {
+   "vendor": "mtc",
+   "domains": [
+    "plaid.com",
+    "revolut.com"
+   ]
+  },
+  {
+   "vendor": "opine",
+   "domains": [
+    "docker.com",
+    "snyk.io"
+   ]
+  },
+  {
+   "vendor": "parallel",
+   "domains": [
+    "anthropic.com",
+    "ramp.com"
+   ]
+  },
+  {
+   "vendor": "planet-scale",
+   "domains": [
+    "klarna.com",
+    "vercel.com"
+   ]
+  },
+  {
+   "vendor": "plausible-sso",
+   "domains": [
+    "huggingface.co",
+    "render.com"
+   ]
+  },
+  {
+   "vendor": "projectdiscovery",
+   "domains": [
+    "elevenlabs.io",
+    "greenhouse.io"
+   ]
+  },
+  {
+   "vendor": "reftab",
+   "domains": [
+    "elevenlabs.io",
+    "starlingbank.com"
+   ]
+  },
+  {
+   "vendor": "smithery",
+   "domains": [
+    "circleci.com",
+    "lusha.com"
+   ]
+  },
+  {
+   "vendor": "sophos",
+   "domains": [
+    "britishland.com",
+    "workable.com"
+   ]
+  },
+  {
+   "vendor": "spacelift",
+   "domains": [
+    "klaviyo.com",
+    "netlify.com"
+   ]
+  },
+  {
+   "vendor": "sparkpost",
+   "domains": [
+    "asana.com",
+    "revolut.com"
+   ]
+  },
+  {
+   "vendor": "validity",
+   "domains": [
+    "carta.com",
+    "outreach.io"
+   ]
+  },
+  {
+   "vendor": "wework",
+   "domains": [
+    "hackerone.com",
+    "klaviyo.com"
+   ]
+  },
+  {
+   "vendor": "windsurf",
+   "domains": [
+    "adyen.com",
+    "snyk.io"
+   ]
+  },
+  {
+   "vendor": "work-os",
+   "domains": [
+    "carta.com",
+    "resend.com"
+   ]
+  },
+  {
+   "vendor": "-s1bbtiyrec4lq4dgfrt5giu7a1dedi",
+   "domains": [
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "-ymejhukwdlxxewybehqaxrf",
+   "domains": [
+    "amplitude.com"
+   ]
+  },
+  {
+   "vendor": "00d300000006woeeaa",
+   "domains": [
+    "siemens.com"
+   ]
+  },
+  {
+   "vendor": "1d0d0fe5-61e0-4edb-a509-92bc5ce59983",
+   "domains": [
+    "atlassian.com"
+   ]
+  },
+  {
+   "vendor": "1wwwhuggingfaceco",
+   "domains": [
+    "huggingface.co"
+   ]
+  },
+  {
+   "vendor": "3138e5c5-9798-41bb-a66a-f0b02555197b",
+   "domains": [
+    "proofpoint.com"
+   ]
+  },
+  {
+   "vendor": "35d1fe29-18b5-4a82-9b9b-be0cf038a9fc",
+   "domains": [
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "3600rippling",
+   "domains": [
+    "cohere.com"
+   ]
+  },
+  {
+   "vendor": "382d1088-2eef-4306-a565-d17d344b153a",
+   "domains": [
+    "dyson.com"
+   ]
+  },
+  {
+   "vendor": "4b6e772e-2b35-4013-ada0-5deafb388db0",
+   "domains": [
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "4xlha-tpx5jfdvtbws5wc8jkjb1eex5u",
+   "domains": [
+    "mimecast.com"
+   ]
+  },
+  {
+   "vendor": "699b17b5-0406-44b1-b642-39b398e071cb",
+   "domains": [
+    "sentry.io"
+   ]
+  },
+  {
+   "vendor": "6c43f0e4-7a6e-41f1-b393-a467b815c9ab",
+   "domains": [
+    "anthropic.com"
+   ]
+  },
+  {
+   "vendor": "ably",
+   "domains": [
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "abuseipdb",
+   "domains": [
+    "render.com"
+   ]
+  },
+  {
+   "vendor": "actalis-dcv",
+   "domains": [
+    "gocardless.com"
+   ]
+  },
+  {
+   "vendor": "afternic",
+   "domains": [
+    "cursor.com"
+   ]
+  },
+  {
+   "vendor": "airalo",
+   "domains": [
+    "openai.com"
+   ]
+  },
+  {
+   "vendor": "airxx",
+   "domains": [
+    "okta.com"
+   ]
+  },
+  {
+   "vendor": "announcekit",
+   "domains": [
+    "carta.com"
+   ]
+  },
+  {
+   "vendor": "anodot",
+   "domains": [
+    "atlassian.com"
+   ]
+  },
+  {
+   "vendor": "apperio",
+   "domains": [
+    "atlassian.com"
+   ]
+  },
+  {
+   "vendor": "applause-verification3f067522-d81e-42be-93ff-2833b37252a0",
+   "domains": [
+    "1password.com"
+   ]
+  },
+  {
+   "vendor": "artisan",
+   "domains": [
+    "miro.com"
+   ]
+  },
+  {
+   "vendor": "asuidtrade-finance-survey-platform",
+   "domains": [
+    "siemens.com"
+   ]
+  },
+  {
+   "vendor": "attio",
+   "domains": [
+    "resend.com"
+   ]
+  },
+  {
+   "vendor": "aws-domain-control",
+   "domains": [
+    "dropbox.com"
+   ]
+  },
+  {
+   "vendor": "aws-securityagent",
+   "domains": [
+    "docusign.com"
+   ]
+  },
+  {
+   "vendor": "b52f0bec-d4c2-46c9-bd32-85410a67ccfe",
+   "domains": [
+    "britishland.com"
+   ]
+  },
+  {
+   "vendor": "barco",
+   "domains": [
+    "arup.com"
+   ]
+  },
+  {
+   "vendor": "beam",
+   "domains": [
+    "airtable.com"
+   ]
+  },
+  {
+   "vendor": "beautifulai",
+   "domains": [
+    "monday.com"
+   ]
+  },
+  {
+   "vendor": "bettercomp",
+   "domains": [
+    "greenhouse.io"
+   ]
+  },
+  {
+   "vendor": "bitrise",
+   "domains": [
+    "sentry.io"
+   ]
+  },
+  {
+   "vendor": "blitz",
+   "domains": [
+    "gusto.com"
+   ]
+  },
+  {
+   "vendor": "bluebeam",
+   "domains": [
+    "siemens.com"
+   ]
+  },
+  {
+   "vendor": "brevo-code2f0c4fd9880f9665542e181744f1d9fa",
+   "domains": [
+    "amplitude.com"
+   ]
+  },
+  {
+   "vendor": "brevo-code55b000b184782dd2416d4423aafbe469",
+   "domains": [
+    "elevenlabs.io"
+   ]
+  },
+  {
+   "vendor": "brevo-code8d53f4c0545221865c510ac20019c084",
+   "domains": [
+    "rippling.com"
+   ]
+  },
+  {
+   "vendor": "brevo-codecda82c8e78902e8597160fa7f8f01832",
+   "domains": [
+    "deel.com"
+   ]
+  },
+  {
+   "vendor": "bzagy7hkzg",
+   "domains": [
+    "figma.com"
+   ]
+  },
+  {
+   "vendor": "ca3-1c005c5a80ee4c30a0290c7eb53e0ab5",
+   "domains": [
+    "clickup.com"
+   ]
+  },
+  {
+   "vendor": "ca3-3c24d93a383144a0bdad160ad7c82865",
+   "domains": [
+    "klaviyo.com"
+   ]
+  },
+  {
+   "vendor": "ca3-5b6a654601ab4e3083ac769b4a3be9d6",
+   "domains": [
+    "lusha.com"
+   ]
+  },
+  {
+   "vendor": "ca3-6a3c9cfb21d54a209e2095abbb628116",
+   "domains": [
+    "braze.com"
+   ]
+  },
+  {
+   "vendor": "ca3-7be8d873b97947689613eca78f070cad",
+   "domains": [
+    "arup.com"
+   ]
+  },
+  {
+   "vendor": "ca3-88b4000f8c63405baadea60a75495e95",
+   "domains": [
+    "rippling.com"
+   ]
+  },
+  {
+   "vendor": "ca3-b56d68a3b19541daaaa93208c6064b70",
+   "domains": [
+    "braze.com"
+   ]
+  },
+  {
+   "vendor": "ca3-f0d74341513045679ff3429b306c9eb3",
+   "domains": [
+    "gusto.com"
+   ]
+  },
+  {
+   "vendor": "ca3-f11ea7ccbb494dba9a917fa7a141e281",
+   "domains": [
+    "anthropic.com"
+   ]
+  },
+  {
+   "vendor": "campaign-monitor",
+   "domains": [
+    "gpe.co.uk"
+   ]
+  },
+  {
+   "vendor": "cbc-idp",
+   "domains": [
+    "greenhouse.io"
+   ]
+  },
+  {
+   "vendor": "censys",
+   "domains": [
+    "datadoghq.com"
+   ]
+  },
+  {
+   "vendor": "central",
+   "domains": [
+    "openai.com"
+   ]
+  },
+  {
+   "vendor": "certeurope",
+   "domains": [
+    "revolut.com"
+   ]
+  },
+  {
+   "vendor": "cf-custom-hostnamesecurityoktacom",
+   "domains": [
+    "okta.com"
+   ]
+  },
+  {
+   "vendor": "chariot",
+   "domains": [
+    "snyk.io"
+   ]
+  },
+  {
+   "vendor": "clayton",
+   "domains": [
+    "hackerone.com"
+   ]
+  },
+  {
+   "vendor": "cloudpiercer",
+   "domains": [
+    "hackerone.com"
+   ]
+  },
+  {
+   "vendor": "cm9sbhm",
+   "domains": [
+    "rolls-royce.com"
+   ]
+  },
+  {
+   "vendor": "coast",
+   "domains": [
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "count-okta-s8nbtwgg1pntjuy5s2p29",
+   "domains": [
+    "mollie.com"
+   ]
+  },
+  {
+   "vendor": "cp80qssojoe48ceuuom-owslqg",
+   "domains": [
+    "miro.com"
+   ]
+  },
+  {
+   "vendor": "creatopy",
+   "domains": [
+    "cloudflare.com"
+   ]
+  },
+  {
+   "vendor": "d0vcwvtyam",
+   "domains": [
+    "docker.com"
+   ]
+  },
+  {
+   "vendor": "d0y4s36957",
+   "domains": [
+    "dyson.com"
+   ]
+  },
+  {
+   "vendor": "d735d671-6fd6-4a9c-b02f-b1de48d84680",
+   "domains": [
+    "segment.com"
+   ]
+  },
+  {
+   "vendor": "d7eba8c3-57b1-4dd6-b410-1e9efb1f28e7",
+   "domains": [
+    "segment.com"
+   ]
+  },
+  {
+   "vendor": "databank",
+   "domains": [
+    "cloudflare.com"
+   ]
+  },
+  {
+   "vendor": "datadome-domain",
+   "domains": [
+    "klaviyo.com"
+   ]
+  },
+  {
+   "vendor": "digicert-domain",
+   "domains": [
+    "mailchimp.com"
+   ]
+  },
+  {
+   "vendor": "dmarc-advisor",
+   "domains": [
+    "workable.com"
+   ]
+  },
+  {
+   "vendor": "doit",
+   "domains": [
+    "calendly.com"
+   ]
+  },
+  {
+   "vendor": "domainverification",
+   "domains": [
+    "siemens.com"
+   ]
+  },
+  {
+   "vendor": "duffel",
+   "domains": [
+    "deel.com"
+   ]
+  },
+  {
+   "vendor": "duosso",
+   "domains": [
+    "mimecast.com"
+   ]
+  },
+  {
+   "vendor": "dust",
+   "domains": [
+    "datadoghq.com"
+   ]
+  },
+  {
+   "vendor": "easydmarc-verification8244fb9d-198f-4b9a-b8ae-8f02ce7d1147",
+   "domains": [
+    "asana.com"
+   ]
+  },
+  {
+   "vendor": "edcbf4c7-b604-457b-870e-1b05f655e769",
+   "domains": [
+    "stripe.com"
+   ]
+  },
+  {
+   "vendor": "endgame",
+   "domains": [
+    "braze.com"
+   ]
+  },
+  {
+   "vendor": "epoch",
+   "domains": [
+    "amplitude.com"
+   ]
+  },
+  {
+   "vendor": "epwebxx6t8gleuy2",
+   "domains": [
+    "calendly.com"
+   ]
+  },
+  {
+   "vendor": "everyone-social",
+   "domains": [
+    "okta.com"
+   ]
+  },
+  {
+   "vendor": "fabric",
+   "domains": [
+    "gymshark.com"
+   ]
+  },
+  {
+   "vendor": "fadv-validation",
+   "domains": [
+    "datadoghq.com"
+   ]
+  },
+  {
+   "vendor": "fastly-domain-delegation-00461086",
+   "domains": [
+    "okta.com"
+   ]
+  },
+  {
+   "vendor": "fastly-domain-delegation-3c9tdnjzdwy7wfffvyyy-786084-2024-07-08",
+   "domains": [
+    "stripe.com"
+   ]
+  },
+  {
+   "vendor": "fastly-domain-delegation-3yf86bwsvk5ektb4-875817-2025-01-23",
+   "domains": [
+    "proofpoint.com"
+   ]
+  },
+  {
+   "vendor": "fastly-domain-delegation-4mkqhvby3ddchzs7xips-00564888-2025-12-02",
+   "domains": [
+    "elastic.co"
+   ]
+  },
+  {
+   "vendor": "fastly-domain-delegation-b786i7h8o9786i78ho09786fdr7cvgjhk",
+   "domains": [
+    "mongodb.com"
+   ]
+  },
+  {
+   "vendor": "fastly-domain-delegation-mcdd430148-430148",
+   "domains": [
+    "gong.io"
+   ]
+  },
+  {
+   "vendor": "fastly-domain-delegation-mnyuktykgf-4956541-2022-06-07",
+   "domains": [
+    "datadoghq.com"
+   ]
+  },
+  {
+   "vendor": "fastly-domain-delegation-r6zge6qxzbya6fy4s0ku-336644",
+   "domains": [
+    "mongodb.com"
+   ]
+  },
+  {
+   "vendor": "fastly-domain-delegation-w8k1sjs3xuoc2jqzypkdsmdkdd09l0v0wx4",
+   "domains": [
+    "sentry.io"
+   ]
+  },
+  {
+   "vendor": "firebase",
+   "domains": [
+    "elevenlabs.io"
+   ]
+  },
+  {
+   "vendor": "fireflies",
+   "domains": [
+    "elastic.co"
+   ]
+  },
+  {
+   "vendor": "freshdesk",
+   "domains": [
+    "outreach.io"
+   ]
+  },
+  {
+   "vendor": "gdv",
+   "domains": [
+    "monzo.com"
+   ]
+  },
+  {
+   "vendor": "generaltranslation-token-v9jzx73y70trn67eqp0zxgbr",
+   "domains": [
+    "okta.com"
+   ]
+  },
+  {
+   "vendor": "gentrace",
+   "domains": [
+    "asana.com"
+   ]
+  },
+  {
+   "vendor": "github-challenge-proofpoint-2",
+   "domains": [
+    "proofpoint.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-blubracket",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-cdkt",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-cs",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-customers",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-data-eng",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-demoapp",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-education",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-forge",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-guides",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-interviews",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-labs",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-modules",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-partner-lab",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-publicsector",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-releng-dev",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-rresearch",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-sa",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-sandbox",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-se",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-services",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-solutions",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-support",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hashicorp-validated-designs",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-hc-fto",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-terraform-providers",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-tf-cloud-infra",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "github-pages-challenge-waypoint-template-playground",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "gitlab-pages",
+   "domains": [
+    "gitlab.com"
+   ]
+  },
+  {
+   "vendor": "gitpod",
+   "domains": [
+    "gusto.com"
+   ]
+  },
+  {
+   "vendor": "gng-j90w13dr-zlxyb6ocwl",
+   "domains": [
+    "mimecast.com"
+   ]
+  },
+  {
+   "vendor": "gnid0bq5-vo7zu3xaiubrltc3o-",
+   "domains": [
+    "ramp.com"
+   ]
+  },
+  {
+   "vendor": "google-site-verificationwuc2j2aekkcw4gdv4rtfjrqzaolchatww7nsx7lblhk",
+   "domains": [
+    "bellroy.com"
+   ]
+  },
+  {
+   "vendor": "gridinsoft",
+   "domains": [
+    "clerk.com"
+   ]
+  },
+  {
+   "vendor": "have-i-been-pwned",
+   "domains": [
+    "dyson.com"
+   ]
+  },
+  {
+   "vendor": "heyhack",
+   "domains": [
+    "datadoghq.com"
+   ]
+  },
+  {
+   "vendor": "hubspot-uv4nw994s5am",
+   "domains": [
+    "amplitude.com"
+   ]
+  },
+  {
+   "vendor": "i4cmfeql",
+   "domains": [
+    "gong.io"
+   ]
+  },
+  {
+   "vendor": "identrustvalidate",
+   "domains": [
+    "duo.com"
+   ]
+  },
+  {
+   "vendor": "intacct-esk",
+   "domains": [
+    "klaviyo.com"
+   ]
+  },
+  {
+   "vendor": "ip4393157024ip43210190024ip41820812412825ip45417452024ip4541745312830ip45417457024ip45417459024ip45417460023ip45417463024ip413918017024ip414324480020ip415824716020-all",
+   "domains": [
+    "deel.com"
+   ]
+  },
+  {
+   "vendor": "j0k3qmnogs",
+   "domains": [
+    "clerk.com"
+   ]
+  },
+  {
+   "vendor": "jamie",
+   "domains": [
+    "okta.com"
+   ]
+  },
+  {
+   "vendor": "juicebox",
+   "domains": [
+    "ramp.com"
+   ]
+  },
+  {
+   "vendor": "jumio-up-idp",
+   "domains": [
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "juno",
+   "domains": [
+    "ramp.com"
+   ]
+  },
+  {
+   "vendor": "keybase",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "kfjjq995cv",
+   "domains": [
+    "elevenlabs.io"
+   ]
+  },
+  {
+   "vendor": "kota",
+   "domains": [
+    "remote.com"
+   ]
+  },
+  {
+   "vendor": "lastpass",
+   "domains": [
+    "atlassian.com"
+   ]
+  },
+  {
+   "vendor": "lens-lbid",
+   "domains": [
+    "klaviyo.com"
+   ]
+  },
+  {
+   "vendor": "letaido",
+   "domains": [
+    "ahrefs.com"
+   ]
+  },
+  {
+   "vendor": "liveblocks",
+   "domains": [
+    "resend.com"
+   ]
+  },
+  {
+   "vendor": "lucid",
+   "domains": [
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "lucidchart",
+   "domains": [
+    "segment.com"
+   ]
+  },
+  {
+   "vendor": "luijxbjbtj8ievtb9ah-o9p",
+   "domains": [
+    "adyen.com"
+   ]
+  },
+  {
+   "vendor": "maven",
+   "domains": [
+    "mollie.com"
+   ]
+  },
+  {
+   "vendor": "mcp-jam",
+   "domains": [
+    "asana.com"
+   ]
+  },
+  {
+   "vendor": "meltwatersso20210421t3-5315",
+   "domains": [
+    "mongodb.com"
+   ]
+  },
+  {
+   "vendor": "mentimeter-12395358-7016-48b4-899c-0c0128f0a97f",
+   "domains": [
+    "arup.com"
+   ]
+  },
+  {
+   "vendor": "mentimeter-956b3a98-7613-4703-980c-dcf475777f1c",
+   "domains": [
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "msv1",
+   "domains": [
+    "rolls-royce.com"
+   ]
+  },
+  {
+   "vendor": "netlify",
+   "domains": [
+    "mongodb.com"
+   ]
+  },
+  {
+   "vendor": "nextwhimsical",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "nicedemo-9efb53b34600019incontactemailcom",
+   "domains": [
+    "patagonia.com"
+   ]
+  },
+  {
+   "vendor": "north-pole-security",
+   "domains": [
+    "okta.com"
+   ]
+  },
+  {
+   "vendor": "noyo8qsr",
+   "domains": [
+    "workable.com"
+   ]
+  },
+  {
+   "vendor": "o0m1nz3r7t",
+   "domains": [
+    "mailchimp.com"
+   ]
+  },
+  {
+   "vendor": "ohdear",
+   "domains": [
+    "planetscale.com"
+   ]
+  },
+  {
+   "vendor": "onmicrosoft",
+   "domains": [
+    "castore.com"
+   ]
+  },
+  {
+   "vendor": "paramark",
+   "domains": [
+    "figma.com"
+   ]
+  },
+  {
+   "vendor": "pardot1118633",
+   "domains": [
+    "gocardless.com"
+   ]
+  },
+  {
+   "vendor": "pardot142521",
+   "domains": [
+    "britishland.com"
+   ]
+  },
+  {
+   "vendor": "pardot305971",
+   "domains": [
+    "gocardless.com"
+   ]
+  },
+  {
+   "vendor": "pardot548382",
+   "domains": [
+    "atlassian.com"
+   ]
+  },
+  {
+   "vendor": "pardot707593",
+   "domains": [
+    "dyson.com"
+   ]
+  },
+  {
+   "vendor": "pardot844983",
+   "domains": [
+    "checkout.com"
+   ]
+  },
+  {
+   "vendor": "pardot906932",
+   "domains": [
+    "calendly.com"
+   ]
+  },
+  {
+   "vendor": "pardot969163",
+   "domains": [
+    "revolut.com"
+   ]
+  },
+  {
+   "vendor": "pardot986361",
+   "domains": [
+    "calendly.com"
+   ]
+  },
+  {
+   "vendor": "parsec",
+   "domains": [
+    "openai.com"
+   ]
+  },
+  {
+   "vendor": "pexip-ms-tenant",
+   "domains": [
+    "oatly.com"
+   ]
+  },
+  {
+   "vendor": "pinnacle",
+   "domains": [
+    "hubspot.com"
+   ]
+  },
+  {
+   "vendor": "posthog-challengehashicorpcom",
+   "domains": [
+    "hashicorp.com"
+   ]
+  },
+  {
+   "vendor": "ppe-b2f6e67f740d3c6bd37c6665c6d19a140a8acd97",
+   "domains": [
+    "atlassian.com"
+   ]
+  },
+  {
+   "vendor": "probely",
+   "domains": [
+    "hubspot.com"
+   ]
+  },
+  {
+   "vendor": "probo",
+   "domains": [
+    "ahrefs.com"
+   ]
+  },
+  {
+   "vendor": "prowly",
+   "domains": [
+    "semrush.com"
+   ]
+  },
+  {
+   "vendor": "q7ytcejdgcb-7rdbfx5gseubqnq",
+   "domains": [
+    "apollo.io"
+   ]
+  },
+  {
+   "vendor": "qa-wolf",
+   "domains": [
+    "cursor.com"
+   ]
+  },
+  {
+   "vendor": "qase-ca7eb2da8082aef5bed402accf262d2bca41fd30",
+   "domains": [
+    "calendly.com"
+   ]
+  },
+  {
+   "vendor": "quovadis",
+   "domains": [
+    "plaid.com"
+   ]
+  },
+  {
+   "vendor": "read-ai",
+   "domains": [
+    "gusto.com"
+   ]
+  },
+  {
+   "vendor": "report-uri",
+   "domains": [
+    "okta.com"
+   ]
+  },
+  {
+   "vendor": "rillet",
+   "domains": [
+    "ashbyhq.com"
+   ]
+  },
+  {
+   "vendor": "roadrunner",
+   "domains": [
+    "asana.com"
+   ]
+  },
+  {
+   "vendor": "rzo5xi3yrwfxskwxgxmtvpbyis2f-a",
+   "domains": [
+    "1password.com"
+   ]
+  },
+  {
+   "vendor": "safetyculture",
+   "domains": [
+    "okta.com"
+   ]
+  },
+  {
+   "vendor": "saml-domain-challenge",
+   "domains": [
+    "vercel.com"
+   ]
+  },
+  {
+   "vendor": "saml-domain-challenge2dc00405-79cd-457b-b288-a119c6f0c7b771996d53-d178-4ba9-bef4-7f7e46edab74cloudflarecom",
+   "domains": [
+    "cloudflare.com"
+   ]
+  },
+  {
+   "vendor": "saml-domain-challenge5948a5c5-4b30-4465-a3f2-2136ea53ea0a3798fab2-b3e1-43d3-ab59-2c40bbaf265emirocom",
+   "domains": [
+    "miro.com"
+   ]
+  },
+  {
+   "vendor": "samsung",
+   "domains": [
+    "warbyparker.com"
+   ]
+  },
+  {
+   "vendor": "seatsurfing",
+   "domains": [
+    "huggingface.co"
+   ]
+  },
+  {
+   "vendor": "secureframe",
+   "domains": [
+    "cohere.com"
+   ]
+  },
+  {
+   "vendor": "securitycontact",
+   "domains": [
+    "starlingbank.com"
+   ]
+  },
+  {
+   "vendor": "securitypolicy",
+   "domains": [
+    "starlingbank.com"
+   ]
+  },
+  {
+   "vendor": "sendingdomain707593",
+   "domains": [
+    "dyson.com"
+   ]
+  },
+  {
+   "vendor": "sfmc--feljdvfs1qwnvc7otwjs6mzcusopoywmecsysa",
+   "domains": [
+    "atlassian.com"
+   ]
+  },
+  {
+   "vendor": "sfmc-dir-ttvesfs7kqjf5wozlpy7ecchxh7vwdtwdcp",
+   "domains": [
+    "okta.com"
+   ]
+  },
+  {
+   "vendor": "sfmc-jchuooqgselonwnfdkq2xdv5unqnvjrjmkyh7rwz",
+   "domains": [
+    "vercel.com"
+   ]
+  },
+  {
+   "vendor": "sfmc-nevze-pd0x15blxxi8i2n1c977accss6ixsjzndf",
+   "domains": [
+    "atlassian.com"
+   ]
+  },
+  {
+   "vendor": "sfmc-uwmheqlppyzwqqhuld0eb8l0yuddhku8jpxb5g",
+   "domains": [
+    "docusign.com"
+   ]
+  },
+  {
+   "vendor": "sfmc-vgtbzqmealnlxep8blmghawdtszvdgp8ohwo4j5",
+   "domains": [
+    "atlassian.com"
+   ]
+  },
+  {
+   "vendor": "sfmc-vy1f7x9gpar-9vrviooczi6gzzapqbnlqgp1zm",
+   "domains": [
+    "siemens.com"
+   ]
+  },
+  {
+   "vendor": "sfmc-weuwumrykcoctxqmjmxnyzh7nnnmnlddhmqeetrc",
+   "domains": [
+    "atlassian.com"
+   ]
+  },
+  {
+   "vendor": "snowflake",
+   "domains": [
+    "docusign.com"
+   ]
+  },
+  {
+   "vendor": "sonatype",
+   "domains": [
+    "docker.com"
+   ]
+  },
+  {
+   "vendor": "speakeasy",
+   "domains": [
+    "planetscale.com"
+   ]
+  },
+  {
+   "vendor": "spfsalesforcecom",
+   "domains": [
+    "dyson.com"
+   ]
+  },
+  {
+   "vendor": "sprout-social-092bd800-f204-4740-bf84-ae806843855d",
+   "domains": [
+    "airtable.com"
+   ]
+  },
+  {
+   "vendor": "sprout-social-1c7c86e8-63c1-4997-8ace-3778a4b551c5",
+   "domains": [
+    "monday.com"
+   ]
+  },
+  {
+   "vendor": "sprout-social-6f445e24-3083-4ce2-abb1-a8ec9e58bb92",
+   "domains": [
+    "carta.com"
+   ]
+  },
+  {
+   "vendor": "sprout-social-86804c52-4abe-4193-b4ba-005703d4f4a7",
+   "domains": [
+    "checkout.com"
+   ]
+  },
+  {
+   "vendor": "sprout-social-91a7051e-fd20-44b8-874a-d37f4e0df1c3",
+   "domains": [
+    "starlingbank.com"
+   ]
+  },
+  {
+   "vendor": "sprout-social-a97d03f7-25c1-4d7a-9b65-d273b09964c6",
+   "domains": [
+    "cohere.com"
+   ]
+  },
+  {
+   "vendor": "sprout-social-d1159a71-a649-4285-8bd5-58c447899872",
+   "domains": [
+    "datadoghq.com"
+   ]
+  },
+  {
+   "vendor": "storyteq",
+   "domains": [
+    "gymshark.com"
+   ]
+  },
+  {
+   "vendor": "stytch",
+   "domains": [
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "successfactors",
+   "domains": [
+    "mongodb.com"
+   ]
+  },
+  {
+   "vendor": "supxkuabt",
+   "domains": [
+    "glossier.com"
+   ]
+  },
+  {
+   "vendor": "tailscale",
+   "domains": [
+    "cohere.com"
+   ]
+  },
+  {
+   "vendor": "tailscale-fawybk3uol8tf83rkjoc",
+   "domains": [
+    "openai.com"
+   ]
+  },
+  {
+   "vendor": "tailscale-k5va9lbdorg7klkkdn1h",
+   "domains": [
+    "railway.app"
+   ]
+  },
+  {
+   "vendor": "tailscale-lcbd2tan8bitnhob3y0p",
+   "domains": [
+    "airtable.com"
+   ]
+  },
+  {
+   "vendor": "tailscale-mwfuimz6egllqsep9ce4",
+   "domains": [
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "tailscale-nnyyc0vc9tisavbocaqa",
+   "domains": [
+    "calendly.com"
+   ]
+  },
+  {
+   "vendor": "tailscale-qawnunmolk0vvj3uoxah",
+   "domains": [
+    "replicate.com"
+   ]
+  },
+  {
+   "vendor": "tailscale-rpasvntz5uemmzxdd4cd",
+   "domains": [
+    "gong.io"
+   ]
+  },
+  {
+   "vendor": "tailscale-yiebbsq5vz5kbkp69psw",
+   "domains": [
+    "airtable.com"
+   ]
+  },
+  {
+   "vendor": "tailscale-zl3s3skaikk1avkjqeem",
+   "domains": [
+    "warbyparker.com"
+   ]
+  },
+  {
+   "vendor": "tavus-io",
+   "domains": [
+    "hubspot.com"
+   ]
+  },
+  {
+   "vendor": "teamtailor",
+   "domains": [
+    "oatly.com"
+   ]
+  },
+  {
+   "vendor": "tightknit",
+   "domains": [
+    "mixpanel.com"
+   ]
+  },
+  {
+   "vendor": "tiktok",
+   "domains": [
+    "huel.com"
+   ]
+  },
+  {
+   "vendor": "tipalti",
+   "domains": [
+    "huel.com"
+   ]
+  },
+  {
+   "vendor": "tito",
+   "domains": [
+    "resend.com"
+   ]
+  },
+  {
+   "vendor": "traction-guest",
+   "domains": [
+    "docusign.com"
+   ]
+  },
+  {
+   "vendor": "trend-micro-v1-domain-verificationc8bc38a904082fdb532aaec9494b3adb",
+   "domains": [
+    "okta.com"
+   ]
+  },
+  {
+   "vendor": "tukj3psjdk",
+   "domains": [
+    "openai.com"
+   ]
+  },
+  {
+   "vendor": "unity-sso",
+   "domains": [
+    "datadoghq.com"
+   ]
+  },
+  {
+   "vendor": "uploadcare",
+   "domains": [
+    "zapier.com"
+   ]
+  },
+  {
+   "vendor": "visual-studio-marketplace-datadog",
+   "domains": [
+    "datadoghq.com"
+   ]
+  },
+  {
+   "vendor": "visual-studio-marketplace-vercelvercelcom4fe5630e-b256-4d57-9e03-88abeab96b37",
+   "domains": [
+    "vercel.com"
+   ]
+  },
+  {
+   "vendor": "vitally",
+   "domains": [
+    "circleci.com"
+   ]
+  },
+  {
+   "vendor": "vmware-cloud-verification-ade55cf1-cfe6-4292-bdfb-a008b2b7d826",
+   "domains": [
+    "okta.com"
+   ]
+  },
+  {
+   "vendor": "warpstream",
+   "domains": [
+    "mongodb.com"
+   ]
+  },
+  {
+   "vendor": "wayback",
+   "domains": [
+    "hackerone.com"
+   ]
+  },
+  {
+   "vendor": "workplace",
+   "domains": [
+    "duo.com"
+   ]
+  },
+  {
+   "vendor": "yandex-verificatione7e5f414e82d5677",
+   "domains": [
+    "wise.com"
+   ]
+  },
+  {
+   "vendor": "yitixdn0k3-u4jpes98a-boihw",
+   "domains": [
+    "braze.com"
+   ]
+  },
+  {
+   "vendor": "yxj1ca",
+   "domains": [
+    "arup.com"
+   ]
+  },
+  {
+   "vendor": "zscaler-verification-42108621-10312025",
+   "domains": [
+    "mailchimp.com"
+   ]
+  }
+ ],
+ "entries": [
+  {
+   "domain": "vercel.com",
+   "vendors": [
+    "ahrefs",
+    "amazon-ses",
+    "amp-by-sourcegraph",
+    "anthropic",
+    "apple",
+    "box",
+    "carta",
+    "cursor",
+    "docusign",
+    "doordash",
+    "gather",
+    "loom",
+    "marketo",
+    "microsoft-365",
+    "mixpanel-domain",
+    "notion",
+    "openai",
+    "plain",
+    "planet-scale",
+    "postmark",
+    "remote",
+    "salesforce",
+    "saml-domain-challenge",
+    "sendgrid",
+    "serval",
+    "sfmc-jchuooqgselonwnfdkq2xdv5unqnvjrjmkyh7rwz",
+    "stripe",
+    "visual-studio-marketplace-vercelvercelcom4fe5630e-b256-4d57-9e03-88abeab96b37",
+    "whimsical",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "linear.app",
+   "vendors": [
+    "amazon-ses",
+    "anthropic",
+    "apple",
+    "cursor",
+    "docusign",
+    "google-workspace",
+    "hubspot",
+    "launchdarkly",
+    "linear",
+    "microsoft-365",
+    "mongodb",
+    "notion",
+    "openai",
+    "postmark",
+    "rippling",
+    "slack",
+    "stripe",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "supabase.com",
+   "vendors": [
+    "google-workspace",
+    "hubspot",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "clerk.com",
+   "vendors": [
+    "google-workspace",
+    "gridinsoft",
+    "j0k3qmnogs"
+   ]
+  },
+  {
+   "domain": "resend.com",
+   "vendors": [
+    "anthropic",
+    "apple",
+    "attio",
+    "cloudflare-sso",
+    "google-workspace",
+    "linear",
+    "liveblocks",
+    "notion",
+    "ossrh",
+    "plain",
+    "postman",
+    "stripe",
+    "tito",
+    "work-os"
+   ]
+  },
+  {
+   "domain": "cloudflare.com",
+   "vendors": [
+    "apple",
+    "asv",
+    "atlassian",
+    "canva",
+    "cisco-ci",
+    "creatopy",
+    "databank",
+    "directfedauthurl",
+    "docker",
+    "drift",
+    "google-workspace",
+    "jamf",
+    "liveramp",
+    "logmein",
+    "mailchimp",
+    "mandrill",
+    "microsoft-365",
+    "miro",
+    "onetrust",
+    "salesforce",
+    "saml-domain-challenge2dc00405-79cd-457b-b288-a119c6f0c7b771996d53-d178-4ba9-bef4-7f7e46edab74cloudflarecom",
+    "status-page",
+    "stripe",
+    "uber",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "render.com",
+   "vendors": [
+    "abuseipdb",
+    "airtable",
+    "anthropic",
+    "apple",
+    "cursor",
+    "docker",
+    "docusign",
+    "figma",
+    "google-workspace",
+    "hubspot",
+    "linear",
+    "loom",
+    "lovable",
+    "mixpanel-domain",
+    "notion",
+    "openai",
+    "plausible-sso",
+    "rippling",
+    "salesforce",
+    "segment",
+    "status-page",
+    "stripe",
+    "zapier",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "fly.io",
+   "vendors": [
+    "apple",
+    "google-workspace",
+    "rippling",
+    "status-page",
+    "stripe"
+   ]
+  },
+  {
+   "domain": "railway.app",
+   "vendors": [
+    "apple",
+    "docusign",
+    "google-workspace",
+    "postman",
+    "tailscale-k5va9lbdorg7klkkdn1h"
+   ]
+  },
+  {
+   "domain": "planetscale.com",
+   "vendors": [
+    "anthropic",
+    "apple",
+    "asv",
+    "atlassian",
+    "cloudflare-sso",
+    "cursor",
+    "docusign",
+    "hubspot",
+    "linear",
+    "microsoft-365",
+    "mintlify",
+    "notion",
+    "ohdear",
+    "openai",
+    "segment",
+    "sendgrid",
+    "speakeasy",
+    "stripe",
+    "wiz",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "netlify.com",
+   "vendors": [
+    "amazon-ses",
+    "anthropic",
+    "cloudhealth",
+    "drift",
+    "google-workspace",
+    "hcp",
+    "hubspot",
+    "linear",
+    "microsoft-365",
+    "miro",
+    "notion",
+    "openai",
+    "ps-cd",
+    "segment",
+    "spacelift",
+    "stripe",
+    "wiz"
+   ]
+  },
+  {
+   "domain": "sentry.io",
+   "vendors": [
+    "699b17b5-0406-44b1-b642-39b398e071cb",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "atlassian-sending",
+    "bitrise",
+    "cisco-ci",
+    "cloudflare-sso",
+    "cursor",
+    "docker",
+    "docusign",
+    "dropbox",
+    "fastly-domain-delegation-w8k1sjs3xuoc2jqzypkdsmdkdd09l0v0wx4",
+    "google-workspace",
+    "linear",
+    "marketo",
+    "mgverify",
+    "microsoft-365",
+    "miro",
+    "notion",
+    "openai",
+    "sendgrid",
+    "stripe",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "datadoghq.com",
+   "vendors": [
+    "amazon-ses",
+    "anthropic",
+    "apple",
+    "asv",
+    "atlassian",
+    "censys",
+    "cursor",
+    "docker",
+    "docusign",
+    "dust",
+    "elevenlabs",
+    "fadv-validation",
+    "fastly-domain-delegation-mnyuktykgf-4956541-2022-06-07",
+    "globalsign",
+    "google-workspace",
+    "heyhack",
+    "hubspot-developer",
+    "jamf",
+    "linear",
+    "lucidlink",
+    "mailgun",
+    "marketo",
+    "mgverify",
+    "microsoft-365",
+    "mongodb",
+    "openai",
+    "perplexity-ai",
+    "protonmail",
+    "sprout-social-d1159a71-a649-4285-8bd5-58c447899872",
+    "status-page",
+    "stripe",
+    "teamviewer-sso",
+    "unity-sso",
+    "visual-studio-marketplace-datadog"
+   ]
+  },
+  {
+   "domain": "gitlab.com",
+   "vendors": [
+    "adobe",
+    "apple",
+    "asv",
+    "atlassian",
+    "decagon",
+    "docusign",
+    "drift",
+    "gitlab-pages",
+    "globalsign",
+    "jamf",
+    "mgverify",
+    "microsoft-365",
+    "onetrust",
+    "openai",
+    "serval",
+    "smartsheet-site-validation",
+    "stripe",
+    "uber",
+    "verificationtoken",
+    "zapier"
+   ]
+  },
+  {
+   "domain": "circleci.com",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "apple",
+    "astro",
+    "atlassian",
+    "box",
+    "ccisso",
+    "cursor",
+    "docker",
+    "docusign",
+    "drift",
+    "dropbox",
+    "hubspot",
+    "jamf",
+    "linear",
+    "mgverify",
+    "ossrh",
+    "postman",
+    "segment",
+    "smithery",
+    "vercel",
+    "vitally",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "hashicorp.com",
+   "vendors": [
+    "adobe",
+    "airtable",
+    "apple",
+    "astro",
+    "atlassian",
+    "canva",
+    "cisco-ci",
+    "docker",
+    "docusign",
+    "dropbox",
+    "figma",
+    "github-pages-challenge-blubracket",
+    "github-pages-challenge-cdkt",
+    "github-pages-challenge-hashicorp",
+    "github-pages-challenge-hashicorp-cs",
+    "github-pages-challenge-hashicorp-customers",
+    "github-pages-challenge-hashicorp-data-eng",
+    "github-pages-challenge-hashicorp-demoapp",
+    "github-pages-challenge-hashicorp-education",
+    "github-pages-challenge-hashicorp-forge",
+    "github-pages-challenge-hashicorp-guides",
+    "github-pages-challenge-hashicorp-interviews",
+    "github-pages-challenge-hashicorp-labs",
+    "github-pages-challenge-hashicorp-modules",
+    "github-pages-challenge-hashicorp-partner-lab",
+    "github-pages-challenge-hashicorp-publicsector",
+    "github-pages-challenge-hashicorp-releng-dev",
+    "github-pages-challenge-hashicorp-rresearch",
+    "github-pages-challenge-hashicorp-sa",
+    "github-pages-challenge-hashicorp-sandbox",
+    "github-pages-challenge-hashicorp-se",
+    "github-pages-challenge-hashicorp-services",
+    "github-pages-challenge-hashicorp-solutions",
+    "github-pages-challenge-hashicorp-support",
+    "github-pages-challenge-hashicorp-validated-designs",
+    "github-pages-challenge-hc-fto",
+    "github-pages-challenge-terraform-providers",
+    "github-pages-challenge-tf-cloud-infra",
+    "github-pages-challenge-waypoint-template-playground",
+    "globalsign",
+    "hcp",
+    "keybase",
+    "loom",
+    "nextwhimsical",
+    "parallels",
+    "pendo",
+    "posthog-challengehashicorpcom",
+    "stripe",
+    "twilio",
+    "zapier"
+   ]
+  },
+  {
+   "domain": "docker.com",
+   "vendors": [
+    "adobe",
+    "airtable",
+    "anthropic",
+    "apple",
+    "astro",
+    "atlassian",
+    "cursor",
+    "d0vcwvtyam",
+    "detectify",
+    "docker",
+    "docusign",
+    "google-workspace",
+    "jamf",
+    "marketo",
+    "microsoft-365",
+    "miro",
+    "onetrust",
+    "openai",
+    "opine",
+    "salesforce",
+    "sinch",
+    "sonatype",
+    "stripe",
+    "zapier",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "mongodb.com",
+   "vendors": [
+    "1password",
+    "adobe",
+    "adobe-sign",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "box",
+    "cisco-ci",
+    "cursor",
+    "docker",
+    "fastly-domain-delegation-b786i7h8o9786i78ho09786fdr7cvgjhk",
+    "fastly-domain-delegation-r6zge6qxzbya6fy4s0ku-336644",
+    "gc-ai",
+    "globalsign",
+    "hcp",
+    "hj-ownership",
+    "jamf",
+    "knowbe4",
+    "meltwatersso20210421t3-5315",
+    "microsoft-365",
+    "miro",
+    "mixpanel-domain",
+    "mongodb",
+    "netlify",
+    "onetrust",
+    "openai",
+    "paloaltonetworks",
+    "smartsheet-site-validation",
+    "stripe",
+    "successfactors",
+    "warpstream",
+    "wrike"
+   ]
+  },
+  {
+   "domain": "redis.io",
+   "vendors": [
+    "google-workspace",
+    "marketo"
+   ]
+  },
+  {
+   "domain": "elastic.co",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "atlassian",
+    "cisco-ci",
+    "cloudflare-sso",
+    "cursor",
+    "docker",
+    "docusign",
+    "drift",
+    "fastly-domain-delegation-4mkqhvby3ddchzs7xips-00564888-2025-12-02",
+    "fireflies",
+    "globalsign",
+    "jamf",
+    "mgverify",
+    "openai",
+    "postman",
+    "smartsheet-site-validation",
+    "status-page",
+    "stripe",
+    "uber"
+   ]
+  },
+  {
+   "domain": "notion.so",
+   "vendors": [
+    "webflow"
+   ]
+  },
+  {
+   "domain": "slack.com",
+   "vendors": [
+    "hubspot-developer",
+    "ossrh",
+    "spycloud",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "asana.com",
+   "vendors": [
+    "adobe",
+    "amazon-ses",
+    "atlassian",
+    "canva",
+    "cisco-ci",
+    "citrix",
+    "cursor",
+    "docker",
+    "docusign",
+    "drift",
+    "dtm",
+    "easydmarc-verification8244fb9d-198f-4b9a-b8ae-8f02ce7d1147",
+    "gentrace",
+    "globalsign",
+    "google-workspace",
+    "hubspot-developer",
+    "jamf",
+    "marketo",
+    "mcp-jam",
+    "pinterest",
+    "roadrunner",
+    "segment",
+    "sparkpost",
+    "status-page",
+    "stripe",
+    "zapier",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "monday.com",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "apple",
+    "beautifulai",
+    "canva",
+    "cursor",
+    "docker",
+    "docusign",
+    "dropbox",
+    "elevenlabs",
+    "figma",
+    "globalsign",
+    "google-workspace",
+    "hcp",
+    "hubspot",
+    "jamf",
+    "mailchimp",
+    "miro",
+    "mixpanel-domain",
+    "openai",
+    "salesforce",
+    "sprout-social-1c7c86e8-63c1-4997-8ace-3778a4b551c5",
+    "status-page",
+    "stripe",
+    "uber",
+    "webflow",
+    "zapier",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "airtable.com",
+   "vendors": [
+    "apple",
+    "atlassian",
+    "beam",
+    "box",
+    "cloudflare-sso",
+    "cursor",
+    "docker",
+    "docusign",
+    "drift",
+    "google-workspace",
+    "ibmid",
+    "jamf",
+    "mailgun",
+    "mgverify",
+    "microsoft-365",
+    "notion",
+    "onetrust",
+    "openai",
+    "postman",
+    "pylon",
+    "salesforce",
+    "sprout-social-092bd800-f204-4740-bf84-ae806843855d",
+    "stripe",
+    "tailscale-lcbd2tan8bitnhob3y0p",
+    "tailscale-yiebbsq5vz5kbkp69psw",
+    "zapier"
+   ]
+  },
+  {
+   "domain": "figma.com",
+   "vendors": [
+    "1password",
+    "adobe",
+    "anthropic",
+    "apple",
+    "asv",
+    "atlassian",
+    "bzagy7hkzg",
+    "cloudflare-sso",
+    "cursor",
+    "decagon",
+    "docusign",
+    "drift",
+    "dropbox",
+    "figma",
+    "gather",
+    "gc-ai",
+    "google-workspace",
+    "gradle",
+    "launchdarkly",
+    "linear",
+    "microsoft-365",
+    "mongodb",
+    "notion",
+    "openai",
+    "paramark",
+    "postman",
+    "reachdesk",
+    "segment",
+    "shopify",
+    "stripe",
+    "twilio",
+    "wiz",
+    "zapier",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "miro.com",
+   "vendors": [
+    "adobe",
+    "ahrefs",
+    "anthropic",
+    "apple",
+    "artisan",
+    "atlassian",
+    "browserstack",
+    "canva",
+    "cisco-ci",
+    "cloudflare-sso",
+    "cp80qssojoe48ceuuom-owslqg",
+    "cursor",
+    "docker",
+    "docusign",
+    "google-workspace",
+    "hubspot",
+    "jamf",
+    "microsoft-365",
+    "miro",
+    "onetrust",
+    "openai",
+    "postman",
+    "reachdesk",
+    "salesforce",
+    "saml-domain-challenge5948a5c5-4b30-4465-a3f2-2136ea53ea0a3798fab2-b3e1-43d3-ab59-2c40bbaf265emirocom",
+    "slack",
+    "stripe",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "loom.com",
+   "vendors": [
+    "apple",
+    "asv",
+    "atlassian",
+    "docusign",
+    "dropbox",
+    "google-workspace",
+    "linear",
+    "mandrill",
+    "microsoft-365",
+    "onetrust",
+    "rippling",
+    "salesforce",
+    "segment",
+    "slack",
+    "spycloud",
+    "stripe",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "zapier.com",
+   "vendors": [
+    "ably",
+    "airtable",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "box",
+    "canva",
+    "cloudfront",
+    "cursor",
+    "docker",
+    "docusign",
+    "gamma",
+    "globalsign",
+    "google-workspace",
+    "heroku",
+    "hubspot",
+    "jamf",
+    "linear",
+    "liveramp",
+    "mailgun",
+    "microsoft-365",
+    "mintlify",
+    "openai",
+    "ps-cd",
+    "remote",
+    "stripe",
+    "stytch",
+    "uploadcare",
+    "zapier",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "calendly.com",
+   "vendors": [
+    "adobe",
+    "apple",
+    "atlassian",
+    "box",
+    "calendly",
+    "carta",
+    "citrix",
+    "cursor",
+    "docusign",
+    "doit",
+    "epwebxx6t8gleuy2",
+    "google-workspace",
+    "hubspot-developer",
+    "jamf",
+    "jetbrains",
+    "logmein",
+    "loom",
+    "marketo",
+    "microsoft-365",
+    "miro",
+    "onetrust",
+    "openai",
+    "parallels",
+    "pardot906932",
+    "pardot986361",
+    "pendo",
+    "postman",
+    "qase-ca7eb2da8082aef5bed402accf262d2bca41fd30",
+    "serval",
+    "slack",
+    "stripe",
+    "tailscale-nnyyc0vc9tisavbocaqa",
+    "uber",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "dropbox.com",
+   "vendors": [
+    "adobe",
+    "amazon-ses",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "aws-domain-control",
+    "citrix",
+    "cursor",
+    "decagon",
+    "docker",
+    "docusign",
+    "google-workspace",
+    "hcp",
+    "hubspot",
+    "hubspot-developer",
+    "infoblox-domain-mastery",
+    "jamf",
+    "liveramp",
+    "lovable",
+    "marketo",
+    "mgverify",
+    "microsoft-365",
+    "miro",
+    "mixpanel-domain",
+    "notion",
+    "openai",
+    "parallels",
+    "salesforce",
+    "slack",
+    "stripe",
+    "zapier",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "box.com",
+   "vendors": [
+    "1password",
+    "anthropic",
+    "apple",
+    "asv",
+    "atlassian",
+    "cursor",
+    "detectify",
+    "docusign",
+    "drift",
+    "google-workspace",
+    "hubspot",
+    "logmein",
+    "microsoft-365",
+    "mongodb",
+    "onetrust",
+    "openai",
+    "paloaltonetworks",
+    "pendo",
+    "sendgrid",
+    "status-page",
+    "work-accounts",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "atlassian.com",
+   "vendors": [
+    "1d0d0fe5-61e0-4edb-a509-92bc5ce59983",
+    "adobe",
+    "airtable",
+    "amazon-ses",
+    "anodot",
+    "anthropic",
+    "apperio",
+    "apple",
+    "atlassian",
+    "atlassian-sending",
+    "bugcrowd",
+    "canva",
+    "cloudfront",
+    "cursor",
+    "docusign",
+    "dropbox",
+    "google-workspace",
+    "hubspot-developer",
+    "jamf",
+    "knowbe4",
+    "krisp",
+    "lastpass",
+    "microsoft-365",
+    "miro",
+    "mongodb",
+    "notion",
+    "onetrust",
+    "openai",
+    "pardot548382",
+    "pendo",
+    "postman",
+    "ppe-b2f6e67f740d3c6bd37c6665c6d19a140a8acd97",
+    "profound",
+    "salesforce",
+    "segment",
+    "sfmc--feljdvfs1qwnvc7otwjs6mzcusopoywmecsysa",
+    "sfmc-nevze-pd0x15blxxi8i2n1c977accss6ixsjzndf",
+    "sfmc-vgtbzqmealnlxep8blmghawdtszvdgp8ohwo4j5",
+    "sfmc-weuwumrykcoctxqmjmxnyzh7nnnmnlddhmqeetrc",
+    "status-page",
+    "stripe",
+    "twilio",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "clickup.com",
+   "vendors": [
+    "1password",
+    "adobe",
+    "amazon-ses",
+    "anthropic",
+    "ca3-1c005c5a80ee4c30a0290c7eb53e0ab5",
+    "cursor",
+    "docusign",
+    "google-workspace",
+    "hubspot-developer",
+    "loom",
+    "marketo",
+    "microsoft-365",
+    "openai",
+    "parallels",
+    "pendo",
+    "postman",
+    "ps-cd",
+    "salesforce",
+    "segment",
+    "stripe",
+    "tiktok-developers",
+    "twilio",
+    "wiz",
+    "zapier",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "basecamp.com",
+   "vendors": [
+    "1password",
+    "atlassian",
+    "mailchimp",
+    "microsoft-365",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "hubspot.com",
+   "vendors": [
+    "adobe",
+    "apple",
+    "atlassian",
+    "canva",
+    "cursor",
+    "detectify",
+    "directfedauthurl",
+    "docusign",
+    "ecostruxure-it",
+    "elevenlabs",
+    "figma",
+    "gamma",
+    "hubspot-developer",
+    "jamf",
+    "jetbrains",
+    "microsoft-365",
+    "neat-pulse",
+    "notion",
+    "onetrust",
+    "openai",
+    "perplexity-ai",
+    "pinnacle",
+    "probely",
+    "smartsheet-site-validation",
+    "status-page",
+    "stripe",
+    "tavus-io",
+    "yahoo",
+    "zapier",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "intercom.com",
+   "vendors": [
+    "adobe",
+    "adobe-sign",
+    "amazon-ses",
+    "atlassian",
+    "cloudfront",
+    "detectify",
+    "docker",
+    "google-workspace",
+    "hj-ownership",
+    "hubspot-developer",
+    "mailchimp",
+    "mandrill",
+    "marketo",
+    "spycloud",
+    "status-page",
+    "zapier"
+   ]
+  },
+  {
+   "domain": "mailchimp.com",
+   "vendors": [
+    "adobe",
+    "apple",
+    "atlassian",
+    "digicert",
+    "digicert-domain",
+    "docusign",
+    "google-gws-recovery",
+    "google-workspace",
+    "mandrill",
+    "microsoft-365",
+    "o0m1nz3r7t",
+    "onetrust",
+    "smartsheet-site-validation",
+    "zapier",
+    "zscaler-verification-42108621-10312025"
+   ]
+  },
+  {
+   "domain": "klaviyo.com",
+   "vendors": [
+    "actively-ai",
+    "adobe",
+    "anthropic",
+    "apple",
+    "asv",
+    "atlassian",
+    "browserstack",
+    "ca3-3c24d93a383144a0bdad160ad7c82865",
+    "canva",
+    "cursor",
+    "datadome-domain",
+    "docker",
+    "docusign",
+    "drift",
+    "dropbox",
+    "dtm",
+    "gc-ai",
+    "globalsign",
+    "google-workspace",
+    "heroku",
+    "hubspot",
+    "intacct-esk",
+    "jamf",
+    "jetbrains",
+    "klaviyo",
+    "lens-lbid",
+    "linear",
+    "mgverify",
+    "microsoft-365",
+    "neat-pulse",
+    "notion",
+    "onetrust",
+    "openai",
+    "postman",
+    "salesforce",
+    "serval",
+    "slack",
+    "spacelift",
+    "stripe",
+    "teamviewer-sso",
+    "vercel",
+    "wework",
+    "whimsical",
+    "work-accounts",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "braze.com",
+   "vendors": [
+    "adobe",
+    "amazon-ses",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "atlassian-sending",
+    "ca3-6a3c9cfb21d54a209e2095abbb628116",
+    "ca3-b56d68a3b19541daaaa93208c6064b70",
+    "cursor",
+    "docusign",
+    "endgame",
+    "globalsign",
+    "google-workspace",
+    "jamf",
+    "microsoft-365",
+    "miro",
+    "onetrust",
+    "openai",
+    "ossrh",
+    "salesforce",
+    "sendgrid",
+    "vercel",
+    "wiz",
+    "yitixdn0k3-u4jpes98a-boihw",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "segment.com",
+   "vendors": [
+    "airtable",
+    "atlassian",
+    "bugcrowd",
+    "d735d671-6fd6-4a9c-b02f-b1de48d84680",
+    "d7eba8c3-57b1-4dd6-b410-1e9efb1f28e7",
+    "docusign",
+    "drift",
+    "gradle",
+    "hubspot",
+    "hubspot-developer",
+    "lucidchart",
+    "microsoft-365",
+    "postman",
+    "status-page",
+    "zapier"
+   ]
+  },
+  {
+   "domain": "amplitude.com",
+   "vendors": [
+    "-ymejhukwdlxxewybehqaxrf",
+    "1password",
+    "adobe",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "atlassian-sending",
+    "brevo-code2f0c4fd9880f9665542e181744f1d9fa",
+    "canva",
+    "cursor",
+    "docker",
+    "docusign",
+    "doordash",
+    "dropbox",
+    "epoch",
+    "google-workspace",
+    "hubspot-developer",
+    "hubspot-uv4nw994s5am",
+    "mailgun",
+    "marketo",
+    "microsoft-365",
+    "miro",
+    "mongodb",
+    "notion",
+    "openai",
+    "ps-cd",
+    "reachdesk",
+    "stripe",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "mixpanel.com",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "asv",
+    "citrix",
+    "google-workspace",
+    "hubspot",
+    "jamf",
+    "linear",
+    "microsoft-365",
+    "mintlify",
+    "mixpanel-domain",
+    "openai",
+    "ps-cd",
+    "pylon",
+    "remote",
+    "sinch",
+    "tightknit",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "ahrefs.com",
+   "vendors": [
+    "ahrefs",
+    "anthropic",
+    "cursor",
+    "google-workspace",
+    "intercom",
+    "letaido",
+    "linear",
+    "lovable",
+    "mailchimp",
+    "microsoft-365",
+    "notion",
+    "openai",
+    "probo",
+    "rippling",
+    "sendgrid",
+    "stripe",
+    "tiktok-developers",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "semrush.com",
+   "vendors": [
+    "adobe",
+    "amazon-ses",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "cursor",
+    "docker",
+    "google-workspace",
+    "hubspot-developer",
+    "linear",
+    "mandrill",
+    "marketo",
+    "microsoft-365",
+    "miro",
+    "mongodb",
+    "notion",
+    "openai",
+    "prowly",
+    "salesforce",
+    "tiktok-developers",
+    "yahoo",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "drift.com",
+   "vendors": [
+    "amazon-ses",
+    "apple",
+    "asv",
+    "atlassian",
+    "bugcrowd",
+    "docusign",
+    "google-workspace",
+    "miro",
+    "sendgrid",
+    "status-page",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "outreach.io",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "atlassian",
+    "canva",
+    "cisco-ci",
+    "docker",
+    "docusign",
+    "freshdesk",
+    "google-workspace",
+    "jamf",
+    "marketo",
+    "openai",
+    "validity",
+    "yahoo",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "gong.io",
+   "vendors": [
+    "atlassian",
+    "cisco-ci",
+    "docusign",
+    "dynatrace",
+    "fastly-domain-delegation-mcdd430148-430148",
+    "google-workspace",
+    "hubspot-developer",
+    "i4cmfeql",
+    "jamf",
+    "krisp",
+    "loom",
+    "mailgun",
+    "mgverify",
+    "mongodb",
+    "onetrust",
+    "openai",
+    "ps-cd",
+    "status-page",
+    "tailscale-rpasvntz5uemmzxdd4cd",
+    "verificationtoken",
+    "wiz",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "apollo.io",
+   "vendors": [
+    "airtable",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "atlassian-sending",
+    "cloudflare-sso",
+    "cursor",
+    "docusign",
+    "hubspot-developer",
+    "microsoft-365",
+    "notion",
+    "openai",
+    "postman",
+    "ps-cd",
+    "q7ytcejdgcb-7rdbfx5gseubqnq",
+    "slack",
+    "stripe",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "lusha.com",
+   "vendors": [
+    "anthropic",
+    "apple",
+    "atlassian",
+    "ca3-5b6a654601ab4e3083ac769b4a3be9d6",
+    "cloudhealth",
+    "cursor",
+    "docusign",
+    "hubspot-developer",
+    "mgverify",
+    "microsoft-365",
+    "mongodb",
+    "notion",
+    "onetrust",
+    "openai",
+    "postman",
+    "ps-cd",
+    "smithery",
+    "stripe",
+    "wiz",
+    "zapier",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "stripe.com",
+   "vendors": [
+    "anthropic",
+    "apple",
+    "asv",
+    "atlassian",
+    "canva",
+    "cloudflare-sso",
+    "cursor",
+    "docker",
+    "docusign",
+    "edcbf4c7-b604-457b-870e-1b05f655e769",
+    "elevenlabs",
+    "fastly-domain-delegation-3c9tdnjzdwy7wfffvyyy-786084-2024-07-08",
+    "linear",
+    "liveramp",
+    "microsoft-365",
+    "neat-pulse",
+    "openai",
+    "postman",
+    "stripe",
+    "vercel",
+    "visa",
+    "whimsical"
+   ]
+  },
+  {
+   "domain": "monzo.com",
+   "vendors": [
+    "adobe",
+    "ahrefs",
+    "amazon-ses",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "cisco-ci",
+    "cursor",
+    "directfedauthurl",
+    "docker",
+    "docusign",
+    "dropbox",
+    "gdv",
+    "google-workspace",
+    "jamf",
+    "linear",
+    "mgverify",
+    "microsoft-365",
+    "openai",
+    "parallels",
+    "stripe",
+    "whimsical",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "revolut.com",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "atlassian-sending",
+    "certeurope",
+    "cursor",
+    "docusign",
+    "drift",
+    "foxit",
+    "google-workspace",
+    "jamf",
+    "jetbrains",
+    "microsoft-365",
+    "mtc",
+    "openai",
+    "pardot969163",
+    "salesforce",
+    "serval",
+    "sparkpost",
+    "verificationtoken",
+    "visa",
+    "wiz",
+    "zapier",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "wise.com",
+   "vendors": [
+    "-s1bbtiyrec4lq4dgfrt5giu7a1dedi",
+    "35d1fe29-18b5-4a82-9b9b-be0cf038a9fc",
+    "4b6e772e-2b35-4013-ada0-5deafb388db0",
+    "adobe",
+    "airtable",
+    "apple",
+    "atlassian",
+    "canva",
+    "cko",
+    "coast",
+    "docusign",
+    "dtm",
+    "hj-ownership",
+    "hubspot",
+    "jumio-up-idp",
+    "lucid",
+    "mentimeter-956b3a98-7613-4703-980c-dcf475777f1c",
+    "microsoft-365",
+    "miro",
+    "mixpanel-domain",
+    "monday-com",
+    "mongodb",
+    "onetrust",
+    "openai",
+    "pinterest",
+    "postman",
+    "slack",
+    "tailscale-mwfuimz6egllqsep9ce4",
+    "uber",
+    "verificationtoken",
+    "work-accounts",
+    "yandex-verificatione7e5f414e82d5677",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "klarna.com",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "atlassian-sending",
+    "cursor",
+    "docker",
+    "docusign",
+    "elevenlabs",
+    "google-workspace",
+    "ibmid",
+    "jamf",
+    "loom",
+    "microsoft-365",
+    "miro",
+    "mixpanel-domain",
+    "notion",
+    "onetrust",
+    "openai",
+    "paloaltonetworks",
+    "planet-scale",
+    "sendgrid",
+    "stripe",
+    "twilio"
+   ]
+  },
+  {
+   "domain": "plaid.com",
+   "vendors": [
+    "adobe",
+    "amazon-ses",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "cursor",
+    "docusign",
+    "drift",
+    "google-workspace",
+    "heroku",
+    "linear",
+    "mailchimp",
+    "marketo",
+    "mtc",
+    "paloaltonetworks",
+    "quovadis",
+    "salesforce",
+    "segment",
+    "wiz",
+    "zapier",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "brex.com",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "bugcrowd",
+    "cursor",
+    "docker",
+    "docusign",
+    "dropbox",
+    "globalsign",
+    "jamf",
+    "jetbrains",
+    "linear",
+    "microsoft-365",
+    "miro",
+    "neat-pulse",
+    "onetrust",
+    "openai",
+    "serval",
+    "smartsheet-site-validation",
+    "teamviewer-sso",
+    "twilio",
+    "wiz",
+    "zapier",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "ramp.com",
+   "vendors": [
+    "1password",
+    "adobe",
+    "amazon-business",
+    "anthropic",
+    "apple",
+    "astro",
+    "atlassian",
+    "atlassian-sending",
+    "cursor",
+    "gnid0bq5-vo7zu3xaiubrltc3o-",
+    "google-workspace",
+    "hubspot",
+    "jamf",
+    "juicebox",
+    "juno",
+    "linear",
+    "microsoft-365",
+    "notion",
+    "openai",
+    "parallel",
+    "perplexity-ai",
+    "profound",
+    "segment",
+    "sendgrid",
+    "serval",
+    "slack",
+    "stripe",
+    "uber",
+    "verificationtoken",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "carta.com",
+   "vendors": [
+    "adobe",
+    "amazon-ses",
+    "announcekit",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "canva",
+    "cursor",
+    "docusign",
+    "dropbox",
+    "google-workspace",
+    "jamf",
+    "mailchimp",
+    "mandrill",
+    "microsoft-365",
+    "mongodb",
+    "openai",
+    "pendo",
+    "salesforce",
+    "slack",
+    "sprout-social-6f445e24-3083-4ce2-abb1-a8ec9e58bb92",
+    "stripe",
+    "validity",
+    "wiz",
+    "work-os",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "gocardless.com",
+   "vendors": [
+    "actalis-dcv",
+    "ahrefs",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "carta",
+    "cloudflare-sso",
+    "docker",
+    "docusign",
+    "drift",
+    "figma",
+    "google-workspace",
+    "handlecrew",
+    "microsoft-365",
+    "miro",
+    "pardot1118633",
+    "pardot305971",
+    "postman",
+    "salesforce",
+    "segment",
+    "sendgrid",
+    "twilio",
+    "wiz",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "starlingbank.com",
+   "vendors": [
+    "access",
+    "amazon-ses",
+    "anthropic",
+    "atlassian",
+    "docusign",
+    "globalsign",
+    "google-workspace",
+    "hubspot",
+    "mailchimp",
+    "pinterest",
+    "reftab",
+    "salesforce",
+    "securitycontact",
+    "securitypolicy",
+    "slack",
+    "sprout-social-91a7051e-fd20-44b8-874a-d37f4e0df1c3",
+    "wrike",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "checkout.com",
+   "vendors": [
+    "adobe",
+    "airtable",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "canva",
+    "cursor",
+    "docker",
+    "docusign",
+    "gamma",
+    "hj-ownership",
+    "jamf",
+    "kiro",
+    "lovable",
+    "mandrill",
+    "microsoft-365",
+    "miro",
+    "onetrust",
+    "openai",
+    "parallels",
+    "pardot844983",
+    "profound",
+    "slack",
+    "sprout-social-86804c52-4abe-4193-b4ba-005703d4f4a7",
+    "status-page",
+    "webflow",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "adyen.com",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "dell-technologies",
+    "docker",
+    "docusign",
+    "foxit",
+    "jamf",
+    "luijxbjbtj8ievtb9ah-o9p",
+    "microsoft-365",
+    "mixpanel-domain",
+    "onetrust",
+    "openai",
+    "parallels",
+    "postman",
+    "slack",
+    "uber",
+    "visa",
+    "windsurf",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "mollie.com",
+   "vendors": [
+    "1password",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "cko",
+    "count-okta-s8nbtwgg1pntjuy5s2p29",
+    "digicert",
+    "docker",
+    "docusign",
+    "dtm",
+    "globalsign",
+    "google-workspace",
+    "hubspot",
+    "jamf",
+    "linear",
+    "maven",
+    "pinterest",
+    "postman",
+    "remote",
+    "verificationtoken",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "rippling.com",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "atlassian-sending",
+    "brevo-code8d53f4c0545221865c510ac20019c084",
+    "ca3-88b4000f8c63405baadea60a75495e95",
+    "globalsign",
+    "hubspot-developer",
+    "loom",
+    "microsoft-365",
+    "mongodb",
+    "openai",
+    "ps-cd",
+    "rippling",
+    "segment",
+    "status-page",
+    "stripe",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "gusto.com",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "blitz",
+    "bugcrowd",
+    "ca3-f0d74341513045679ff3429b306c9eb3",
+    "canva",
+    "cursor",
+    "docker",
+    "docusign",
+    "dropbox",
+    "gamma",
+    "gc-ai",
+    "gitpod",
+    "google-workspace",
+    "hcp",
+    "hubspot-developer",
+    "jamf",
+    "marketo",
+    "microsoft-365",
+    "notion",
+    "onetrust",
+    "openai",
+    "postman",
+    "ps-cd",
+    "read-ai",
+    "salesforce",
+    "sendgrid",
+    "slack",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "deel.com",
+   "vendors": [
+    "actively-ai",
+    "adobe",
+    "amazon-ses",
+    "anthropic",
+    "atlassian",
+    "atlassian-sending",
+    "brevo-codecda82c8e78902e8597160fa7f8f01832",
+    "canva",
+    "cursor",
+    "duffel",
+    "google-workspace",
+    "hubspot",
+    "ip4393157024ip43210190024ip41820812412825ip45417452024ip4541745312830ip45417457024ip45417459024ip45417460023ip45417463024ip413918017024ip414324480020ip415824716020-all",
+    "microsoft-365",
+    "miro",
+    "monday-com",
+    "onetrust",
+    "openai",
+    "paloaltonetworks",
+    "reachdesk",
+    "salesforce",
+    "slack",
+    "smartsheet-site-validation",
+    "stripe",
+    "teamviewer-sso",
+    "twilio",
+    "uber",
+    "wiz",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "remote.com",
+   "vendors": [
+    "1password",
+    "adobe",
+    "ahrefs",
+    "anthropic",
+    "apple",
+    "cursor",
+    "docusign",
+    "drift",
+    "ethiack",
+    "google-workspace",
+    "hubspot",
+    "kota",
+    "linear",
+    "lovable",
+    "mailgun",
+    "microsoft-365",
+    "miro",
+    "mixpanel-domain",
+    "notion",
+    "openai",
+    "parallels",
+    "protonmail",
+    "remote",
+    "slack",
+    "stripe",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "personio.com",
+   "vendors": [
+    "atlassian",
+    "miro",
+    "vercel"
+   ]
+  },
+  {
+   "domain": "docusign.com",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "aws-securityagent",
+    "bugcrowd",
+    "canva",
+    "cisco-ci",
+    "dell-technologies",
+    "docker",
+    "docusign",
+    "drift",
+    "google-workspace",
+    "hubspot-developer",
+    "jamf",
+    "mandrill",
+    "mgverify",
+    "microsoft-365",
+    "miro",
+    "mixpanel-domain",
+    "onetrust",
+    "sfmc-uwmheqlppyzwqqhuld0eb8l0yuddhku8jpxb5g",
+    "slack",
+    "snowflake",
+    "stripe",
+    "traction-guest",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "greenhouse.io",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "atlassian-sending",
+    "bettercomp",
+    "cbc-idp",
+    "cursor",
+    "drift",
+    "dynatrace",
+    "globalsign",
+    "google-workspace",
+    "jamf",
+    "mailchimp",
+    "marketo",
+    "mgverify",
+    "microsoft-365",
+    "miro",
+    "mongodb",
+    "openai",
+    "pendo",
+    "projectdiscovery",
+    "reachdesk",
+    "salesforce",
+    "smartsheet-site-validation",
+    "status-page",
+    "stripe",
+    "twilio",
+    "wiz",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "lever.co",
+   "vendors": [
+    "adobe",
+    "apple",
+    "atlassian",
+    "docusign",
+    "google-workspace",
+    "marketo",
+    "microsoft-365",
+    "parallels",
+    "salesforce",
+    "status-page",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "ashbyhq.com",
+   "vendors": [
+    "anthropic",
+    "apple",
+    "cloudflare-sso",
+    "cursor",
+    "docker",
+    "google-workspace",
+    "hubspot",
+    "jetbrains",
+    "lovable",
+    "microsoft-365",
+    "notion",
+    "openai",
+    "plain",
+    "pylon",
+    "remote",
+    "rillet",
+    "slack",
+    "status-page",
+    "stripe",
+    "zapier",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "workable.com",
+   "vendors": [
+    "anthropic",
+    "apple",
+    "atlassian",
+    "cursor",
+    "detectify",
+    "dmarc-advisor",
+    "globalsign",
+    "jamf",
+    "microsoft-365",
+    "mongodb",
+    "noyo8qsr",
+    "onetrust",
+    "openai",
+    "sophos"
+   ]
+  },
+  {
+   "domain": "wiz.io",
+   "vendors": [
+    "1password",
+    "adobe",
+    "amazon-ses",
+    "amp-by-sourcegraph",
+    "apple",
+    "atlassian",
+    "box",
+    "cursor",
+    "docker",
+    "docusign",
+    "google-workspace",
+    "microsoft-365",
+    "mixpanel-domain",
+    "notion",
+    "onetrust",
+    "openai",
+    "salesforce",
+    "slack",
+    "webflow",
+    "wiz",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "snyk.io",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "atlassian-sending",
+    "chariot",
+    "cloudhealth",
+    "cursor",
+    "docker",
+    "docusign",
+    "drift",
+    "globalsign",
+    "linear",
+    "microsoft-365",
+    "mongodb",
+    "notion",
+    "openai",
+    "opine",
+    "segment",
+    "stripe",
+    "windsurf",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "1password.com",
+   "vendors": [
+    "amazon-ses",
+    "applause-verification3f067522-d81e-42be-93ff-2833b37252a0",
+    "atlassian",
+    "docker",
+    "drift",
+    "google-workspace",
+    "openai",
+    "reachdesk",
+    "rzo5xi3yrwfxskwxgxmtvpbyis2f-a",
+    "status-page",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "okta.com",
+   "vendors": [
+    "adobe",
+    "airxx",
+    "anthropic",
+    "apple",
+    "astro",
+    "atlassian",
+    "canva",
+    "ccisso",
+    "cf-custom-hostnamesecurityoktacom",
+    "docker",
+    "docusign",
+    "elevenlabs",
+    "everyone-social",
+    "fastly-domain-delegation-00461086",
+    "generaltranslation-token-v9jzx73y70trn67eqp0zxgbr",
+    "handlecrew",
+    "jamf",
+    "jamie",
+    "linear",
+    "loom",
+    "mgverify",
+    "miro",
+    "mongodb",
+    "neat-pulse",
+    "north-pole-security",
+    "notion",
+    "onetrust",
+    "paloaltonetworks",
+    "postman",
+    "profound",
+    "report-uri",
+    "safetyculture",
+    "sfmc-dir-ttvesfs7kqjf5wozlpy7ecchxh7vwdtwdcp",
+    "sinch",
+    "smartsheet-site-validation",
+    "stripe",
+    "trend-micro-v1-domain-verificationc8bc38a904082fdb532aaec9494b3adb",
+    "twilio",
+    "vmware-cloud-verification-ade55cf1-cfe6-4292-bdfb-a008b2b7d826",
+    "zapier",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "duo.com",
+   "vendors": [
+    "apple",
+    "google-workspace",
+    "identrustvalidate",
+    "mailchimp",
+    "marketo",
+    "salesforce",
+    "workplace"
+   ]
+  },
+  {
+   "domain": "hackerone.com",
+   "vendors": [
+    "adobe",
+    "amazon-ses",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "box",
+    "canva",
+    "citrix",
+    "clayton",
+    "cloudpiercer",
+    "docusign",
+    "drift",
+    "ethiack",
+    "google-workspace",
+    "intercom",
+    "jetbrains",
+    "marketo",
+    "microsoft-365",
+    "monday-com",
+    "onetrust",
+    "openai",
+    "protonmail",
+    "slack",
+    "stripe",
+    "wayback",
+    "wework",
+    "zapier",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "proofpoint.com",
+   "vendors": [
+    "3138e5c5-9798-41bb-a66a-f0b02555197b",
+    "adobe",
+    "anthropic",
+    "apple",
+    "asv",
+    "atlassian",
+    "atlassian-sending",
+    "cursor",
+    "docker",
+    "docusign",
+    "fastly-domain-delegation-3yf86bwsvk5ektb4-875817-2025-01-23",
+    "github-challenge-proofpoint-2",
+    "globalsign",
+    "jamf",
+    "linear",
+    "microsoft-365",
+    "openai",
+    "pendo",
+    "smartsheet-site-validation",
+    "verificationtoken",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "mimecast.com",
+   "vendors": [
+    "4xlha-tpx5jfdvtbws5wc8jkjb1eex5u",
+    "anthropic",
+    "atlassian",
+    "atlassian-sending",
+    "box",
+    "cursor",
+    "docker",
+    "docusign",
+    "drift",
+    "duosso",
+    "elevenlabs",
+    "figma",
+    "globalsign",
+    "gng-j90w13dr-zlxyb6ocwl",
+    "jamf",
+    "kiro",
+    "microsoft-365",
+    "miro",
+    "openai",
+    "profound",
+    "verificationtoken"
+   ]
+  },
+  {
+   "domain": "anthropic.com",
+   "vendors": [
+    "1password",
+    "6c43f0e4-7a6e-41f1-b393-a467b815c9ab",
+    "asv",
+    "atlassian",
+    "atlassian-sending",
+    "ca3-f11ea7ccbb494dba9a917fa7a141e281",
+    "cursor",
+    "elevenlabs",
+    "google-workspace",
+    "jetbrains",
+    "microsoft-365",
+    "mongodb",
+    "paloaltonetworks",
+    "parallel",
+    "segment",
+    "slack",
+    "stripe",
+    "wiz"
+   ]
+  },
+  {
+   "domain": "openai.com",
+   "vendors": [
+    "airalo",
+    "airtable",
+    "apple",
+    "atlassian",
+    "autodesk",
+    "box",
+    "calendly",
+    "canva",
+    "central",
+    "docker",
+    "dropbox",
+    "dtm",
+    "figma",
+    "google-workspace",
+    "hibp",
+    "hubspot",
+    "hubspot-developer",
+    "jamf",
+    "linear",
+    "marketo",
+    "mgverify",
+    "microsoft-365",
+    "miro",
+    "mongodb",
+    "notion",
+    "onetrust",
+    "openai",
+    "parsec",
+    "postman",
+    "pylon",
+    "smartsheet-site-validation",
+    "stripe",
+    "tailscale-fawybk3uol8tf83rkjoc",
+    "tukj3psjdk",
+    "twilio",
+    "uber",
+    "whimsical",
+    "wrike",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "cursor.com",
+   "vendors": [
+    "afternic",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "docusign",
+    "doordash",
+    "figma",
+    "google-workspace",
+    "microsoft-365",
+    "postmark",
+    "qa-wolf",
+    "slack",
+    "status-page"
+   ]
+  },
+  {
+   "domain": "huggingface.co",
+   "vendors": [
+    "1wwwhuggingfaceco",
+    "amazon-business",
+    "amazon-ses",
+    "anthropic",
+    "apple",
+    "cursor",
+    "google-workspace",
+    "hcp",
+    "microsoft-365",
+    "miro",
+    "mongodb",
+    "openai",
+    "plausible-sso",
+    "seatsurfing",
+    "stripe",
+    "uber",
+    "zapier",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "perplexity.ai",
+   "vendors": [
+    "anthropic",
+    "apple",
+    "cursor",
+    "docusign",
+    "doordash",
+    "google-gws-recovery",
+    "google-workspace",
+    "hubspot-developer",
+    "mailgun",
+    "microsoft-365",
+    "notion",
+    "openai",
+    "perplexity-ai",
+    "protonmail",
+    "rippling",
+    "sendgrid",
+    "serval",
+    "slack",
+    "stripe",
+    "verificationtoken",
+    "yahoo",
+    "zapier",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "elevenlabs.io",
+   "vendors": [
+    "1password",
+    "anthropic",
+    "apple",
+    "asv",
+    "brevo-code55b000b184782dd2416d4423aafbe469",
+    "cursor",
+    "docusign",
+    "firebase",
+    "google-workspace",
+    "hubspot",
+    "jamf",
+    "jetbrains",
+    "kfjjq995cv",
+    "linear",
+    "microsoft-365",
+    "mongodb",
+    "openai",
+    "plain",
+    "projectdiscovery",
+    "reftab",
+    "salesforce",
+    "slack",
+    "stripe",
+    "zendesk",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "replicate.com",
+   "vendors": [
+    "apple",
+    "google-workspace",
+    "mailchimp",
+    "notion",
+    "stripe",
+    "tailscale-qawnunmolk0vvj3uoxah"
+   ]
+  },
+  {
+   "domain": "cohere.com",
+   "vendors": [
+    "1password",
+    "3600rippling",
+    "adobe",
+    "amazon-ses",
+    "apple",
+    "asv",
+    "cisco-ci",
+    "cursor",
+    "docusign",
+    "google-workspace",
+    "linear",
+    "marketo",
+    "microsoft-365",
+    "notion",
+    "ossrh",
+    "rippling",
+    "salesforce",
+    "secureframe",
+    "slack",
+    "sprout-social-a97d03f7-25c1-4d7a-9b65-d273b09964c6",
+    "tailscale"
+   ]
+  },
+  {
+   "domain": "gymshark.com",
+   "vendors": [
+    "access",
+    "adobe",
+    "adobe-sign",
+    "anthropic",
+    "apple",
+    "asv",
+    "atlassian",
+    "fabric",
+    "figma",
+    "globalsign",
+    "jamf",
+    "microsoft-365",
+    "mixpanel-domain",
+    "onetrust",
+    "openai",
+    "storyteq",
+    "wrike",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "patagonia.com",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "atlassian-sending",
+    "azurewebsites",
+    "docker",
+    "docusign",
+    "jamf",
+    "klaviyo",
+    "logmein",
+    "mandrill",
+    "microsoft-365",
+    "miro",
+    "nicedemo-9efb53b34600019incontactemailcom",
+    "openai",
+    "salesforce",
+    "shopify",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "allbirds.com",
+   "vendors": [
+    "apple",
+    "cursor",
+    "docusign",
+    "microsoft-365",
+    "miro",
+    "rippling"
+   ]
+  },
+  {
+   "domain": "glossier.com",
+   "vendors": [
+    "airtable",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "docusign",
+    "dropbox",
+    "jamf",
+    "klaviyo",
+    "miro",
+    "monday-com",
+    "onetrust",
+    "segment",
+    "shopify",
+    "stripe",
+    "supxkuabt",
+    "zoom"
+   ]
+  },
+  {
+   "domain": "brompton.com",
+   "vendors": [
+    "adobe",
+    "anthropic",
+    "atlassian",
+    "atlassian-sending",
+    "mailchimp",
+    "microsoft-365",
+    "miro",
+    "salesforce",
+    "sendgrid"
+   ]
+  },
+  {
+   "domain": "bellroy.com",
+   "vendors": [
+    "anthropic",
+    "apple",
+    "atlassian",
+    "cisco-ci",
+    "google-site-verificationwuc2j2aekkcw4gdv4rtfjrqzaolchatww7nsx7lblhk",
+    "google-workspace",
+    "klaviyo",
+    "microsoft-365",
+    "pinterest",
+    "sendgrid",
+    "stripe",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "warbyparker.com",
+   "vendors": [
+    "anthropic",
+    "apple",
+    "asv",
+    "atlassian",
+    "cursor",
+    "docker",
+    "figma",
+    "google-workspace",
+    "jamf",
+    "microsoft-365",
+    "mixpanel-domain",
+    "openai",
+    "samsung",
+    "sendgrid",
+    "stripe",
+    "tailscale-zl3s3skaikk1avkjqeem"
+   ]
+  },
+  {
+   "domain": "oatly.com",
+   "vendors": [
+    "amazon-ses",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "docusign",
+    "mailchimp",
+    "microsoft-365",
+    "pexip-ms-tenant",
+    "sendgrid",
+    "teamtailor"
+   ]
+  },
+  {
+   "domain": "huel.com",
+   "vendors": [
+    "airtable",
+    "anthropic",
+    "apple",
+    "atlassian",
+    "jamf",
+    "lovable",
+    "microsoft-365",
+    "miro",
+    "mongodb",
+    "onetrust",
+    "openai",
+    "shopify",
+    "smartsheet-site-validation",
+    "stripe",
+    "tiktok",
+    "tipalti"
+   ]
+  },
+  {
+   "domain": "castore.com",
+   "vendors": [
+    "1password",
+    "apple",
+    "klaviyo",
+    "microsoft-365",
+    "onmicrosoft",
+    "shopify"
+   ]
+  },
+  {
+   "domain": "siemens.com",
+   "vendors": [
+    "00d300000006woeeaa",
+    "adobe",
+    "adobe-sign",
+    "apple",
+    "asuidtrade-finance-survey-platform",
+    "asv",
+    "atlassian",
+    "atlassian-sending",
+    "bluebeam",
+    "cisco-ci",
+    "cloudhealth",
+    "d365mktkey",
+    "docker",
+    "domainverification",
+    "figma",
+    "hcp",
+    "infoblox-domain-mastery",
+    "microsoft-365",
+    "mongodb",
+    "msfpkey",
+    "onetrust",
+    "openai",
+    "ossrh",
+    "paloaltonetworks",
+    "pendo",
+    "sfmc-vy1f7x9gpar-9vrviooczi6gzzapqbnlqgp1zm",
+    "smartsheet-site-validation",
+    "zendesk"
+   ]
+  },
+  {
+   "domain": "gpe.co.uk",
+   "vendors": [
+    "apple",
+    "atlassian-sending",
+    "campaign-monitor",
+    "d365mktkey",
+    "mailgun",
+    "microsoft-365",
+    "stripe"
+   ]
+  },
+  {
+   "domain": "britishland.com",
+   "vendors": [
+    "1password",
+    "apple",
+    "b52f0bec-d4c2-46c9-bd32-85410a67ccfe",
+    "canva",
+    "docusign",
+    "foxit",
+    "hibp",
+    "mailchimp",
+    "microsoft-365",
+    "pardot142521",
+    "sophos"
+   ]
+  },
+  {
+   "domain": "landsec.com",
+   "vendors": [
+    "atlassian",
+    "azurewebsites",
+    "microsoft-365",
+    "salesforce"
+   ]
+  },
+  {
+   "domain": "rolls-royce.com",
+   "vendors": [
+    "apple",
+    "cm9sbhm",
+    "d365mktkey",
+    "docusign",
+    "dtm",
+    "figma",
+    "microsoft-365",
+    "msv1",
+    "sendgrid"
+   ]
+  },
+  {
+   "domain": "dyson.com",
+   "vendors": [
+    "382d1088-2eef-4306-a565-d17d344b153a",
+    "adobe",
+    "airtable",
+    "apple",
+    "atlassian",
+    "cloudflare-sso",
+    "d0y4s36957",
+    "docusign",
+    "have-i-been-pwned",
+    "jamf",
+    "lucidlink",
+    "microsoft-365",
+    "miro",
+    "onetrust",
+    "openai",
+    "parallels",
+    "pardot707593",
+    "sendingdomain707593",
+    "spfsalesforcecom",
+    "teamviewer-sso"
+   ]
+  },
+  {
+   "domain": "arup.com",
+   "vendors": [
+    "adobe",
+    "amazon-ses",
+    "apple",
+    "atlassian",
+    "autodesk",
+    "barco",
+    "ca3-7be8d873b97947689613eca78f070cad",
+    "cisco-ci",
+    "d365mktkey",
+    "docusign",
+    "ecostruxure-it",
+    "globalsign",
+    "hcp",
+    "jamf",
+    "marketo",
+    "mentimeter-12395358-7016-48b4-899c-0c0128f0a97f",
+    "microsoft-365",
+    "miro",
+    "msfpkey",
+    "webflow",
+    "yxj1ca"
+   ]
+  },
+  {
+   "domain": "ocado.com",
+   "vendors": [
+    "atlassian",
+    "docusign",
+    "google-workspace",
+    "hibp",
+    "jamf",
+    "notion",
+    "salesforce"
+   ]
+  }
+ ]
+}
