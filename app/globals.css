@@ -262,6 +262,45 @@ input:disabled, select:disabled, textarea:disabled { opacity: 0.55; cursor: not-
 :root[data-theme="dark"] .art-light { display: none; }
 .receipt { font-family: var(--font-mono); white-space: pre; line-height: 1.35; font-size: 13px; }
 
+/* --- Search -------------------------------------------------------------- */
+.search-wrap { position: relative; width: 100%; }
+
+.search-pop {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  max-height: 20rem;
+  overflow-y: auto;
+}
+
+.search-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+/* Hover and keyboard selection must look identical, or arrowing through the
+   list looks broken next to a mouse that highlights. */
+.search-row:hover,
+.search-row[data-active] { background: var(--surface-2); color: var(--ink); }
+
+/* --- Footer -------------------------------------------------------------- */
+.foot-link { color: var(--ink-muted); font-size: 0.875rem; text-decoration: none; }
+.foot-link:hover { color: var(--ocean); text-decoration: underline; }
+
 /* --- Links --------------------------------------------------------------- */
 a { color: var(--ocean); text-underline-offset: 3px; }
 a:hover { color: var(--coral); }

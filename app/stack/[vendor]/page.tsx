@@ -21,6 +21,7 @@ import {
 import { abs, SITE_NAME } from "@/lib/site";
 import { JsonLd } from "../../jsonld";
 import { SectionHead, ThemeToggle } from "../../ui";
+import { AskAbout } from "../../ask";
 
 /**
  * NOTE: `dynamicParams = false` would be the natural way to reject unknown
@@ -190,6 +191,12 @@ export default async function VendorPage(props: PageProps<"/stack/[vendor]">) {
           </div>
         </div>
       </section>
+
+      <AskAbout
+        className="mb-10"
+        path={`/stack/${slug}`}
+        ask={`Which notable companies use ${name}, and what does that adoption pattern say about who actually buys it?`}
+      />
 
       <footer className="t-small muted border-t pt-6" style={{ borderColor: "var(--border)" }}>
         <p>

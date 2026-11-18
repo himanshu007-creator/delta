@@ -111,6 +111,16 @@ export function vendorSlug(input: string): string | null {
 const NOT_A_PRODUCT = new Set(["apple", "google", "facebook", "yahoo", "domain", "ms"]);
 export const isPageworthyVendor = (v: string) => !NOT_A_PRODUCT.has(v);
 
+/**
+ * Slug to display label. Exported so the directory, the vendor page and the
+ * search box cannot disagree about what a vendor is called.
+ */
+export const prettyVendor = (slug: string) =>
+  slug
+    .split("-")
+    .map((w) => (w.length <= 3 ? w.toUpperCase() : w[0].toUpperCase() + w.slice(1)))
+    .join(" ");
+
 // ---------------------------------------------------------------------------
 // The precomputed index, which is what the pages actually read
 // ---------------------------------------------------------------------------

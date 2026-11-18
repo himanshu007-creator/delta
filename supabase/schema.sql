@@ -339,6 +339,7 @@ declare
   v_old_kind text;
   v_old_conf real;
   v_seen     boolean;
+  v_touched  text[] := '{}';
 begin
   for v_fact in select value from jsonb_array_elements(coalesce(p_facts, '[]'::jsonb)) loop
     v_path := v_fact->>'path';
@@ -369,6 +370,25 @@ begin
        and coalesce(v_old_conf, 0) >= coalesce(v_new_conf, 0) then
       continue;
     end if;
+
+    /*
+     * WITHIN-BATCH DUPLICATES.
+     *
+     * One extract() may emit the same path twice — the pricing parser emitted
+     * two different `pricing.note` diagnostics in a single call. The second
+     * then saw the first as an existing same-kind value and recorded a change,
+     * so four companies showed a "change" on their very first crawl. A repeat
+     * inside one batch is not a value moving over time; last write wins and no
+     * change is recorded.
+     */
+    if v_path = any(v_touched) then
+      update facts set value = v_new, confidence = v_new_conf,
+             source_url = v_fact->>'source_url', quote = v_fact->>'quote',
+             kind = p_kind, updated_at = now()
+       where company_domain = p_domain and path = v_path;
+      continue;
+    end if;
+    v_touched := v_touched || v_path;
 
     if v_old is distinct from v_new then
       /*

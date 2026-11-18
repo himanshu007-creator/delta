@@ -5,8 +5,9 @@
 
 import Link from "next/link";
 import { SITE_NAME } from "@/lib/site";
-import { isPageworthyVendor, stackIndex } from "@/lib/stack-index";
+import { isPageworthyVendor, prettyVendor, stackIndex } from "@/lib/stack-index";
 import { SectionHead, ThemeToggle } from "../ui";
+import { AskAbout } from "../ask";
 
 export const metadata = {
   title: "What companies actually buy — vendor adoption from public DNS",
@@ -16,8 +17,7 @@ export const metadata = {
   alternates: { canonical: "/stack" },
 };
 
-const pretty = (slug: string) =>
-  slug.split("-").map((w) => (w.length <= 3 ? w.toUpperCase() : w[0].toUpperCase() + w.slice(1))).join(" ");
+const pretty = prettyVendor;
 
 export default function StackIndexPage() {
   const ix = stackIndex();
@@ -58,6 +58,12 @@ export default function StackIndexPage() {
           </ul>
         </div>
       </section>
+
+      <AskAbout
+        className="mb-10"
+        path="/stack"
+        ask="Which vendors are most widely adopted across these companies, and what does that say about where the market is spending?"
+      />
 
       <footer className="t-small muted border-t pt-6" style={{ borderColor: "var(--border)" }}>
         <p>Public DNS records only. Generated {ix.generatedAt.slice(0, 10)}.</p>

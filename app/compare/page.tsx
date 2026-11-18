@@ -7,6 +7,7 @@ import Link from "next/link";
 import { SITE_NAME } from "@/lib/site";
 import { comparablePairs, SEED, seedFor, type Category } from "@/lib/seed";
 import { SectionHead, ThemeToggle } from "../ui";
+import { AskAbout } from "../ask";
 
 export const metadata = {
   title: "Head-to-head company comparisons, built from public records",
@@ -74,6 +75,12 @@ export default function CompareIndexPage() {
             </div>
           </section>
         ))}
+
+      <AskAbout
+        className="mb-10"
+        path="/compare"
+        ask="Which of these head-to-head comparisons would matter most to someone choosing a tool in this category right now?"
+      />
 
       <footer className="t-small muted border-t pt-6" style={{ borderColor: "var(--border)" }}>
         <p>Public sources only. We honour robots.txt and never use LinkedIn.</p>

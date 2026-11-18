@@ -154,7 +154,7 @@ for (const [name, t] of Object.entries(THEMES)) check(name, t);
 
   // Tailwind generates its own; we only police OUR classes.
   const TAILWIND =
-    /^(sm|md|lg|xl|2xl):|^(grid|flex|block|hidden|inline|text|bg|p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|w|h|min|max|gap|space|items|justify|self|border|rounded|shadow|opacity|overflow|relative|absolute|fixed|sticky|top|left|right|bottom|inset|z|truncate|shrink|grow|basis|font|leading|tracking|cursor|select|order|col|row|aspect|object|whitespace|antialiased|no-underline|underline|uppercase|lowercase|capitalize|container|break|list|wrap|align|visible|invisible|pointer|divide|ring|transition|duration|animate)/;
+    /^(sm|md|lg|xl|2xl):|^(grid|flex|block|hidden|inline|text|bg|p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|w|h|min|max|gap|space|items|justify|self|border|rounded|shadow|opacity|overflow|relative|absolute|fixed|sticky|top|left|right|bottom|inset|z|truncate|shrink|grow|basis|font|leading|tracking|cursor|select|order|col|row|aspect|object|whitespace|antialiased|no-underline|underline|uppercase|lowercase|capitalize|container|break|list|wrap|align|visible|invisible|pointer|divide|ring|transition|duration|animate|scroll|sr)/;
 
   const walk = (dir: string): string[] =>
     readdirSync(dir, { withFileTypes: true }).flatMap((e) =>

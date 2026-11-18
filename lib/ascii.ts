@@ -217,6 +217,90 @@ export const calmField: Field = (x, y, t) => {
   return clamp01(v);
 };
 
+// --- The history surface ----------------------------------------------------
+
+/**
+ * Deterministic value noise.
+ *
+ * Math.random would render differently on the server and the client and tear
+ * the markup apart on hydration, so the noise is a pure function of position.
+ * Same input, same glyph, every time, on either side of the wire.
+ */
+function hash2(i: number, j: number): number {
+  const s = Math.sin(i * 127.1 + j * 311.7) * 43758.5453123;
+  return s - Math.floor(s);
+}
+
+function vnoise(x: number, y: number): number {
+  const i = Math.floor(x);
+  const j = Math.floor(y);
+  const fx = x - i;
+  const fy = y - j;
+  // Smoothstep the interpolants, or the lattice shows as visible square edges.
+  const u = fx * fx * (3 - 2 * fx);
+  const v = fy * fy * (3 - 2 * fy);
+  return (
+    hash2(i, j) * (1 - u) * (1 - v) +
+    hash2(i + 1, j) * u * (1 - v) +
+    hash2(i, j + 1) * (1 - u) * v +
+    hash2(i + 1, j + 1) * u * v
+  );
+}
+
+/** Where the change event sits, as a fraction of the width. */
+const CHANGE_X = 0.63;
+
+/**
+ * The history surface — the one picture of what this product is.
+ *
+ * Time runs left to right. Tracked surfaces stack up the y axis. Luminance is
+ * the value we recorded. A bright seam at CHANGE_X is a change event, and the
+ * level is permanently higher to its right: something moved, and we have both
+ * sides of it. That is the whole pitch, drawn rather than claimed.
+ *
+ * Deliberately not a photograph. A stock image of a laptop says nothing; a
+ * data surface with a step in it says exactly what we sell.
+ */
+export const historyField: Field = (x, y, t) => {
+  let v = 0.26;
+
+  // Two octaves of drift, so it reads as many series rather than one blob.
+  v += 0.3 * vnoise(x * 6 + t * 0.12, y * 8);
+  v += 0.15 * vnoise(x * 14 - t * 0.08, y * 17);
+
+  // Horizontal banding: discrete surfaces, not a continuous gradient.
+  v += 0.08 * Math.sin(y * Math.PI * 13);
+
+  // The change event: a hard vertical seam with a step in level after it.
+  v += 0.6 * (1 - smoothstep(0, 0.011, Math.abs(x - CHANGE_X)));
+  if (x > CHANGE_X) v += 0.13;
+
+  // Earlier history is thinner, because back-fill gets sparser the further
+  // back you go. An honest picture of our own coverage.
+  v *= 0.72 + 0.28 * smoothstep(0, 0.45, x);
+
+  // Vertical vignette so the block sits on the page instead of being cropped.
+  v *= 1 - 0.55 * Math.pow(Math.abs(y - 0.5) * 2, 3);
+
+  return clamp01(v);
+};
+
+/**
+ * One series with one step change, as a filled area.
+ *
+ * Filled, not a stroke: at five rows tall a one-cell line breaks up into
+ * dashes and reads as noise, whereas an area still reads as a chart. The step
+ * is UP because that is the change people actually care about finding.
+ */
+export const stepField: Field = (x, y) => {
+  const level = (x < CHANGE_X ? 0.74 : 0.30) + 0.04 * vnoise(x * 18, 2.5);
+  // Inside the area, with the top edge brightest so the line stays legible.
+  // The falloff has to be wider than the row spacing (1/rows) or the gradient
+  // lands entirely between samples and the whole area renders as one flat tone.
+  if (y >= level) return clamp01(0.4 + 0.6 * (1 - smoothstep(0, 0.6, y - level)));
+  return 0;
+};
+
 // --- Prerendered strings ----------------------------------------------------
 // Rendered once at module load so server components can ship them as static
 // text with no client work.
@@ -224,6 +308,22 @@ export const calmField: Field = (x, y, t) => {
 // Scene strings are gone: the landing art is now rendered PNGs in lib/art.ts.
 // The field renderer stays because the wave rule and the live run indicator
 // are still generated, and a PNG cannot animate.
+
+/**
+ * The hero surface, rendered once at module load.
+ *
+ * Block glyphs rather than punctuation: at this density they read as a heatmap
+ * instead of as text, which is what makes it look like data. One render serves
+ * both themes — more ink means more value on a light background and more
+ * visibility on a dark one, so there is no light/dark pair to swap.
+ */
+export const HISTORY_ART = render(historyField, { cols: 108, rows: 24, ramp: "soft", gamma: 1.3 });
+
+/** Narrow build for phones, where 108 columns would wrap and shear. */
+export const HISTORY_ART_NARROW = render(historyField, { cols: 52, rows: 15, ramp: "soft", gamma: 1.25 });
+
+/** A sparkline-sized step change, for inline use beside a claim. */
+export const STEP_ART = render(stepField, { cols: 44, rows: 7, ramp: "soft", gamma: 1 });
 
 /** A wave rule, wide enough to tile and drift without showing an edge. */
 export function waveRule(cols = 160): string {

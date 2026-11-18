@@ -25,6 +25,7 @@ import { comparablePairs, pairKey, parsePair, seedFor, stackIndex } from "@/lib/
 import { abs, SITE_NAME } from "@/lib/site";
 import { JsonLd } from "../../jsonld";
 import { SectionHead, ThemeToggle } from "../../ui";
+import { AskAbout } from "../../ask";
 
 export async function generateStaticParams() {
   return comparablePairs().map((p) => ({ pair: p.slug }));
@@ -210,6 +211,12 @@ async function Resolved({ params }: { params: PageProps<"/compare/[pair]">["para
           </div>
         </div>
       </section>
+
+      <AskAbout
+        className="mb-10"
+        path={`/compare/${a}-vs-${b}`}
+        ask={`How do ${A} and ${B} compare on pricing, tech stack and momentum — and which one looks like it is gaining?`}
+      />
 
       <footer className="t-small muted border-t pt-6" style={{ borderColor: "var(--border)" }}>
         <p>Public sources only. We honour robots.txt and never use LinkedIn.</p>

@@ -1,8 +1,14 @@
 import Link from "next/link";
-import { FREE_ROWS } from "@/lib/offer";
+import { SITE_NAME } from "@/lib/site";
 import { WaveRule } from "../ui";
 
-export const metadata = { title: "Thanks — LEDE" };
+export const metadata = {
+  title: "Thanks",
+  description: "Your licence key is on its way.",
+  // Nothing to gain from indexing a post-payment page, and it should not
+  // surface in search above the pages that actually sell.
+  robots: { index: false, follow: false },
+};
 
 /**
  * Where Creem's success_url lands.
@@ -34,28 +40,40 @@ export default function Thanks() {
           </span>
         </li>
         <li>
-          <strong>2. Open the app and pick &ldquo;I have a licence&rdquo;.</strong>
+          <strong>2. Build your watchlist.</strong>
           <span className="block t-small muted">
-            Paste the key into section 01, along with your own Claude, Gemini or Groq key.
+            Add the companies you want tracked. They are collected on the next window — 00:00 or
+            12:00 UTC — and back-filled from the archives after that, so history shows up without
+            you waiting for it.
           </span>
         </li>
         <li>
-          <strong>3. Run your real list.</strong>
+          <strong>3. Or skip the dashboard entirely.</strong>
           <span className="block t-small muted">
-            No {FREE_ROWS}-email cap any more. Your provider bills you for usage directly, and
-            we never mark it up.
+            Send the key as a bearer token to the REST API, or point an MCP client at the server
+            and ask Claude directly. Same data, same quota, no UI in the way.
           </span>
         </li>
       </ol>
 
-      <Link href="/run" className="btn btn-primary no-underline">
-        Open the app
-      </Link>
+      <div className="flex flex-wrap gap-3">
+        <Link href="/stack" className="btn btn-primary no-underline">
+          Browse the dataset
+        </Link>
+        <Link href="/compare" className="btn no-underline">
+          Compare two companies
+        </Link>
+      </div>
 
       <p className="t-micro muted mt-8">
         {/* TODO before launch: real support address. Creem's account review
             requires a reachable one, and this page is where buyers look. */}
         Key not arrived, or anything else wrong? Reply to the Creem receipt and it reaches us.
+      </p>
+
+      <p className="t-micro muted mt-3">
+        Thank you — genuinely. {SITE_NAME} is run by one person, and a paid licence is what keeps
+        the crawl running.
       </p>
     </main>
   );

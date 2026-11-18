@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { waveRule } from "@/lib/ascii";
+import { SITE_NAME } from "@/lib/site";
 import type { ArtPiece } from "@/lib/art";
 
 const STORAGE = "lede.theme";
@@ -220,5 +221,63 @@ export function Countdown({ to }: { to: string }) {
     <strong className="mono" style={{ color: "var(--coral)" }}>
       {left.d}d {left.h}h {left.m}m
     </strong>
+  );
+}
+
+/**
+ * The shared footer.
+ *
+ * Two jobs. For a reader, it says what the sources are, because the brand is
+ * provenance and a footer that hides the method contradicts it. For a crawler
+ * and an assistant, it is the internal-linking hub that makes the generated
+ * pages reachable from the root — including /llms.txt and the sitemap, which
+ * is how an assistant finds the dataset at all.
+ */
+export function SiteFooter() {
+  return (
+    <footer className="mt-20 border-t pt-10 pb-12" style={{ borderColor: "var(--border)" }}>
+      <div className="grid gap-8 sm:grid-cols-4">
+        <div>
+          <p className="eyebrow mb-3">Explore</p>
+          <ul className="space-y-2 list-none p-0 m-0">
+            <li><a className="foot-link" href="/stack">Vendor adoption</a></li>
+            <li><a className="foot-link" href="/compare">Head-to-head</a></li>
+            <li><a className="foot-link" href="/#pricing">Pricing</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <p className="eyebrow mb-3">For machines</p>
+          <ul className="space-y-2 list-none p-0 m-0">
+            <li><a className="foot-link" href="/llms.txt">llms.txt</a></li>
+            <li><a className="foot-link" href="/sitemap.xml">sitemap.xml</a></li>
+            <li><a className="foot-link" href="/robots.txt">robots.txt</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <p className="eyebrow mb-3">Legal</p>
+          <ul className="space-y-2 list-none p-0 m-0">
+            <li><a className="foot-link" href="/privacy">Privacy</a></li>
+            <li><a className="foot-link" href="/terms">Terms</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <p className="eyebrow mb-3">Method</p>
+          <p className="t-micro muted m-0">
+            Public records only. Every fact links to the page it came from.
+            We do not scrape sites that keep us out, and we never touch LinkedIn.
+          </p>
+        </div>
+      </div>
+
+      {/* ponytail: no copyright year. new Date() in a client component is an
+          unstable value at prerender, and a year adds nothing a reader needs —
+          the refresh cadence is the fact worth stating. */}
+      <p className="t-micro muted mt-10 mb-0">
+        {SITE_NAME} · Refreshed twice daily at 00:00 and 12:00 UTC
+      </p>
+    </footer>
   );
 }

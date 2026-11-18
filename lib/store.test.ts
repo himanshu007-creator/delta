@@ -121,6 +121,13 @@ import { assertStore, currentWindow, storeConfigured } from "./store";
     /if v_seen and v_old_kind = p_kind then/.test(sql),
     "only the SAME source moving its value over time is a change; a disagreement between sources is not",
   );
+  // REGRESSION: the pricing parser emitted two different `pricing.note` values
+  // in ONE extract() call. The second overwrote the first and recorded a
+  // change, so four companies "changed" on their first ever crawl.
+  assert.ok(
+    /if v_path = any\(v_touched\) then/.test(sql),
+    "a path repeated within one batch must not record a change — it is not a value moving over time",
+  );
   for (const t of ["companies", "watchlists", "surfaces", "facts", "changes"]) {
     assert.ok(
       new RegExp(`alter table ${t}\\s+enable row level security`).test(sql),

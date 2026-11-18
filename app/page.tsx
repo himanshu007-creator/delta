@@ -1,473 +1,404 @@
+/**
+ * The landing page.
+ *
+ * Deliberately short. The product is a dataset, and the fastest way to believe
+ * a dataset is to look at it — so the page's job is to say what it is in one
+ * line, hand over a search box, and get out of the way. Every number on it is
+ * computed from the code that generates the pages, so none of them can drift
+ * into a claim.
+ */
+
 import Link from "next/link";
-import { abs, SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/site";
-import { JsonLd } from "./jsonld";
-import { COMPETITOR_RATES, getModel, costUsd, CHEAPEST_MODEL_ID, DEFAULT_MODEL_ID } from "@/lib/pricing";
-import { renderReceipt } from "@/lib/receipt";
-import { ART } from "@/lib/art";
+import type { Metadata } from "next";
+import { cacheLife } from "next/cache";
+import { HISTORY_ART, HISTORY_ART_NARROW, STEP_ART } from "@/lib/ascii";
+import { SEED, comparablePairs } from "@/lib/seed";
+import { ADAPTERS } from "@/lib/sources/registry";
+import { isPageworthyVendor, stackIndex } from "@/lib/stack-index";
+import { SEARCH_INDEX } from "@/lib/search-index";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL, abs } from "@/lib/site";
 import {
-  CHECKOUT_URL,
   BASE_PRICE,
-  SALES_PER_STEP,
-  STEP,
-  AFTER_PRICE,
-  ROWS_PER_MONTH,
-  REFUND,
-  COMPARISON,
+  CHECKOUT_READY,
+  CHECKOUT_URL,
   DEAL_ENDS,
-  priceAfterSales,
+  FREE_CALLS_PER_DAY,
+  LIFETIME_PAYBACK_MONTHS,
+  REFUND,
+  TIERS,
+  dealIsOpen,
+  daysUntilDeadline,
 } from "@/lib/offer";
-import { FREE_ROWS_PER_USER } from "@/lib/usage-store";
-import { ThemeToggle, WaveRule, Scene, SectionHead, Faq, Countdown } from "./ui";
+import { Faq, SectionHead, SiteFooter, ThemeToggle, WaveRule } from "./ui";
+import { SearchBox } from "./search";
+import { AskAbout } from "./ask";
+import { JsonLd } from "./jsonld";
 
-/** Computed from published rates, never asserted. */
-const cheapest = getModel(CHEAPEST_MODEL_ID)!;
-const free = getModel(DEFAULT_MODEL_ID)!;
-const PER_ROW = costUsd({ inputTokens: 3000, outputTokens: 120 }, cheapest);
-
-const SAMPLE = renderReceipt({
-  rowsTotal: 10000,
-  rowsWritten: 6210,
-  rowsSkipped: 3790,
-  modelId: cheapest.id,
-  usage: { inputTokens: 18_630_000, outputTokens: 745_200 },
-  costUsd: PER_ROW * 10000,
-});
-
-const PROVIDER_NAME: Record<string, string> = {
-  groq: "Groq",
-  anthropic: "Anthropic",
-  google: "Google",
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+  // A child's openGraph REPLACES the parent's rather than merging, so the
+  // image has to be named here or the root page loses its share preview.
+  openGraph: {
+    type: "website",
+    url: "/",
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+    images: ["/opengraph-image"],
+  },
+  twitter: { card: "summary_large_image", images: ["/opengraph-image"] },
 };
+
+// --- Real numbers, all computed from the code that builds the pages --------
+
+const COMPANIES = SEED.length;
+const SOURCES = ADAPTERS.length;
+const VENDORS = stackIndex().vendors.filter(
+  (v) => v.domains.length >= 2 && isPageworthyVendor(v.vendor),
+).length;
+const PAIRS = comparablePairs().length;
+const PAGES = COMPANIES + VENDORS + PAIRS;
+
+/** What a dossier actually contains. Two or three words each — this is a list, not prose. */
+const READS = [
+  ["Pricing", "every tier, monthly and annual"],
+  ["Vendor stack", "from public DNS records"],
+  ["Releases", "changelogs, versions, APIs"],
+  ["Hiring", "open roles by team and city"],
+  ["Security", "CVEs, posture, breaches"],
+  ["Legal entity", "registry name and address"],
+  ["Reliability", "incidents and time to recover"],
+  ["Reviews", "app stores, registries, forums"],
+] as const;
+
+const FAQ = [
+  {
+    q: "Where does the data come from?",
+    a: (
+      <>
+        {SOURCES} public sources — company pages, public DNS, GitHub, registries, app stores,
+        status pages, national company registries. Every fact stores the URL it came from and a
+        short quote, so you can check it. Nothing is behind a login and nothing is bought.
+      </>
+    ),
+  },
+  {
+    q: "Why is the current state free?",
+    a: (
+      <>
+        Because you could read their pricing page yourself. Charging for something you can get in
+        a browser tab is charging for nothing. What you cannot get is what it said last March —
+        that needs someone to have been watching, which is the part we sell.
+      </>
+    ),
+  },
+  {
+    q: "Do you scrape G2, Capterra or Reddit?",
+    a: (
+      <>
+        No. Those sites block automated access, and defeating a block is not something we will do
+        or rent. Where a rating is published in search results we read it from there, and where we
+        cannot see something the page says so instead of guessing.
+      </>
+    ),
+  },
+  {
+    q: "How often does it update?",
+    a: (
+      <>
+        Twice a day, at 00:00 and 12:00 UTC, the same for everybody. One fixed schedule means one
+        timestamp you can trust rather than a per-customer cadence nobody can reason about.
+      </>
+    ),
+  },
+  {
+    q: "Can an agent use this?",
+    a: (
+      <>
+        That is the main way in. There is a REST API and an MCP server, so Claude or any agent can
+        query the dataset directly. The free tier includes {FREE_CALLS_PER_DAY} calls a day with no
+        card.
+      </>
+    ),
+  },
+  {
+    q: "What if it is wrong?",
+    a: (
+      <>
+        Every number links to its source, so a wrong one is checkable rather than arguable. Prices
+        we could not read with confidence are marked as such instead of being filled in by a
+        guess. {REFUND}
+      </>
+    ),
+  },
+];
 
 export default function Home() {
   return (
     <>
+      {/* Organization + WebSite with a SearchAction. The search action is what
+          lets a search engine or an assistant query the dataset directly
+          rather than only crawling whatever we happened to link. */}
       <JsonLd
         data={{
           "@context": "https://schema.org",
           "@graph": [
             {
-              "@type": "WebSite",
+              "@type": "Organization",
+              "@id": `${SITE_URL}#org`,
               name: SITE_NAME,
-              url: abs("/"),
+              url: SITE_URL,
               description: SITE_DESCRIPTION,
             },
             {
-              "@type": "SoftwareApplication",
+              "@type": "WebSite",
+              "@id": `${SITE_URL}#site`,
+              url: SITE_URL,
               name: SITE_NAME,
-              applicationCategory: "BusinessApplication",
-              description: SITE_TAGLINE,
-              url: abs("/"),
-              offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free tier: 3 tracked companies" },
+              description: SITE_DESCRIPTION,
+              publisher: { "@id": `${SITE_URL}#org` },
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate: `${SITE_URL}/c/{search_term_string}`,
+                },
+                "query-input": "required name=search_term_string",
+              },
+            },
+            {
+              "@type": "Dataset",
+              name: `${SITE_NAME} competitor change history`,
+              description: `Change history for ${COMPANIES} companies across ${SOURCES} public sources, refreshed twice daily.`,
+              url: SITE_URL,
+              isAccessibleForFree: true,
+              creator: { "@id": `${SITE_URL}#org` },
+              license: abs("/terms"),
+            },
+            {
+              "@type": "FAQPage",
+              mainEntity: FAQ.map((f) => ({
+                "@type": "Question",
+                name: f.q,
+                acceptedAnswer: { "@type": "Answer", text: faqText(f.q) },
+              })),
             },
           ],
         }}
       />
-<main className="mx-auto w-full max-w-6xl px-5 py-8">
-      <nav className="flex items-center justify-between mb-14">
-        <span className="t-h3 mono" style={{ letterSpacing: "0.12em" }}>
-          LEDE
-        </span>
-        <div className="flex items-center gap-3">
-          <a href="#pricing" className="t-small no-underline hidden sm:inline">
-            Pricing
-          </a>
-          <ThemeToggle />
-          <Link href="/run" className="btn btn-primary no-underline">
-            Try it free
-          </Link>
-        </div>
-      </nav>
 
-      {/* ── Hero ────────────────────────────────────────────────── */}
-      <section className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center mb-10">
-        <div>
-          <p className="eyebrow mb-3">a concierge for cold email</p>
-          <h1 className="t-display mb-5">
-            Every email reads
-            <br />
-            like someone looked.
+      <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:py-12">
+        <nav className="mb-14 flex items-center justify-between gap-4">
+          <span className="mono t-small">{SITE_NAME}</span>
+          <div className="flex items-center gap-4">
+            <Link href="/stack" className="t-small no-underline">Vendors</Link>
+            <Link href="/compare" className="t-small no-underline">Compare</Link>
+            <Link href="#pricing" className="t-small no-underline">Pricing</Link>
+            <ThemeToggle />
+          </div>
+        </nav>
+
+        {/* --- Hero. One claim, one line, then the search box. ------------- */}
+        <header className="mb-10">
+          <p className="eyebrow mb-3">Competitor change intelligence</p>
+          <h1 className="t-display" style={{ maxWidth: "24ch" }}>
+            Know what they changed — and what it was before.
           </h1>
-          <p className="t-body mb-7" style={{ maxWidth: "34rem" }}>
-            Because something did. LEDE reads each prospect&apos;s site, finds one true, recent
-            thing, and writes an email around it. If there&apos;s nothing worth saying, it says so
-            instead of making something up.
+          <p className="t-body muted mt-4" style={{ maxWidth: "58ch" }}>
+            Pricing, vendor stack, releases, hiring and legal filings for {COMPANIES} companies,
+            read from {SOURCES} public sources twice a day. Every fact links to its source.
           </p>
-          <div className="flex flex-wrap items-center gap-4">
-            <Link href="/run" className="btn btn-primary no-underline">
-              Write {FREE_ROWS_PER_USER} free emails
-            </Link>
-            <span className="t-small muted">On our key. No card, no API key.</span>
+
+          <div className="mt-7" style={{ maxWidth: "30rem" }}>
+            <SearchBox index={SEARCH_INDEX} />
+            <p className="t-micro muted mt-2">
+              {PAGES.toLocaleString("en-GB")} pages, free and without an account. Try{" "}
+              <Link href="/c/linear.app">linear.app</Link>, <Link href="/stack/anthropic">Anthropic</Link>{" "}
+              or <Link href="/compare">a head-to-head</Link>.
+            </p>
           </div>
-        </div>
-        <Scene art={ART.hero} priority sizes="(max-width: 1024px) 88vw, 40vw" />
-      </section>
+        </header>
 
-      <WaveRule drift />
-
-      {/* ── Proof ───────────────────────────────────────────────── */}
-      <section className="py-14">
-        <SectionHead eyebrow="what it writes" title="Specific, or it tells you" />
-        <div className="grid gap-5 lg:grid-cols-2">
-          <article className="card-shell p-5">
-            <p className="t-micro mono mb-3" style={{ opacity: 0.7 }}>
-              EVERY OTHER AI TOOL
-            </p>
-            <p className="t-body">
-              &ldquo;I came across your website and love what you&apos;re doing in the space. Would
-              you be open to a quick call?&rdquo;
-            </p>
-          </article>
-          <article className="card-mint p-5">
-            <p className="t-micro mono mb-3" style={{ opacity: 0.7 }}>
-              LEDE
-            </p>
-            <p className="t-body mb-3">
-              &ldquo;You moved a billion dollars of vendor payments onto Global Payouts this year.
-              That scale usually breaks reconciliation before it breaks payments.&rdquo;
-            </p>
-            <p className="t-small mono" style={{ opacity: 0.75 }}>
-              ↳ quoted from their /blog, linked in the app
-            </p>
-          </article>
-        </div>
-        <p className="t-small muted mt-5" style={{ maxWidth: "46rem" }}>
-          Every line shows the sentence it came from. If the quote isn&apos;t on their page word for
-          word, the row is thrown away instead of handed to you.
-        </p>
-      </section>
-
-      <WaveRule />
-
-      {/* ── The concierge idea ──────────────────────────────────── */}
-      <section className="py-14 grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        {/* order- so the heading leads when this stacks on a phone. */}
-        <Scene art={ART.lei} className="order-2 lg:order-1" />
-        <div className="order-1 lg:order-2">
-          <SectionHead eyebrow="why it reads human" title="A concierge notices one thing" />
-          <p className="t-body mb-4" style={{ maxWidth: "36rem" }}>
-            In Hawaii the lei is a welcome made for one guest. That&apos;s the whole idea here. A
-            concierge doesn&apos;t greet a thousand people at once; they notice something about you
-            and act on it.
-          </p>
-          <p className="t-body mb-4" style={{ maxWidth: "36rem" }}>
-            So LEDE would rather hand you 6,000 real emails than 10,000 with invented details in
-            them. Skipping is the premium behaviour, not a limitation.
-          </p>
-          <p className="t-small muted" style={{ maxWidth: "36rem" }}>
-            It also strips the tells: no em dashes, no hype words, no &ldquo;I came across your
-            website&rdquo;, no exclamation marks, and nothing that just repeats their own tagline
-            back at them.
-          </p>
-        </div>
-      </section>
-
-      <WaveRule />
-
-      {/* ── Cost ────────────────────────────────────────────────── */}
-      <section className="py-14 grid gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
-        <div>
-          <SectionHead eyebrow="what it costs to run" title="Pennies, not thousands" />
-          <div className="card" style={{ overflow: "hidden" }}>
-            <table className="w-full t-small">
-              <thead>
-                <tr className="muted">
-                  <th className="text-left p-3 font-normal">Per contact</th>
-                  <th className="text-right p-3 font-normal">Each</th>
-                  <th className="text-right p-3 font-normal">10,000</th>
-                </tr>
-              </thead>
-              <tbody>
-                {COMPETITOR_RATES.map((c) => (
-                  <tr key={c.name} style={{ borderTop: "1px solid var(--border)" }}>
-                    <td className="p-3">{c.name}</td>
-                    <td className="p-3 text-right mono">${c.perContactUsd.toFixed(4)}</td>
-                    <td className="p-3 text-right mono">
-                      ${(c.perContactUsd * 10000).toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-                <tr style={{ borderTop: "2px solid var(--ocean)" }}>
-                  <td className="p-3" style={{ color: "var(--ocean)", fontWeight: 600 }}>
-                    Your own key
-                  </td>
-                  <td className="p-3 text-right mono" style={{ color: "var(--ocean)" }}>
-                    ${PER_ROW.toFixed(4)}
-                  </td>
-                  <td className="p-3 text-right mono" style={{ color: "var(--ocean)" }}>
-                    ${(PER_ROW * 10000).toFixed(2)}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+        {/* --- The one picture. ------------------------------------------- */}
+        <figure className="m-0 mb-4">
+          <div
+            className="ascii t-micro"
+            aria-hidden
+            style={{ color: "var(--ocean)", opacity: 0.85, overflow: "hidden" }}
+          >
+            {/* Two renders rather than a horizontal scroll: 108 columns of
+                monospace shears badly on a phone. */}
+            <span className="hidden sm:block">{HISTORY_ART}</span>
+            <span className="block sm:hidden">{HISTORY_ART_NARROW}</span>
           </div>
-          <p className="t-micro muted mt-3">
-            Start free on {free.label}. {cheapest.label} via{" "}
-            {PROVIDER_NAME[cheapest.provider] ?? cheapest.provider} is cheapest at volume. We take no
-            markup, ever.
-          </p>
-        </div>
+          <figcaption className="t-micro muted mt-2">
+            Time runs left to right, tracked surfaces stack upward, brightness is the recorded
+            value. The seam is a change event — and the level stays higher after it.
+          </figcaption>
+        </figure>
 
-        <div className="card p-4" style={{ overflowX: "auto" }}>
-          <pre className="receipt" style={{ color: "var(--ocean)" }}>
-            {SAMPLE}
-          </pre>
-          <p className="t-micro muted mt-3">
-            Every run ends with a receipt. Token counts are your provider&apos;s own numbers.
-          </p>
-        </div>
-      </section>
+        <WaveRule />
 
-      <WaveRule />
-
-      {/* ── Price ───────────────────────────────────────────────── */}
-      <section className="py-14" id="pricing">
-        <SectionHead eyebrow="pricing" title="Pay once. The price rises as it sells." />
-
-        <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
-          <div className="card p-7">
-            <div className="flex items-baseline gap-3 mb-1">
-              <span className="t-display">${BASE_PRICE}</span>
-              <span className="t-small muted">once</span>
-            </div>
-            <p className="t-small muted mb-5">Not per month. Not per seat. Not per contact.</p>
-
-            <ul className="t-small space-y-2 mb-6">
-              <li>Unlimited runs, up to {ROWS_PER_MONTH.toLocaleString()} rows a month</li>
-              <li>Claude, Gemini or Groq, your key either way</li>
-              <li>A licence key that unlocks the research engine</li>
-              <li>Your provider bills you for usage. We never mark it up.</li>
-              <li>Every future update to what&apos;s here</li>
-              <li>{REFUND}</li>
-            </ul>
-
-            <a href={CHECKOUT_URL} className="btn btn-primary no-underline">
-              Get lifetime access
-            </a>
-            <p className="t-micro muted mt-3">
-              {FREE_ROWS_PER_USER} free emails first, on our key. No card.
-            </p>
-
-            <div className="mt-6 pt-5" style={{ borderTop: "1px solid var(--border)" }}>
-              <p className="t-micro muted">
-                The ladder: every {SALES_PER_STEP} sales the price rises ${STEP}, so early buyers get
-                the best price. The lifetime deal closes in{" "}
-                <Countdown to={DEAL_ENDS.toISOString()} />, after which it becomes $
-                {AFTER_PRICE}/mo. Next rung: ${priceAfterSales(SALES_PER_STEP)}.
-              </p>
-            </div>
-          </div>
-
-          <div className="card p-6">
-            <p className="eyebrow mb-3">the maths</p>
-            <p className="t-small muted mb-4">
-              {COMPARISON.contacts.toLocaleString()} contacts, personalised once.
-            </p>
-            <table className="w-full t-small mb-4">
-              <tbody>
-                {COMPARISON.rows.map((r) => (
-                  <tr key={r.name} style={{ borderBottom: "1px solid var(--border)" }}>
-                    <td className="py-3">
-                      {r.name}
-                      <span className="block t-micro muted">{r.note}</span>
-                    </td>
-                    <td className="py-3 text-right mono">
-                      {r.perContact
-                        ? `$${(r.perContact * COMPARISON.contacts).toLocaleString()}`
-                        : `$${r.monthly}/mo`}
-                    </td>
-                  </tr>
-                ))}
-                <tr>
-                  <td className="py-3" style={{ color: "var(--ocean)", fontWeight: 600 }}>
-                    LEDE
-                    <span className="block t-micro muted">${BASE_PRICE} once + your own key</span>
-                  </td>
-                  <td
-                    className="py-3 text-right mono"
-                    style={{ color: "var(--ocean)", fontWeight: 600 }}
-                  >
-                    ${BASE_PRICE} + ${(PER_ROW * COMPARISON.contacts).toFixed(2)}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <p className="t-micro muted">{COMPARISON.disclaimer}</p>
-          </div>
-        </div>
-      </section>
-
-      <WaveRule />
-
-      {/* ── Security ────────────────────────────────────────────── */}
-      <section className="py-14 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-        <div>
-          <SectionHead eyebrow="security" title="Your key stays your key" />
-          <ul className="space-y-4" style={{ maxWidth: "34rem" }}>
-            <li>
-              <strong>It never reaches our servers.</strong>
-              <span className="block t-small muted">
-                Generation runs in your browser and talks to your provider directly. Open the network
-                tab and check.
-              </span>
-            </li>
-            <li>
-              <strong>Your list stays on your machine.</strong>
-              <span className="block t-small muted">
-                Parsed in the browser, stored locally so a closed tab doesn&apos;t lose a run.
-                &ldquo;Clear all data&rdquo; genuinely deletes it.
-              </span>
-            </li>
-            <li>
-              <strong>We only ever fetch public pages.</strong>
-              <span className="block t-small muted">
-                Our server reads prospects&apos; public websites and respects robots.txt. It never
-                touches LinkedIn, which is what gets accounts banned.
-              </span>
-            </li>
-            <li>
-              <strong>You see the cost before and after.</strong>
-              <span className="block t-small muted">
-                Token counts on every receipt are your provider&apos;s own numbers, not our
-                estimates.
-              </span>
-            </li>
+        {/* --- What a dossier holds. A list, not paragraphs. --------------- */}
+        <section className="mt-14">
+          <SectionHead eyebrow="what we read" title="Eight things, per company" />
+          <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2 list-none p-0 m-0">
+            {READS.map(([what, how]) => (
+              <li key={what} className="flex items-baseline justify-between gap-4 border-b pb-3"
+                  style={{ borderColor: "var(--border)" }}>
+                <span className="t-h3">{what}</span>
+                <span className="t-micro muted" style={{ textAlign: "right" }}>{how}</span>
+              </li>
+            ))}
           </ul>
-        </div>
-        <Scene art={ART.palm} />
-      </section>
+        </section>
 
-      {/* ── FAQ ─────────────────────────────────────────────────── */}
-      <section className="py-10">
-        <SectionHead eyebrow="before you buy" title="The questions worth asking" />
-        <Faq
-          items={[
-            {
-              q: `What do I get for free?`,
-              a: (
-                <>
-                  {FREE_ROWS_PER_USER} emails on our key, so you can see real output on your own
-                  prospects without signing up for an API key first. After that, buy once for unlimited
-                  runs on your own key. There is no card at any point before you choose to pay.
-                </>
-              ),
-            },
-            {
-              q: "Does this sound like AI?",
-              a: (
-                <>
-                  It is AI, and we won&apos;t pretend otherwise. What makes it read human is that
-                  every claim comes from a sentence on the prospect&apos;s own site rather than from
-                  the model&apos;s imagination, and the usual tells are removed in code, not merely
-                  discouraged in a prompt. You see the source sentence next to every email, so you
-                  can check it yourself before anything is sent.
-                </>
-              ),
-            },
-            {
-              q: "Why does the price keep going up?",
-              a: (
-                <>
-                  It&apos;s a ladder: every {SALES_PER_STEP} sales the price rises ${STEP}. Early
-                  buyers get the best price. The deal closes for good on 16 December 2026, after
-                  which it becomes ${AFTER_PRICE}/mo.
-                </>
-              ),
-            },
-            {
-              q: "What if I don't like it?",
-              a: (
-                <>
-                  {REFUND} You also get {FREE_ROWS_PER_USER} emails before paying anything, so you
-                  should already know whether the writing is good.
-                </>
-              ),
-            },
-            {
-              q: "Where does my API key go?",
-              a: (
-                <>
-                  Into your browser&apos;s local storage, and from there straight to your provider.
-                  It never reaches our servers. The free tier is the one exception, and it runs on
-                  our key, server-side, precisely so no key is ever exposed in a browser.
-                </>
-              ),
-            },
-            {
-              q: "Why does it skip rows?",
-              a: (
-                <>
-                  Because some sites say nothing specific. A run of 10,000 might return 6,000
-                  emails. Skipped rows are still exported, just kept out of your sending tool, where
-                  a blank variable mid-sequence is worse than an absent lead.
-                </>
-              ),
-            },
-            {
-              q: "Does it send the email?",
-              a: (
-                <>
-                  No, deliberately. You already have Instantly, Smartlead or Lemlist with warmed
-                  domains. We export a file shaped for each of them, and can open a prefilled draft
-                  in Gmail or Outlook for one-offs.
-                </>
-              ),
-            },
-            {
-              q: "How is this different from the AI in Gmail?",
-              a: (
-                <>
-                  Gmail&apos;s writer can polish your sentence but knows nothing about the person
-                  receiving it. It can&apos;t read their site, can&apos;t act on something they
-                  published last week, and can&apos;t do it ten thousand times. Writing is the easy
-                  part; the research is the product.
-                </>
-              ),
-            },
-            {
-              q: "Who built this?",
-              a: (
-                <>
-                  {/* TODO before launch: real name, support email, social link.
-                      Creem's account review requires a reachable support address. */}
-                  A solo builder, shipping in public. Support contact goes here before launch.
-                </>
-              ),
-            },
-          ]}
+        {/* --- The moat, stated plainly. ---------------------------------- */}
+        <section className="mt-16 grid gap-8 sm:grid-cols-5 items-center">
+          <div className="sm:col-span-3">
+            <SectionHead eyebrow="what is worth paying for" title="The present is free. The past is the product." />
+            <p className="t-body muted m-0" style={{ maxWidth: "48ch" }}>
+              Anyone can open a competitor&rsquo;s pricing page today. Knowing that they raised the
+              middle tier 20% on a Tuesday, moved SSO to Enterprise, and did it the same week their
+              hiring stopped — that needs a record. We keep the record.
+            </p>
+          </div>
+          <div className="sm:col-span-2">
+            <div className="ascii t-micro" aria-hidden style={{ color: "var(--coral)", opacity: 0.9 }}>
+              {STEP_ART}
+            </div>
+            <p className="t-micro muted mt-2 mb-0">A tier price, before and after.</p>
+          </div>
+        </section>
+
+        {/* --- Pricing. ---------------------------------------------------- */}
+        <section id="pricing" className="mt-20 scroll-mt-8">
+          <SectionHead eyebrow="pricing" title="Generous on companies. Priced on history." />
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {TIERS.map((t) => (
+              <div key={t.slug} className={t.slug === "pro" ? "card p-5" : "card-quiet p-5"}>
+                <div className="flex items-baseline justify-between gap-2">
+                  <h3 className="t-h3 m-0">{t.name}</h3>
+                  {t.slug === "pro" && <span className="pill pill-strong t-micro">Most bought</span>}
+                </div>
+                <p className="t-h2 mt-2 mb-1">
+                  {t.monthly === 0 ? "Free" : `$${t.monthly}`}
+                  {t.monthly ? <span className="t-micro muted"> /mo</span> : null}
+                </p>
+                <p className="t-micro muted mt-0 mb-4">{t.who}</p>
+
+                <dl className="t-small m-0 space-y-1">
+                  <div className="flex justify-between gap-2">
+                    <dt className="muted">Companies</dt>
+                    <dd className="m-0">{t.companies.toLocaleString("en-GB")}</dd>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <dt className="muted">History</dt>
+                    <dd className="m-0">{t.history}</dd>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <dt className="muted">API + MCP</dt>
+                    <dd className="m-0">{t.calls.toLocaleString("en-GB")}/day</dd>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <dt className="muted">Seats</dt>
+                    <dd className="m-0">{t.seats}</dd>
+                  </div>
+                </dl>
+
+                <ul className="t-micro muted mt-4 mb-0 list-none p-0 space-y-1">
+                  {t.adds.map((a) => <li key={a}>+ {a}</li>)}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <LifetimeOffer />
+
+          <p className="t-micro muted mt-4">
+            Every paid tier includes the REST API and the MCP server. The free tier does too, at{" "}
+            {FREE_CALLS_PER_DAY} calls a day — no card, because an agent that cannot try it will
+            never buy it.
+          </p>
+        </section>
+
+        {/* --- FAQ. -------------------------------------------------------- */}
+        <section className="mt-20">
+          <SectionHead eyebrow="before you buy" title="The questions worth asking" />
+          <Faq items={FAQ} />
+        </section>
+
+        <AskAbout
+          className="mt-12"
+          path="/"
+          ask={`What is ${SITE_NAME}, which public sources does it read, and what could I do with its API and MCP server?`}
         />
-      </section>
 
-      {/* ── Final CTA ───────────────────────────────────────────── */}
-      <section className="py-14 text-center">
-        <h2 className="t-h2 mb-3">Write {FREE_ROWS_PER_USER} and see.</h2>
-        <p className="t-small muted mb-6">
-          No card, no API key, no signup beyond an email address.
-        </p>
-        <Link href="/run" className="btn btn-primary no-underline">
-          Start free
-        </Link>
-        <p className="t-micro muted mt-4">
-          One payment · Your own key · {REFUND}
-        </p>
-      </section>
-
-      <footer className="t-micro muted py-10" style={{ borderTop: "1px solid var(--border)" }}>
-        <p className="mb-1">
-          LEDE reads public web pages and respects robots.txt. It does not touch LinkedIn.
-        </p>
-        <p className="mb-1">Your key and your list stay in your browser.</p>
-        <p className="mb-3">
-          Art: Unsplash photographs rendered through ASCII Magic. Credits in{" "}
-          <code>public/art/CREDITS.md</code>.
-        </p>
-        <p className="flex flex-wrap gap-4">
-          <Link href="/privacy">Privacy</Link>
-          <Link href="/terms">Terms</Link>
-          <a href="#pricing">Pricing</a>
-        </p>
-      </footer>
-    </main>
+        <SiteFooter />
+      </main>
     </>
   );
+}
+
+/**
+ * The lifetime offer, in its own cached scope.
+ *
+ * It reads the clock, and Cache Components refuses an unstable value during
+ * prerender — correctly, since a day counter baked into a static page would be
+ * wrong by tomorrow. Caching it by the hour prerenders a real number and
+ * refreshes it, which also means the block disappears by itself once the
+ * deadline passes rather than relying on anyone remembering to remove it.
+ */
+async function LifetimeOffer() {
+  "use cache";
+  cacheLife("hours");
+
+  if (!dealIsOpen()) return null;
+  const daysLeft = daysUntilDeadline();
+
+  return (
+    <div className="card-mint mt-6 p-6 sm:flex sm:items-center sm:justify-between sm:gap-8">
+      <div>
+        <p className="eyebrow mb-2">Lifetime</p>
+        <p className="t-h2 m-0">${BASE_PRICE} once, for Pro — forever</p>
+        <p className="t-small mt-2 mb-0" style={{ maxWidth: "46ch" }}>
+          {LIFETIME_PAYBACK_MONTHS} months of Pro at the monthly price. The price rises $10 every
+          10 sales and the offer closes on{" "}
+          {DEAL_ENDS.toLocaleDateString("en-GB", { day: "numeric", month: "long" })}
+          {daysLeft > 0 ? ` — ${daysLeft} day${daysLeft === 1 ? "" : "s"} left` : ""}.
+        </p>
+      </div>
+      <div className="mt-5 sm:mt-0 shrink-0">
+        <a href={CHECKOUT_URL} className="btn btn-primary no-underline">
+          {CHECKOUT_READY ? "Get lifetime access" : "See the data first"}
+        </a>
+        <p className="t-micro mt-2 mb-0">{REFUND}</p>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Plain-text answers for the FAQPage JSON-LD.
+ *
+ * The visible answers are JSX, and schema.org needs strings. Rather than
+ * stringify React (which would emit markup into structured data) the text is
+ * written once here, keyed by question, and the keys are asserted to line up.
+ */
+function faqText(q: string): string {
+  const TEXT: Record<string, string> = {
+    "Where does the data come from?":
+      `${SOURCES} public sources: company pages, public DNS, GitHub, registries, app stores, status pages and national company registries. Every fact stores the source URL and a short quote.`,
+    "Why is the current state free?":
+      "Because you could read their pricing page yourself. What you cannot get in a browser tab is what it said months ago, which requires having watched — and that is the paid part.",
+    "Do you scrape G2, Capterra or Reddit?":
+      "No. Those sites block automated access and we do not defeat blocks, directly or through a provider. Published ratings are read from search results, and gaps are disclosed rather than guessed.",
+    "How often does it update?":
+      "Twice a day, at 00:00 and 12:00 UTC, identically for every customer.",
+    "Can an agent use this?":
+      `Yes — a REST API and an MCP server, so any agent can query the dataset. The free tier includes ${FREE_CALLS_PER_DAY} calls a day without a card.`,
+    "What if it is wrong?":
+      `Every number links to its source. Values that could not be read with confidence are marked rather than filled in. ${REFUND}`,
+  };
+  return TEXT[q] ?? q;
 }

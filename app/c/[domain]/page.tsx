@@ -29,6 +29,7 @@ import { CHECKOUT_URL } from "@/lib/offer";
 import { abs, SITE_NAME } from "@/lib/site";
 import { JsonLd } from "../../jsonld";
 import { SectionHead, ThemeToggle } from "../../ui";
+import { AskAbout } from "../../ask";
 
 export async function generateMetadata(props: PageProps<"/c/[domain]">) {
   // Built from the DOMAIN ALONE, on purpose. Calling the dossier here would
@@ -240,6 +241,12 @@ async function Dossier({ domain }: { domain: string }) {
           </div>
         </section>
       )}
+
+      <AskAbout
+        className="mb-10"
+        path={`/c/${domain}`}
+        ask={`What has ${domain} changed recently, and what do their pricing, hiring and vendor choices suggest about where they are heading?`}
+      />
 
       <footer className="t-small muted border-t pt-6" style={{ borderColor: "var(--border)" }}>
         <p>

@@ -1,88 +1,103 @@
 import Link from "next/link";
-import { FREE_ROWS } from "@/lib/offer";
+import { FREE_CALLS_PER_DAY } from "@/lib/offer";
+import { SITE_NAME } from "@/lib/site";
 
-export const metadata = { title: "Privacy — LEDE" };
+export const metadata = {
+  title: "Privacy",
+  description: `How ${SITE_NAME} handles your data, how it collects public company records, and where it deliberately stops.`,
+  alternates: { canonical: "/privacy" },
+};
 
 /**
  * Written from what the code actually does, not from a template.
  *
- * Every claim here is checkable against a file: the key never leaving the
- * browser is app/run/page.tsx, the research proxy is app/api/research/route.ts,
- * and the free-tier metering is lib/usage-store.ts. If the architecture
- * changes, this page is wrong and must change with it.
+ * Every claim here is checkable against a file: the crawl is
+ * lib/sources/run.ts, robots.txt handling and the request guards are
+ * lib/fetch.ts, the store and its row-level security are lib/store.ts and
+ * supabase/schema.sql, and metering is lib/usage-store.ts. If the
+ * architecture changes, this page is wrong and must change with it.
  */
 export default function Privacy() {
   return (
     <main className="mx-auto w-full max-w-2xl px-5 py-12">
       <Link href="/" className="t-small no-underline">
-        ← LEDE
+        ← {SITE_NAME}
       </Link>
       <h1 className="t-h2 mt-6 mb-2">Privacy</h1>
-      <p className="t-small muted mb-10">Last updated 18 November 2026.</p>
+      <p className="t-small muted mb-10">Last updated 19 November 2026.</p>
 
-      <h2 className="t-h3 mb-3">What never reaches us</h2>
+      <h2 className="t-h3 mb-3">About you</h2>
       <ul className="space-y-3 mb-10">
         <li>
-          <strong>Your API key.</strong>
+          <strong>Your email address and licence key.</strong>
           <span className="block t-small muted">
-            Stored in your browser and sent straight to Anthropic, Google or Groq. It is never
-            transmitted to our servers. Open your network tab and check.
+            Held so we can authenticate you and count calls against your plan. The address is
+            normalised first, so <code className="mono">h.i+tag@gmail.com</code> and{" "}
+            <code className="mono">hi@gmail.com</code> are recognised as one account — which is
+            how the {FREE_CALLS_PER_DAY}-call free tier is metered without a card.
           </span>
         </li>
         <li>
-          <strong>Your lead list.</strong>
+          <strong>Your watchlist.</strong>
           <span className="block t-small muted">
-            Your CSV or Excel file is parsed in your browser and kept in IndexedDB on your own
-            machine so a closed tab does not lose a run. Names, titles and email addresses in
-            that file are never uploaded. &ldquo;Clear all data&rdquo; deletes it for real.
+            The domains you track. These are company domains, not people. We use them to decide
+            what to collect and to show you your own feed, and we do not sell or share them.
           </span>
         </li>
         <li>
-          <strong>The emails we write.</strong>
+          <strong>Call counts.</strong>
           <span className="block t-small muted">
-            Generated in your browser. We never see the finished text.
-          </span>
-        </li>
-      </ul>
-
-      <h2 className="t-h3 mb-3">What does reach us</h2>
-      <ul className="space-y-3 mb-10">
-        <li>
-          <strong>Prospect website addresses.</strong>
-          <span className="block t-small muted">
-            Only the domains, so our server can fetch those public pages. A browser cannot fetch
-            them itself, which is the only reason this step is ours at all.
-          </span>
-        </li>
-        <li>
-          <strong>Your licence key.</strong>
-          <span className="block t-small muted">
-            Sent with each research request so we can check it and count rows against it.
-          </span>
-        </li>
-        <li>
-          <strong>Your email address, if you use the free tier.</strong>
-          <span className="block t-small muted">
-            Needed to count your {FREE_ROWS} free emails. It is normalised first, so{" "}
-            <code className="mono">h.i+tag@gmail.com</code> and{" "}
-            <code className="mono">hi@gmail.com</code> are recognised as one address. On the
-            free tier only, generation happens on our server using our own key, so the text we
-            write for you does pass through it.
+            Which named query ran, when, and against which key — enough to enforce a quota and
+            diagnose a fault. Not the contents of your analysis.
           </span>
         </li>
       </ul>
       <p className="t-small muted mb-10">
-        We may email you about LEDE. Every message has an unsubscribe link, and we do not sell
-        or share your address.
+        We may email you about {SITE_NAME}. Every message has an unsubscribe link, and we do not
+        sell or share your address.
       </p>
 
-      <h2 className="t-h3 mb-3">How we read prospects&apos; sites</h2>
+      <h2 className="t-h3 mb-3">About the companies we track</h2>
+      <p className="t-small muted mb-6">
+        The dataset is built from public records: companies&apos; own published pages, public DNS,
+        open APIs, package registries, app stores, status pages and national company registries.
+        We store extracted facts — numbers, dates, tier names — plus the source URL and a short
+        quote. We do not republish pages wholesale.
+      </p>
+
+      <h2 className="t-h3 mb-3">Where we deliberately stop</h2>
+      <p className="t-small muted mb-6">
+        Some public records name individuals — company officers, for instance. This is the line we
+        hold, and it is a design constraint rather than a policy sentence:
+      </p>
+      <ul className="space-y-3 mb-10">
+        <li>
+          <strong>We aggregate to the company, never to a person.</strong>
+          <span className="block t-small muted">
+            We publish &ldquo;three tribunal decisions in two years&rdquo;, not a claimant&apos;s
+            name and case. There is no people search, and there never will be.
+          </span>
+        </li>
+        <li>
+          <strong>We do not compile personal information across sources.</strong>
+          <span className="block t-small muted">
+            An officer name is stored only where a registry publishes it as the company&apos;s own
+            filed data. It is never enriched or cross-referenced against anything else. That
+            distinction is what separates competitive intelligence from a surveillance product.
+          </span>
+        </li>
+        <li>
+          <strong>We never touch LinkedIn.</strong>
+          <span className="block t-small muted">
+            Scraping it is what gets accounts banned, and no feature here is worth that. We do not
+            log in to anything, and we do not bypass paywalls, bot protection or CAPTCHAs.
+          </span>
+        </li>
+      </ul>
       <p className="t-small muted mb-10">
-        We fetch public pages only, and we respect <code className="mono">robots.txt</code>. We
-        send a generic user agent and never put your identity or email address in a request
-        header. We never touch LinkedIn: scraping it is what gets accounts banned, and no
-        feature here is worth that. We do not log in to anything, and we do not bypass paywalls
-        or access controls.
+        We honour <code className="mono">robots.txt</code>, obey rate limits, send a generic user
+        agent, and never put your identity or email address in an outbound request header. If you
+        are named in a public record we hold and you want it removed, ask.
       </p>
 
       <h2 className="t-h3 mb-3">Processors</h2>
@@ -97,8 +112,8 @@ export default function Privacy() {
         <li>
           <strong>Supabase</strong>
           <span className="block t-small muted">
-            Stores licence keys and free-tier counts. Reachable only with a server-side key;
-            row-level security denies everything else.
+            Stores accounts, licences, watchlists and the dataset. Reachable only with a
+            server-side key; row-level security denies everything else.
           </span>
         </li>
         <li>
@@ -110,19 +125,25 @@ export default function Privacy() {
           </span>
         </li>
         <li>
-          <strong>Your AI provider</strong>
+          <strong>Language model providers</strong>
           <span className="block t-small muted">
-            On the paid path your browser talks to Anthropic, Google or Groq directly under your
-            own account, so their privacy terms govern that exchange, not ours.
+            A small share of collection needs a model to read an awkward page — currently Groq and
+            Google. Only the competitor&apos;s public page content is ever sent.{" "}
+            <strong>
+              Google&apos;s free tier may use submitted content to improve its products
+            </strong>
+            , which is exactly why your data never goes there: no watchlist, no email address, no
+            query of yours is sent to any model provider. If you supply your own key for
+            interpretation, it stays in your browser.
           </span>
         </li>
       </ul>
 
       <h2 className="t-h3 mb-3">Deleting your data</h2>
       <p className="t-small muted mb-10">
-        Everything held on your machine goes with &ldquo;Clear all data&rdquo; in the app, or by
-        clearing site data in your browser. To remove your email address and licence record from
-        our database, ask and we will delete them; a deleted licence cannot be used again.
+        Ask and we will delete your account, email address, licence record and watchlist; a deleted
+        licence cannot be used again. The company dataset is public-record information and is not
+        tied to your account, so it is unaffected.
       </p>
 
       <h2 className="t-h3 mb-3">Contact</h2>
