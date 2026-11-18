@@ -19,11 +19,20 @@ export const SITE_URL = (
       : "http://localhost:3000")
 ).replace(/\/$/, "");
 
-export const SITE_NAME = "DELTA";
+/**
+ * Product name, overridable by environment.
+ *
+ * NEXT_PUBLIC_ prefixed so it is readable from client components too — the
+ * name belongs in the nav and the footer, and some of those will be client
+ * components eventually. A rename is then one env var rather than a grep.
+ */
+export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "DELTA";
 
-export const SITE_TAGLINE = "Competitor intelligence with its sources attached";
+export const SITE_TAGLINE =
+  process.env.NEXT_PUBLIC_SITE_TAGLINE || "Competitor intelligence with its sources attached";
 
 export const SITE_DESCRIPTION =
+  process.env.NEXT_PUBLIC_SITE_DESCRIPTION ||
   "Track what competitors publish — pricing tiers, vendor stack, releases, hiring, security posture — " +
   "and what changed. Built from public records only, with every fact linked to the page it came from.";
 

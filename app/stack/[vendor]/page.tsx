@@ -99,7 +99,7 @@ export default async function VendorPage(props: PageProps<"/stack/[vendor]">) {
         }}
       />
       <nav className="mb-10 flex items-center justify-between gap-4">
-        <Link href="/" className="mono t-small no-underline">DELTA</Link>
+        <Link href="/" className="mono t-small no-underline">{SITE_NAME}</Link>
         <div className="flex items-center gap-3">
           <Link href="/stack" className="t-small no-underline">All vendors</Link>
           <Link href="/#pricing" className="t-small no-underline">Pricing</Link>
@@ -197,7 +197,7 @@ export default async function VendorPage(props: PageProps<"/stack/[vendor]">) {
           {ix.generatedAt.slice(0, 10)}.
         </p>
         <p className="mt-2">
-          <Link href="/">DELTA</Link> · <Link href="/privacy">Privacy</Link> ·{" "}
+          <Link href="/">{SITE_NAME}</Link> · <Link href="/privacy">Privacy</Link> ·{" "}
           <Link href="/terms">Terms</Link>
         </p>
       </footer>

@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...but the TEMPLATE must be committed: it documents every required variable
+# with no values, which is the only record of what a deploy needs.
+!.env.example
 
 # vercel
 .vercel

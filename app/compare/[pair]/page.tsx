@@ -65,7 +65,7 @@ export default function ComparePage(props: PageProps<"/compare/[pair]">) {
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14">
       <nav className="mb-10 flex items-center justify-between gap-4">
-        <Link href="/" className="mono t-small no-underline">DELTA</Link>
+        <Link href="/" className="mono t-small no-underline">{SITE_NAME}</Link>
         <div className="flex items-center gap-3">
           <Link href="/compare" className="t-small no-underline">All comparisons</Link>
           <Link href="/stack" className="t-small no-underline">Vendors</Link>
@@ -214,7 +214,7 @@ async function Resolved({ params }: { params: PageProps<"/compare/[pair]">["para
       <footer className="t-small muted border-t pt-6" style={{ borderColor: "var(--border)" }}>
         <p>Public sources only. We honour robots.txt and never use LinkedIn.</p>
         <p className="mt-2">
-          <Link href="/">DELTA</Link> · <Link href="/privacy">Privacy</Link> ·{" "}
+          <Link href="/">{SITE_NAME}</Link> · <Link href="/privacy">Privacy</Link> ·{" "}
           <Link href="/terms">Terms</Link>
         </p>
       </footer>

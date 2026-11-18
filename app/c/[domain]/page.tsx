@@ -68,7 +68,7 @@ export default function CompanyPage(props: PageProps<"/c/[domain]">) {
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14">
       <nav className="mb-10 flex items-center justify-between gap-4">
-        <Link href="/" className="mono t-small no-underline">DELTA</Link>
+        <Link href="/" className="mono t-small no-underline">{SITE_NAME}</Link>
         <div className="flex items-center gap-3">
           <Link href="/#pricing" className="t-small no-underline">Pricing</Link>
           <ThemeToggle />
@@ -247,7 +247,7 @@ async function Dossier({ domain }: { domain: string }) {
           and never use LinkedIn.
         </p>
         <p className="mt-2">
-          <Link href="/">DELTA</Link> · <Link href="/privacy">Privacy</Link> ·{" "}
+          <Link href="/">{SITE_NAME}</Link> · <Link href="/privacy">Privacy</Link> ·{" "}
           <Link href="/terms">Terms</Link>
         </p>
       </footer>
