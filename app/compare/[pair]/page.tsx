@@ -86,16 +86,6 @@ async function Resolved({ params }: { params: PageProps<"/compare/[pair]">["para
 
   const { a, b } = parsed;
   const [A, B] = [nameOf(a), nameOf(b)];
-  const ix = stackIndex();
-  const va = new Set(ix.entries.find((e) => e.domain === a)?.vendors ?? []);
-  const vb = new Set(ix.entries.find((e) => e.domain === b)?.vendors ?? []);
-
-  const shared = [...va].filter((v) => vb.has(v)).sort();
-  const onlyA = [...va].filter((v) => !vb.has(v)).sort();
-  const onlyB = [...vb].filter((v) => !va.has(v)).sort();
-  const union = new Set([...va, ...vb]).size;
-  // Jaccard: how much of their combined stack they hold in common.
-  const similarity = union ? Math.round((shared.length / union) * 100) : 0;
 
   const siblings = comparablePairs()
     .filter((p) => p.slug !== pair && (p.a === a || p.b === a || p.a === b || p.b === b))
@@ -125,49 +115,9 @@ async function Resolved({ params }: { params: PageProps<"/compare/[pair]">["para
         </p>
       </header>
 
-      {(va.size > 0 || vb.size > 0) && (
-        <section className="mb-10">
-          <SectionHead eyebrow="Vendor stack" title="What each one buys" />
-          <div className="card">
-            <p className="t-body">
-              {va.size > 0 && vb.size > 0 ? (
-                <>
-                  Their stacks overlap by <strong>{similarity}%</strong> — {shared.length} vendors in
-                  common out of {union} between them.
-                </>
-              ) : (
-                <>We have vendor records for only one of these two so far.</>
-              )}
-            </p>
-            <p className="t-small muted mt-2">
-              Read from public DNS verification records, so these are <strong>purchases</strong> —
-              including back-office tools that ship no script tag and are therefore invisible to
-              BuiltWith or Wappalyzer.
-            </p>
-
-            <div className="mt-6 grid gap-6 sm:grid-cols-2">
-              <VendorColumn title={`Only ${A}`} domain={a} vendors={onlyA} />
-              <VendorColumn title={`Only ${B}`} domain={b} vendors={onlyB} />
-            </div>
-
-            {shared.length > 0 && (
-              <div className="mt-6">
-                <p className="t-micro muted mb-2">Both use</p>
-                <ul className="flex flex-wrap gap-1.5">
-                  {shared.map((v) => (
-                    <li key={v}>
-                      <Link href={`/stack/${v}`} className="pill no-underline">{v}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            <p className="t-small muted mt-4">
-              ⚠️ A verification record proves a relationship existed, not current paid use.
-            </p>
-          </div>
-        </section>
-      )}
+      <Suspense fallback={<div className="card mb-10"><p className="t-body">Reading both vendor stacks…</p></div>}>
+        <VendorDiff a={a} b={b} A={A} B={B} />
+      </Suspense>
 
       <section className="mb-10">
         <SectionHead eyebrow="Side by side" title="What they publish today" />
@@ -217,6 +167,86 @@ async function Resolved({ params }: { params: PageProps<"/compare/[pair]">["para
 
       <SiteFooter />
     </>
+  );
+}
+
+/**
+ * The vendor-stack diff.
+ *
+ * Reads the committed index first, because that is what makes the ~690
+ * prerendered pairs instant. A domain the index has never seen falls back to
+ * the SAME live fact the company page reads, so an unfamiliar company is
+ * compared on its real DNS records rather than being told we have nothing.
+ *
+ * Async and behind Suspense for exactly that reason: the fast path resolves
+ * without touching the network, and only an unknown domain pays for a crawl.
+ */
+async function vendorsOf(domain: string, ix: ReturnType<typeof stackIndex>): Promise<Set<string>> {
+  const indexed = ix.entries.find((e) => e.domain === domain)?.vendors;
+  if (indexed) return new Set(indexed);
+  const { facts } = await factsFor(domain);
+  const live = String(facts.get("stack.vendors.list")?.value ?? "")
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
+  return new Set(live);
+}
+
+async function VendorDiff({ a, b, A, B }: { a: string; b: string; A: string; B: string }) {
+  const ix = stackIndex();
+  const [va, vb] = await Promise.all([vendorsOf(a, ix), vendorsOf(b, ix)]);
+
+  if (va.size === 0 && vb.size === 0) return null;
+
+  const shared = [...va].filter((v) => vb.has(v)).sort();
+  const onlyA = [...va].filter((v) => !vb.has(v)).sort();
+  const onlyB = [...vb].filter((v) => !va.has(v)).sort();
+  const union = new Set([...va, ...vb]).size;
+  // Jaccard: how much of their combined stack they hold in common.
+  const similarity = union ? Math.round((shared.length / union) * 100) : 0;
+
+  return (
+    <section className="mb-10">
+      <SectionHead eyebrow="Vendor stack" title="What each one buys" />
+      <div className="card">
+        <p className="t-body">
+          {va.size > 0 && vb.size > 0 ? (
+            <>
+              Their stacks overlap by <strong>{similarity}%</strong> — {shared.length} vendors in
+              common out of {union} between them.
+            </>
+          ) : (
+            <>We have vendor records for only one of these two so far.</>
+          )}
+        </p>
+        <p className="t-small muted mt-2">
+          Read from public DNS verification records, so these are <strong>purchases</strong> —
+          including back-office tools that ship no script tag and are therefore invisible to
+          BuiltWith or Wappalyzer.
+        </p>
+
+        <div className="mt-6 grid gap-6 sm:grid-cols-2">
+          <VendorColumn title={`Only ${A}`} domain={a} vendors={onlyA} />
+          <VendorColumn title={`Only ${B}`} domain={b} vendors={onlyB} />
+        </div>
+
+        {shared.length > 0 && (
+          <div className="mt-6">
+            <p className="t-micro muted mb-2">Both use</p>
+            <ul className="flex flex-wrap gap-1.5">
+              {shared.map((v) => (
+                <li key={v}>
+                  <Link href={`/stack/${v}`} className="pill no-underline">{v}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <p className="t-small muted mt-4">
+          ⚠️ A verification record proves a relationship existed, not current paid use.
+        </p>
+      </div>
+    </section>
   );
 }
 
