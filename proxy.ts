@@ -22,6 +22,19 @@ import { pairKey, parsePair } from "./lib/seed";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  /*
+   * `.md` serves the agent-readable twin of any public page.
+   *
+   * Rewritten onto a catch-all rather than given its own routes, so the suffix
+   * convention holds for every page type at once. Handled FIRST because
+   * `/c/adyen.com.md` is not a valid domain and would be refused below.
+   */
+  if (pathname.endsWith(".md")) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/md${pathname.slice(0, -3)}`;
+    return NextResponse.rewrite(url);
+  }
+
   const match = /^\/c\/([^/]+)\/?$/.exec(pathname);
   if (match) {
     const raw = match[1];
@@ -90,6 +103,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Only the public company pages; nothing else pays for this.
-  matcher: ["/c/:path*", "/stack/:path*", "/compare/:path*"],
+  // The public company pages, plus the two index pages' `.md` twins —
+  // `/stack.md` has no path segment so `/stack/:path*` never matches it.
+  matcher: ["/c/:path*", "/stack/:path*", "/compare/:path*", "/c.md", "/stack.md", "/compare.md"],
 };

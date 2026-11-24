@@ -24,8 +24,9 @@ import { factsFor } from "@/lib/cached-dossier";
 import { comparablePairs, pairKey, parsePair, seedFor, stackIndex } from "@/lib/stack-index";
 import { abs, SITE_NAME } from "@/lib/site";
 import { JsonLd } from "../../jsonld";
-import { SectionHead, ThemeToggle } from "../../ui";
+import { SectionHead, SiteFooter } from "../../ui";
 import { AskAbout } from "../../ask";
+import { SiteNav } from "../../nav";
 
 export async function generateStaticParams() {
   return comparablePairs().map((p) => ({ pair: p.slug }));
@@ -43,7 +44,10 @@ export async function generateMetadata(props: PageProps<"/compare/[pair]">) {
     description:
       `A side-by-side of ${A} and ${B} built from public records: the vendors each one buys, ` +
       `published pricing, security posture and domain history. Every fact linked to its source.`,
-    alternates: { canonical: `/compare/${pair}` },
+    alternates: {
+      canonical: `/compare/${pair}`,
+      types: { "text/markdown": `/compare/${pair}.md` },
+    },
     openGraph: {
       title: `${A} vs ${B}`,
       description: `What ${A} and ${B} each run on, publish and charge — from public records.`,
@@ -65,14 +69,7 @@ export async function generateMetadata(props: PageProps<"/compare/[pair]">) {
 export default function ComparePage(props: PageProps<"/compare/[pair]">) {
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14">
-      <nav className="mb-10 flex items-center justify-between gap-4">
-        <Link href="/" className="mono t-small no-underline">{SITE_NAME}</Link>
-        <div className="flex items-center gap-3">
-          <Link href="/compare" className="t-small no-underline">All comparisons</Link>
-          <Link href="/stack" className="t-small no-underline">Vendors</Link>
-          <ThemeToggle />
-        </div>
-      </nav>
+      <SiteNav here={"compare"} />
       <Suspense fallback={<p className="t-body muted">Loading comparison…</p>}>
         <Resolved params={props.params} />
       </Suspense>
@@ -218,13 +215,7 @@ async function Resolved({ params }: { params: PageProps<"/compare/[pair]">["para
         ask={`How do ${A} and ${B} compare on pricing, tech stack and momentum — and which one looks like it is gaining?`}
       />
 
-      <footer className="t-small muted border-t pt-6" style={{ borderColor: "var(--border)" }}>
-        <p>Public sources only. We honour robots.txt and never use LinkedIn.</p>
-        <p className="mt-2">
-          <Link href="/">{SITE_NAME}</Link> · <Link href="/privacy">Privacy</Link> ·{" "}
-          <Link href="/terms">Terms</Link>
-        </p>
-      </footer>
+      <SiteFooter />
     </>
   );
 }

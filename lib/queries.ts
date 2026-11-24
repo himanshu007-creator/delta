@@ -13,6 +13,7 @@
  * change history, which cannot be regenerated without having watched.
  */
 
+import { publicDomain } from "./domain";
 import { adaptersFor } from "./sources/registry";
 import { runCompany } from "./sources/run";
 import type { Company, Fact } from "./sources/types";
@@ -56,13 +57,18 @@ const DOMAIN_PARAM = {
   describe: "Company domain, e.g. linear.app. Not a URL.",
 } as const;
 
-const needDomain = (p: Record<string, unknown>): string | null => {
-  const d =
-    typeof p.domain === "string"
-      ? p.domain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "")
-      : "";
-  return d && d.includes(".") && !/\s/.test(d) ? d : null;
-};
+/**
+ * Validate a caller-supplied domain — through the SAME guard the public page
+ * uses, not a looser local copy.
+ *
+ * This used to accept anything containing a dot, so `169.254.169.254` passed
+ * and the API would crawl the cloud metadata endpoint on request. The public
+ * page was never vulnerable because it calls `publicDomain()`; the API and
+ * the MCP server had their own weaker check, which is exactly how a guard
+ * gets bypassed — by being reimplemented.
+ */
+const needDomain = (p: Record<string, unknown>): string | null =>
+  typeof p.domain === "string" ? publicDomain(p.domain) : null;
 
 const limitOf = (p: Record<string, unknown>, fallback = 50, cap = 500) => {
   const n = Number(p.limit);

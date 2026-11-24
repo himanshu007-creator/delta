@@ -80,7 +80,8 @@ and browser history.
 ## Free — no key needed
 
 Current state is free, because it is already on the company's own website and on
-${SITE_NAME}'s public pages. ${FREE_CALLS_PER_DAY} calls a day without an account.
+${SITE_NAME}'s public pages. ${FREE_CALLS_PER_DAY} calls a day without an account;
+unmetered on any paid plan.
 
 | Query | Arguments | Returns |
 |---|---|---|
@@ -89,7 +90,8 @@ ${free.map(row).join("\n")}
 ## Licensed — historical data
 
 History cannot be looked up anywhere else, which is why it is the paid part.
-These need a licence key.
+These need a licence key. Plans are priced on how many companies you track —
+calls are not metered, so query as freely as the task needs.
 
 | Query | Arguments | Returns |
 |---|---|---|

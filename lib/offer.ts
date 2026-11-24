@@ -19,10 +19,8 @@ export type Tier = {
   name: string;
   /** USD per month. 0 = free, null = the lifetime deal priced separately. */
   monthly: number | null;
-  /** Companies on a watchlist. */
+  /** Companies on a watchlist. The ONLY priced axis. */
   companies: number;
-  /** Combined API + MCP calls per day. */
-  calls: number;
   /** How far back the change history goes. */
   history: string;
   seats: number;
@@ -33,12 +31,17 @@ export type Tier = {
 };
 
 /**
- * Company count and programmatic access are INDEPENDENT axes.
+ * Priced on COMPANIES TRACKED, and nothing else.
  *
- * A developer who wants MCP inside an agent may track five companies, while an
- * agency tracking two hundred may never touch the API. Gating the API behind a
- * high tier mismatches both, so API and MCP are in the first paid tier and the
- * daily call quota does the protecting.
+ * An earlier draft also sold a daily call quota. That was wrong twice over.
+ * Our cost is crawling UNIQUE companies — serving a read is an indexed query
+ * against data we already hold, and costs essentially nothing. And metering
+ * calls punishes the exact behaviour that makes this product worth having: an
+ * agent that fires twenty queries to answer one question is a success, not a
+ * billing event, and a buyer who has to ration calls will not build on us.
+ *
+ * So the API and the MCP server are included everywhere, under fair use. The
+ * only number a buyer has to think about is how many competitors they watch.
  */
 export const TIERS: readonly Tier[] = [
   {
@@ -46,29 +49,26 @@ export const TIERS: readonly Tier[] = [
     name: "Free",
     monthly: 0,
     companies: 3,
-    calls: 25,
     history: "30 days",
     seats: 1,
     who: "See whether the data is any good.",
-    adds: ["Public pages, no account", "Weekly refresh", "MCP server included"],
+    adds: ["Public pages, no account", "Weekly refresh", `MCP server, ${25} calls/day`],
   },
   {
     slug: "starter",
     name: "Starter",
     monthly: 19,
     companies: 50,
-    calls: 250,
     history: "Full, back-filled",
     seats: 1,
     who: "One marketer or PM watching a category.",
-    adds: ["Full history, back-filled", "12-hour refresh", "Email alerts", "REST API + MCP"],
+    adds: ["Full history, back-filled", "12-hour refresh", "Email alerts", "Unmetered API + MCP"],
   },
   {
     slug: "pro",
     name: "Pro",
     monthly: 49,
     companies: 200,
-    calls: 2_000,
     history: "Full, back-filled",
     seats: 3,
     who: "A team that acts on what it finds.",
@@ -79,7 +79,6 @@ export const TIERS: readonly Tier[] = [
     name: "Agency",
     monthly: 149,
     companies: 1_000,
-    calls: 10_000,
     history: "Full, back-filled",
     seats: 10,
     who: "Agencies and analysts covering many clients.",
@@ -148,6 +147,15 @@ export const CHECKOUT_URL = CREEM_PRODUCT_ID
 export const CHECKOUT_READY = CREEM_PRODUCT_ID !== "";
 
 /**
+ * Fair use, for the paid tiers.
+ *
+ * A rate limit, not a budget: it exists to stop a runaway loop, not to meter a
+ * customer. Nobody querying the product normally will ever see it, which is
+ * why it is a footnote rather than a column in the pricing table.
+ */
+export const FAIR_USE_RPM = 120;
+
+/**
  * Free calls per user per day, for display in client components.
  *
  * Duplicated from usage-store's FREE_ROWS_PER_USER on purpose: that module
@@ -167,6 +175,10 @@ export const FREE_CALLS_PER_DAY = FREE_ROWS;
 /**
  * Rates for a plan built to order.
  *
+ * Two dimensions, because those are the only two that cost us anything:
+ * companies (which we crawl) and seats (which we support). Calls are not
+ * priced here for the same reason they are not priced in the tiers.
+ *
  * A custom plan is an EXTENSION of the largest standard tier, never an
  * alternative to the smaller ones. The first formula tried was a flat
  * per-unit model, and it quoted $15 for Starter's exact specification against
@@ -183,17 +195,15 @@ export const FREE_CALLS_PER_DAY = FREE_ROWS;
 export const CUSTOM = {
   /** Per company beyond the top tier's allowance. */
   perCompany: 0.065,
-  /** Per call of daily quota beyond the top tier's allowance. */
-  perCall: 0.003,
   /** Per seat beyond the top tier's allowance. */
   perSeat: 5,
-  limits: { companies: 5_000, calls: 100_000, seats: 50 },
+  limits: { companies: 5_000, seats: 50 },
 } as const;
 
 /** The tier a custom plan extends: the largest standard one. */
 export const TOP_TIER = TIERS[TIERS.length - 1];
 
-export type PlanRequest = { companies: number; calls: number; seats: number };
+export type PlanRequest = { companies: number; seats: number };
 
 const clamp = (n: number, lo: number, hi: number) =>
   Math.min(hi, Math.max(lo, Number.isFinite(n) ? Math.floor(n) : lo));
@@ -201,7 +211,6 @@ const clamp = (n: number, lo: number, hi: number) =>
 export function normalisePlan(r: PlanRequest): PlanRequest {
   return {
     companies: clamp(r.companies, 1, CUSTOM.limits.companies),
-    calls: clamp(r.calls, 25, CUSTOM.limits.calls),
     seats: clamp(r.seats, 1, CUSTOM.limits.seats),
   };
 }
@@ -217,7 +226,6 @@ export function customPrice(req: PlanRequest): number {
   const over = (actual: number, included: number) => Math.max(0, actual - included);
   const extra =
     over(r.companies, TOP_TIER.companies) * CUSTOM.perCompany +
-    over(r.calls, TOP_TIER.calls) * CUSTOM.perCall +
     over(r.seats, TOP_TIER.seats) * CUSTOM.perSeat;
   return Math.round((TOP_TIER.monthly ?? 149) + extra);
 }
@@ -234,7 +242,7 @@ export function tierCovering(req: PlanRequest): Tier | null {
   const r = normalisePlan(req);
   return (
     TIERS.find(
-      (t) => t.companies >= r.companies && t.calls >= r.calls && t.seats >= r.seats,
+      (t) => t.companies >= r.companies && t.seats >= r.seats,
     ) ?? null
   );
 }

@@ -112,7 +112,14 @@ export function interpret(f: FactMap): Signal[] {
         "hackerone", "launchdarkly", "snowflake", "databricks", "workday", "gusto",
         "salesforce", "hubspot", "segment", "datadog", "sentry", "vercel", "figma",
       ]);
-      const notable = vendors.filter((v) => NOTABLE.has(v)).slice(0, 3);
+      // Capitalised: "Including anthropic, openai" read like a typo mid-sentence.
+      const pretty = (v: string) =>
+        v === "openai" ? "OpenAI"
+        : v === "hackerone" ? "HackerOne"
+        : v === "launchdarkly" ? "LaunchDarkly"
+        : v === "hubspot" ? "HubSpot"
+        : v.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+      const notable = vendors.filter((v) => NOTABLE.has(v)).slice(0, 3).map(pretty);
       out.push({
         id: "stack",
         label: "Vendor stack",
@@ -122,7 +129,8 @@ export function interpret(f: FactMap): Signal[] {
           : "Read from public DNS verification records — purchases that frontend script detection cannot see.",
         tone: "neutral",
         size: "lg",
-        href: notable[0] ? `/stack/${notable[0]}` : undefined,
+        // No href: linking to an arbitrary "first notable vendor" is a click
+        // nobody asked for, and the chips below link every one of them.
         sourceUrl: src(f, "stack.vendors.count"),
       });
     }

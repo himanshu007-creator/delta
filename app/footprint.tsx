@@ -71,8 +71,19 @@ export function FootprintMap({ footprint: f, domain }: { footprint: Footprint; d
             strokeWidth="0.62"
           />
 
+          {/* A native SVG <title> is the tooltip: it shows on hover with no
+              JavaScript, and screen readers announce it as the element's
+              accessible name. A custom tooltip would need both. */}
           {marketPins.map((m) => (
-            <circle key={m.iso} cx={m.at.x} cy={m.at.y} r="0.62" className="map-market" />
+            <circle key={m.iso} cx={m.at.x} cy={m.at.y} r="1.4" className="map-hit">
+              <title>{countryName(m.iso)} — a market they publish for</title>
+            </circle>
+          ))}
+          {/* The visible dot carries no <title>: it has pointer-events:none,
+              so its tooltip could never fire and would only duplicate the
+              hit circle's in the accessibility tree. */}
+          {marketPins.map((m) => (
+            <circle key={`${m.iso}-dot`} cx={m.at.x} cy={m.at.y} r="0.62" className="map-market" aria-hidden />
           ))}
 
           {pin && (
@@ -83,7 +94,12 @@ export function FootprintMap({ footprint: f, domain }: { footprint: Footprint; d
               <line x1={pin.x} y1="0" x2={pin.x} y2={MAP_H} className="map-cross" />
               <circle cx={pin.x} cy={pin.y} r="1.1" className="map-pulse" />
               <circle cx={pin.x} cy={pin.y} r="1.1" className="map-pulse map-pulse-2" />
-              <circle cx={pin.x} cy={pin.y} r="1" className="map-pin" />
+              <circle cx={pin.x} cy={pin.y} r="1" className="map-pin">
+                <title>
+                  {countryName(f.registered!)}
+                  {f.city ? ` — ${f.city}` : ""} — where {domain} is registered
+                </title>
+              </circle>
             </g>
           )}
         </svg>

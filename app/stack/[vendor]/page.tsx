@@ -20,8 +20,9 @@ import {
 } from "@/lib/stack-index";
 import { abs, SITE_NAME } from "@/lib/site";
 import { JsonLd } from "../../jsonld";
-import { SectionHead, ThemeToggle } from "../../ui";
+import { SectionHead, SiteFooter } from "../../ui";
 import { AskAbout } from "../../ask";
+import { SiteNav } from "../../nav";
 
 /**
  * NOTE: `dynamicParams = false` would be the natural way to reject unknown
@@ -51,7 +52,10 @@ export async function generateMetadata(props: PageProps<"/stack/[vendor]">) {
     description:
       `${row.domains.length} companies with a public ${name} domain-verification record, found in DNS. ` +
       `Back-office purchases that frontend script detection cannot see. Every company linked, with the evidence.`,
-    alternates: { canonical: `/stack/${row.vendor}` },
+    alternates: {
+      canonical: `/stack/${row.vendor}`,
+      types: { "text/markdown": `/stack/${row.vendor}.md` },
+    },
     openGraph: {
       title: `${row.domains.length} companies using ${name}`,
       description: `Companies with a public ${name} domain-verification record, found in DNS.`,
@@ -99,14 +103,7 @@ export default async function VendorPage(props: PageProps<"/stack/[vendor]">) {
           })),
         }}
       />
-      <nav className="mb-10 flex items-center justify-between gap-4">
-        <Link href="/" className="mono t-small no-underline">{SITE_NAME}</Link>
-        <div className="flex items-center gap-3">
-          <Link href="/stack" className="t-small no-underline">All vendors</Link>
-          <Link href="/#pricing" className="t-small no-underline">Pricing</Link>
-          <ThemeToggle />
-        </div>
-      </nav>
+      <SiteNav here={"vendors"} />
 
       <header className="mb-8">
         <p className="eyebrow mb-2">Vendor adoption</p>
@@ -198,16 +195,7 @@ export default async function VendorPage(props: PageProps<"/stack/[vendor]">) {
         ask={`Which notable companies use ${name}, and what does that adoption pattern say about who actually buys it?`}
       />
 
-      <footer className="t-small muted border-t pt-6" style={{ borderColor: "var(--border)" }}>
-        <p>
-          From public DNS records only. Index of {ix.domainsIndexed} companies, generated{" "}
-          {ix.generatedAt.slice(0, 10)}.
-        </p>
-        <p className="mt-2">
-          <Link href="/">{SITE_NAME}</Link> · <Link href="/privacy">Privacy</Link> ·{" "}
-          <Link href="/terms">Terms</Link>
-        </p>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }

@@ -29,11 +29,12 @@ import {
   dealIsOpen,
   daysUntilDeadline,
 } from "@/lib/offer";
-import { Faq, SectionHead, SiteFooter, ThemeToggle, WaveRule } from "./ui";
+import { Faq, SectionHead, SiteFooter, WaveRule } from "./ui";
 import { SearchBox } from "./search";
 import { AskAbout } from "./ask";
 import { PlanBuilder } from "./plan";
 import { JsonLd } from "./jsonld";
+import { SiteNav } from "./nav";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -188,15 +189,7 @@ export default function Home() {
       />
 
       <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:py-12">
-        <nav className="nav-sticky mb-14 flex items-center justify-between gap-4">
-          <span className="mono t-small">{SITE_NAME}</span>
-          <div className="flex items-center gap-4">
-            <Link href="/stack" className="t-small no-underline">Vendors</Link>
-            <Link href="/compare" className="t-small no-underline">Compare</Link>
-            <Link href="#pricing" className="t-small no-underline">Pricing</Link>
-            <ThemeToggle />
-          </div>
-        </nav>
+        <SiteNav />
 
         {/* --- Hero. One claim, one line, then the search box. ------------- */}
         <header className="mb-10">
@@ -299,7 +292,7 @@ export default function Home() {
                   </div>
                   <div className="flex justify-between gap-2">
                     <dt className="muted">API + MCP</dt>
-                    <dd className="m-0">{t.calls.toLocaleString("en-GB")}/day</dd>
+                    <dd className="m-0">{t.slug === "free" ? `${FREE_CALLS_PER_DAY}/day` : "Unmetered"}</dd>
                   </div>
                   <div className="flex justify-between gap-2">
                     <dt className="muted">Seats</dt>
@@ -327,9 +320,11 @@ export default function Home() {
           <LifetimeOffer />
 
           <p className="t-micro muted mt-4">
-            Every paid tier includes the REST API and the MCP server. The free tier does too, at{" "}
-            {FREE_CALLS_PER_DAY} calls a day — no card, because an agent that cannot try it will
-            never buy it.
+            Priced on companies tracked, and nothing else. The REST API and the MCP server are
+            unmetered on every paid tier — an agent that fires twenty queries to answer one
+            question is the product working, not a billing event. The free tier gets{" "}
+            {FREE_CALLS_PER_DAY} calls a day with no card, because an agent that cannot try it
+            will never buy it.
           </p>
         </section>
 

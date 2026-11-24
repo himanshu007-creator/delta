@@ -96,6 +96,21 @@ ${top.map((v) => `- [${v.vendor}](${abs(`/stack/${v.vendor}`)}): ${v.domains.len
 A metered REST API and an MCP server expose the same named queries the site uses.
 See ${abs("/#pricing")}. The query catalogue is public and unauthenticated at
 \`${abs("/api/v1/company_dossier")}\` (GET lists the available queries; POST requires a licence key).
+
+## For agents
+
+Every public page has a Markdown twin: append \`.md\` to any URL.
+
+- ${abs("/c/linear.app")}.md
+- ${abs("/stack/anthropic")}.md
+- ${abs("/compare/asana.com-vs-linear.app")}.md
+
+Markdown pages carry the same facts with their source URLs and no markup.
+Each HTML page also declares its twin via <link rel="alternate" type="text/markdown">.
+
+MCP server (Streamable HTTP): ${abs("/api/mcp")}
+Claude Skill: ${abs("/skill/SKILL.md")}
+REST API: ${abs("/api/v1/company_dossier")}
 `;
 
   return text;

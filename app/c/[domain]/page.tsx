@@ -24,6 +24,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { factsFor } from "@/lib/cached-dossier";
+import { SEED, pairKey, seedFor } from "@/lib/seed";
 import { factLabel, publicDomain } from "@/lib/public-dossier";
 import { footprintOf, identityOf, interpret, type Signal } from "@/lib/interpret";
 import { countryName } from "@/lib/worldmap";
@@ -31,8 +32,9 @@ import { FootprintMap, hasFootprint } from "../../footprint";
 import { CHECKOUT_URL } from "@/lib/offer";
 import { abs, SITE_NAME } from "@/lib/site";
 import { JsonLd } from "../../jsonld";
-import { SectionHead, ThemeToggle } from "../../ui";
+import { SectionHead, SiteFooter } from "../../ui";
 import { AskAbout } from "../../ask";
+import { SiteNav } from "../../nav";
 
 export async function generateMetadata(props: PageProps<"/c/[domain]">) {
   // Built from the DOMAIN ALONE, on purpose. Calling the dossier here would
@@ -46,7 +48,11 @@ export async function generateMetadata(props: PageProps<"/c/[domain]">) {
     description:
       `What can be verified about ${domain} right now from public sources: published pricing, ` +
       `vendor stack, security posture, legal entity and domain history — every fact linked to the page it came from.`,
-    alternates: { canonical: `/c/${domain}` },
+    alternates: {
+      canonical: `/c/${domain}`,
+      // Agents discover the Markdown twin from here rather than guessing.
+      types: { "text/markdown": `/c/${domain}.md` },
+    },
     openGraph: {
       title: `${domain} — company intelligence`,
       description: `Verifiable facts about ${domain} from public sources, each linked to its origin.`,
@@ -71,13 +77,7 @@ export default function CompanyPage(props: PageProps<"/c/[domain]">) {
   // it — so the promise is handed to a Suspense boundary instead.
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14">
-      <nav className="mb-10 flex items-center justify-between gap-4">
-        <Link href="/" className="mono t-small no-underline">{SITE_NAME}</Link>
-        <div className="flex items-center gap-3">
-          <Link href="/#pricing" className="t-small no-underline">Pricing</Link>
-          <ThemeToggle />
-        </div>
-      </nav>
+      <SiteNav here={"companies"} />
 
       <Suspense fallback={<Loading />}>
         <Resolved params={props.params} />
@@ -105,10 +105,8 @@ async function Resolved({ params }: { params: PageProps<"/c/[domain]">["params"]
           isPartOf: { "@type": "WebSite", name: SITE_NAME, url: abs("/") },
         }}
       />
-      <header className="mb-10">
-        <p className="eyebrow mb-2">Company intelligence</p>
-        <h1 className="t-display break-words">{domain}</h1>
-      </header>
+      {/* No header here: Dossier renders the real one, with the legal entity
+          and positioning line. Two <h1>s is also an accessibility fault. */}
       <Dossier domain={domain} />
     </>
   );
@@ -117,9 +115,12 @@ async function Resolved({ params }: { params: PageProps<"/c/[domain]">["params"]
 function Loading() {
   return (
     <>
+      {/* The fallback uses a <p>, not an <h1>. Under partial prerendering the
+          shell and the streamed content both appear in the raw HTML, so an
+          <h1> here would give every page two of them to a crawler. */}
       <header className="mb-10">
         <p className="eyebrow mb-2">Company intelligence</p>
-        <h1 className="t-display muted">Reading public sources…</h1>
+        <p className="t-display muted m-0">Reading public sources…</p>
       </header>
       <div className="card">
         <p className="t-body">Fetching this live from public sources.</p>
@@ -157,6 +158,7 @@ async function Dossier({ domain }: { domain: string }) {
     <>
       {/* --- Identity. Who this is, before anything is claimed about them. */}
       <header className="mb-8">
+        <p className="eyebrow mb-2">Company intelligence</p>
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
           <h1 className="t-display break-words m-0">{domain}</h1>
           {id.type && id.type !== "unknown" && <span className="pill t-micro">{id.type}</span>}
@@ -236,6 +238,9 @@ async function Dossier({ domain }: { domain: string }) {
         </div>
       </section>
 
+      {/* --- Where next. The three things someone actually does from here. */}
+      <WhereNext domain={domain} />
+
       {/* --- The raw table, available but not thrown at the reader. */}
       <section className="mb-12">
         <details className="card">
@@ -281,7 +286,68 @@ async function Dossier({ domain }: { domain: string }) {
             : "Read live from public sources just now, because this company is not tracked yet."}
         </p>
       </section>
+
+      <AskAbout
+        className="mb-10"
+        path={`/c/${domain}`}
+        ask={`What has ${domain} changed recently, and what do their pricing, hiring and vendor choices suggest about where they are heading?`}
+      />
+
+      <SiteFooter />
     </>
+  );
+}
+
+/**
+ * The next move, made explicit.
+ *
+ * From a company page there are only three useful destinations: the same
+ * company compared against a rival, another company in the same market, or
+ * the company's own site. Leaving a reader to find those via the back button
+ * is what made every company page a dead end.
+ */
+function WhereNext({ domain }: { domain: string }) {
+  const seed = seedFor(domain);
+  if (!seed) {
+    // Not in the seed set, so there is no category to suggest rivals from.
+    // Offer the directory rather than inventing comparisons.
+    return (
+      <section className="mb-12">
+        <SectionHead eyebrow="where next" title="Keep looking" />
+        <div className="flex flex-wrap gap-3">
+          <Link href="/c" className="btn no-underline">Browse all companies</Link>
+          <Link href="/stack" className="btn no-underline">Browse by vendor</Link>
+          <a href={`https://${domain}`} className="btn no-underline" rel="nofollow noopener" target="_blank">
+            Visit {domain} →
+          </a>
+        </div>
+      </section>
+    );
+  }
+
+  const rivals = SEED.filter((c) => c.category === seed.category && c.domain !== domain).slice(0, 6);
+
+  return (
+    <section className="mb-12">
+      <SectionHead eyebrow="where next" title={`Compare ${seed.name} with a rival`} />
+      <div className="flex flex-wrap gap-2">
+        {rivals.map((r) => {
+          const slug = pairKey(domain, r.domain);
+          return slug ? (
+            <Link key={r.domain} href={`/compare/${slug}`} className="chip no-underline">
+              vs {r.name}
+            </Link>
+          ) : null;
+        })}
+      </div>
+      <div className="mt-5 flex flex-wrap gap-3">
+        <Link href="/c" className="btn no-underline">All companies</Link>
+        <Link href="/stack" className="btn no-underline">Browse by vendor</Link>
+        <a href={`https://${domain}`} className="btn no-underline" rel="nofollow noopener" target="_blank">
+          Visit {domain} →
+        </a>
+      </div>
+    </section>
   );
 }
 

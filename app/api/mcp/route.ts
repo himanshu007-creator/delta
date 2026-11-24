@@ -9,6 +9,10 @@
  * That split is the upgrade prompt, and it is a far better one than a hard
  * call cap on a server nobody has installed.
  *
+ * Paid plans do not meter calls at all. Pricing is per company tracked, so an
+ * agent firing twenty queries to answer one question costs us an indexed read
+ * and is exactly what the product is for.
+ *
  * ponytail: the JSON-RPC subset is implemented here rather than pulling in
  * @modelcontextprotocol/sdk. A stateless tools-only server needs initialize,
  * tools/list, tools/call and ping — about eighty lines — and the SDK's
@@ -169,6 +173,7 @@ export async function POST(req: Request) {
           `${SITE_NAME} tracks what companies publish — pricing, vendor stack, releases, hiring, ` +
           `security posture, legal entity — and what changed, from public records only. ` +
           `Current state is free; the change history needs a licence key sent as a Bearer token. ` +
+          `Calls are not metered on a paid plan — query as freely as the task needs. ` +
           `Every fact carries a source URL and a quote: cite them, and report gaps as gaps rather ` +
           `than filling them in.`,
       });

@@ -18,7 +18,6 @@ import { CUSTOM, FREE_CALLS_PER_DAY, TOP_TIER, bestPlan, normalisePlan } from "@
 
 /** Slider stops, so the ranges are usable rather than linear-and-useless. */
 const COMPANY_STOPS = [3, 10, 25, 50, 100, 200, 400, 700, 1_000, 1_500, 2_500, 5_000];
-const CALL_STOPS = [25, 100, 250, 500, 1_000, 2_000, 5_000, 10_000, 25_000, 50_000, 100_000];
 const SEAT_STOPS = [1, 2, 3, 5, 10, 15, 25, 50];
 
 const fmt = (n: number) => n.toLocaleString("en-GB");
@@ -59,16 +58,15 @@ function Slider({
 
 export function PlanBuilder({ supportEmail }: { supportEmail?: string }) {
   const [ci, setCi] = useState(4); // 100 companies
-  const [li, setLi] = useState(5); // 2,000 calls
   const [si, setSi] = useState(2); // 3 seats
 
   const req = useMemo(
-    () => normalisePlan({ companies: COMPANY_STOPS[ci], calls: CALL_STOPS[li], seats: SEAT_STOPS[si] }),
-    [ci, li, si],
+    () => normalisePlan({ companies: COMPANY_STOPS[ci], seats: SEAT_STOPS[si] }),
+    [ci, si],
   );
   const plan = useMemo(() => bestPlan(req), [req]);
 
-  const spec = `${fmt(req.companies)} companies · ${fmt(req.calls)} API+MCP calls/day · ${req.seats} seat${req.seats === 1 ? "" : "s"}`;
+  const spec = `${fmt(req.companies)} companies · ${req.seats} seat${req.seats === 1 ? "" : "s"} · unmetered API + MCP`;
 
   return (
     <div className="card p-6 sm:grid sm:grid-cols-5 sm:gap-8">
@@ -76,13 +74,6 @@ export function PlanBuilder({ supportEmail }: { supportEmail?: string }) {
         <p className="eyebrow mb-4">Build a plan</p>
         <div className="space-y-5">
           <Slider label="Companies tracked" stops={COMPANY_STOPS} index={ci} onChange={setCi} render={fmt} />
-          <Slider
-            label="API + MCP calls per day"
-            stops={CALL_STOPS}
-            index={li}
-            onChange={setLi}
-            render={fmt}
-          />
           <Slider label="Seats" stops={SEAT_STOPS} index={si} onChange={setSi} render={(v) => String(v)} />
         </div>
       </div>
@@ -98,7 +89,7 @@ export function PlanBuilder({ supportEmail }: { supportEmail?: string }) {
             <p className="t-small muted mt-3 mb-0">
               {plan.monthly === 0
                 ? `The free tier already does this — ${FREE_CALLS_PER_DAY} calls a day, no card.`
-                : `No custom plan needed. ${plan.tier.name} includes ${fmt(plan.tier.companies)} companies and ${fmt(plan.tier.calls)} calls a day.`}
+                : `No custom plan needed. ${plan.tier.name} covers ${fmt(plan.tier.companies)} companies, with the API and MCP server included.`}
             </p>
           </>
         ) : (
@@ -109,7 +100,7 @@ export function PlanBuilder({ supportEmail }: { supportEmail?: string }) {
             </p>
             <p className="t-small muted mt-3 mb-0">
               Beyond {TOP_TIER.name}, priced on what you add: ${CUSTOM.perCompany.toFixed(3)} per extra
-              company, ${CUSTOM.perCall.toFixed(3)} per extra daily call, ${CUSTOM.perSeat} per extra seat.
+              company and ${CUSTOM.perSeat} per extra seat. The API and MCP server stay unmetered.
               An estimate we will honour.
             </p>
           </>

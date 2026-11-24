@@ -6,8 +6,9 @@
 import Link from "next/link";
 import { SITE_NAME } from "@/lib/site";
 import { comparablePairs, SEED, seedFor, type Category } from "@/lib/seed";
-import { SectionHead, ThemeToggle } from "../ui";
+import { SectionHead, SiteFooter } from "../ui";
 import { AskAbout } from "../ask";
+import { SiteNav } from "../nav";
 
 export const metadata = {
   title: "Head-to-head company comparisons, built from public records",
@@ -36,14 +37,7 @@ export default function CompareIndexPage() {
 
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14">
-      <nav className="mb-10 flex items-center justify-between gap-4">
-        <Link href="/" className="mono t-small no-underline">{SITE_NAME}</Link>
-        <div className="flex items-center gap-3">
-          <Link href="/stack" className="t-small no-underline">Vendors</Link>
-          <Link href="/#pricing" className="t-small no-underline">Pricing</Link>
-          <ThemeToggle />
-        </div>
-      </nav>
+      <SiteNav here={"compare"} />
 
       <header className="mb-10">
         <p className="eyebrow mb-2">Comparisons</p>
@@ -82,13 +76,7 @@ export default function CompareIndexPage() {
         ask="Which of these head-to-head comparisons would matter most to someone choosing a tool in this category right now?"
       />
 
-      <footer className="t-small muted border-t pt-6" style={{ borderColor: "var(--border)" }}>
-        <p>Public sources only. We honour robots.txt and never use LinkedIn.</p>
-        <p className="mt-2">
-          <Link href="/">{SITE_NAME}</Link> · <Link href="/stack">Vendors</Link> ·{" "}
-          <Link href="/privacy">Privacy</Link> · <Link href="/terms">Terms</Link>
-        </p>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }

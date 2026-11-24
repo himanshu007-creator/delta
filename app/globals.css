@@ -262,6 +262,33 @@ input:disabled, select:disabled, textarea:disabled { opacity: 0.55; cursor: not-
 :root[data-theme="dark"] .art-light { display: none; }
 .receipt { font-family: var(--font-mono); white-space: pre; line-height: 1.35; font-size: 13px; }
 
+/* --- Nav layout ---------------------------------------------------------- */
+.nav-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+}
+.nav-brand { letter-spacing: 0.08em; font-weight: 600; white-space: nowrap; }
+.nav-search { max-width: 22rem; justify-self: start; width: 100%; }
+.nav-links { display: flex; align-items: center; gap: 1rem; white-space: nowrap; }
+
+.nav-link { color: var(--ink-muted); }
+.nav-link:hover { color: var(--ocean); }
+/* The current section is marked with weight and colour, not colour alone. */
+.nav-link[aria-current="page"] { color: var(--ink); font-weight: 600; }
+
+/* Below the fold of a phone the search would squeeze the links to nothing, so
+   it drops to its own row rather than both becoming unusable. */
+@media (max-width: 859.98px) {
+  .nav-row { grid-template-columns: auto 1fr; row-gap: 0.75rem; }
+  .nav-search { grid-column: 1 / -1; grid-row: 2; max-width: none; }
+  .nav-links { gap: 0.85rem; justify-self: end; }
+}
+@media (max-width: 479.98px) {
+  .nav-links { gap: 0.6rem; font-size: 0.8rem; }
+}
+
 /* --- Sticky nav ---------------------------------------------------------- */
 .nav-sticky {
   position: sticky;
@@ -369,6 +396,55 @@ a.tile:hover {
   letter-spacing: -0.01em;
 }
 
+/* --- Code blocks --------------------------------------------------------- */
+.code-block { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--surface-2); }
+.code-label {
+  margin: 0;
+  padding: 0.5rem 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.code-pre {
+  margin: 0;
+  padding: 0.9rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  /* Long commands wrap rather than forcing the whole page sideways on a
+     phone; the backslash continuations stay readable either way. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* A table of prose needs to scroll on a phone, not compress to nothing. */
+.table-wrap { overflow-x: auto; }
+
+/* --- Directory rows ------------------------------------------------------ */
+.dir-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.4rem 0.5rem 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+.dir-row:hover { background: var(--surface-2); }
+.dir-name {
+  color: var(--ink);
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dir-row:hover .dir-name { color: var(--ocean); }
+
 /* --- Chips --------------------------------------------------------------- */
 .chip {
   display: inline-flex;
@@ -434,7 +510,13 @@ a.tile:hover {
   opacity: 0.3;
 }
 
-.map-market { fill: var(--ocean); opacity: 0.8; }
+.map-market { fill: var(--ocean); opacity: 0.8; pointer-events: none; }
+
+/* An invisible, larger hit area per marker. The visible dot is ~0.6 units
+   across in a 95-unit viewBox, which is a few pixels — far too small to hover
+   reliably, so the target is widened without changing what is drawn. */
+.map-hit { fill: transparent; cursor: help; }
+.map-hit:hover ~ .map-market { opacity: 1; }
 
 .map-cross {
   stroke: var(--coral);

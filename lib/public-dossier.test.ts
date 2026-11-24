@@ -7,6 +7,7 @@
  */
 
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { factLabel, isPublicFact, publicDomain, PUBLIC_KINDS } from "./public-dossier";
 import { ADAPTERS } from "./sources/registry";
 
@@ -104,6 +105,29 @@ import { ADAPTERS } from "./sources/registry";
   // But the two lists that are genuinely the point stay visible.
   assert.equal(isPublicFact({ path: "stack.vendors.list", value: "a,b" }), true);
   assert.equal(isPublicFact({ path: "corporate.company_number", value: "596137" }), true);
+}
+
+
+// --- The API must use the SAME guard, not its own ------------------------
+// lib/queries.ts had a local `needDomain` that accepted anything containing a
+// dot, so `169.254.169.254` passed and the REST API and MCP server would
+// crawl the cloud metadata endpoint on request. The page was never vulnerable
+// because it calls publicDomain(); the API reimplemented the check, which is
+// exactly how a guard gets bypassed.
+{
+  const queries = readFileSync(new URL("./queries.ts", import.meta.url), "utf8");
+  assert.ok(
+    /import \{ publicDomain \} from "\.\/domain"/.test(queries),
+    "lib/queries.ts must import the shared SSRF guard",
+  );
+  assert.ok(
+    /const needDomain[\s\S]{0,200}publicDomain\(p\.domain\)/.test(queries),
+    "needDomain must delegate to publicDomain — never reimplement the check",
+  );
+  assert.ok(
+    !/d\.includes\("\."\)/.test(queries),
+    "the old dot-only check must be gone, not merely unused",
+  );
 }
 
 console.log("✓ public-dossier: SSRF guard refuses metadata/private/IP-literal hosts, fast set verified");
