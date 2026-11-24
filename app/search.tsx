@@ -12,11 +12,12 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Hit } from "@/lib/search-index";
+import { publicDomain } from "@/lib/domain";
 
 export function SearchBox({
   index,
   autoFocus = false,
-  placeholder = "Search a company or a vendor…",
+  placeholder = "Search a company, a vendor, or any domain…",
 }: {
   index: readonly Hit[];
   autoFocus?: boolean;
@@ -39,10 +40,34 @@ export function SearchBox({
       if (at === -1) continue;
       scored.push({ hit, score: at === 0 ? 0 : hit.q[at - 1] === " " ? 1 : 2 });
     }
-    return scored
+    const ranked = scored
       .sort((a, b) => a.score - b.score || a.hit.label.length - b.hit.label.length)
       .slice(0, 8)
       .map((s) => s.hit);
+
+    /*
+     * The index only holds pages that are built ahead of time, but /c/[domain]
+     * takes ANY public domain and reads it live — so without this row, typing
+     * a real company that is not in the seed set returned nothing and the
+     * dropdown did not even open. A dead end in front of a working feature.
+     *
+     * `publicDomain` is the same validator the proxy and the page use, so a
+     * suggestion here can never point at a domain the server would refuse.
+     * It has zero dependencies by design, which is what makes it safe to
+     * import into a client component.
+     */
+    const typed = publicDomain(needle) ?? (needle.includes(".") ? null : publicDomain(`${needle}.com`));
+    if (typed && !ranked.some((h) => h.href === `/c/${typed}`)) {
+      ranked.push({
+        q: typed,
+        label: typed,
+        href: `/c/${typed}`,
+        kind: "company",
+        note: "look up live",
+      });
+    }
+
+    return ranked;
   }, [q, index]);
 
   const show = open && hits.length > 0;
