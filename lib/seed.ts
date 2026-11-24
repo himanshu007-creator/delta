@@ -6,6 +6,8 @@
  * `node:dns` through the adapter registry. Same reasoning as lib/domain.ts.
  */
 
+import { publicDomain } from "./domain";
+
 export type Category =
   | "dev-infra" | "productivity" | "sales-marketing" | "fintech"
   | "hr-ops" | "security" | "ai" | "retail" | "industry";
@@ -151,13 +153,22 @@ export function pairKey(a: string, b: string): string | null {
   return `${x}-vs-${y}`;
 }
 
-/** Parse a pair slug back into two domains, if both are in the seed set. */
+/**
+ * Parse a pair slug back into two domains.
+ *
+ * Validated with `publicDomain`, NOT against the seed set. The seed set is
+ * which comparisons get prerendered and listed, never which ones are allowed:
+ * the side-by-side reads both companies live, so any two public domains
+ * compare perfectly well and refusing them hid a working feature behind a
+ * 404. `publicDomain` is still the SSRF boundary, so an IP literal, a
+ * reserved suffix or a malformed name gets nothing.
+ */
 export function parsePair(slug: string): { a: string; b: string } | null {
   const parts = slug.split("-vs-");
   if (parts.length !== 2) return null;
-  const [a, b] = parts.map((p) => p.trim().toLowerCase());
+  const a = publicDomain(parts[0]);
+  const b = publicDomain(parts[1]);
   if (!a || !b || a === b) return null;
-  if (!seedFor(a) || !seedFor(b)) return null;
   return { a, b };
 }
 

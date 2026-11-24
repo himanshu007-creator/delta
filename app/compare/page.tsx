@@ -6,6 +6,7 @@
 import Link from "next/link";
 import { SITE_NAME } from "@/lib/site";
 import { comparablePairs, SEED, seedFor, type Category } from "@/lib/seed";
+import { PairPicker } from "../pair";
 import { SectionHead, SiteFooter } from "../ui";
 import { AskAbout } from "../ask";
 import { SiteNav } from "../nav";
@@ -47,6 +48,11 @@ export default function CompareIndexPage() {
           two actually run on, what they publish, and where they differ.
         </p>
       </header>
+
+      <section className="mb-12">
+        <SectionHead eyebrow="any two domains" title="Compare something not listed" />
+        <PairPicker />
+      </section>
 
       {[...byCat.entries()]
         .sort((a, b) => b[1].length - a[1].length)
