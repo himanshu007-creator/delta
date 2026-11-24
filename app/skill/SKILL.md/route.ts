@@ -10,19 +10,23 @@
  * carries the server URL and the pricing link with it.
  */
 
-import { cacheLife } from "next/cache";
 import { QUERIES } from "@/lib/queries";
 import { SEED } from "@/lib/seed";
-import { SITE_NAME, SITE_URL, abs } from "@/lib/site";
+import { SITE_NAME } from "@/lib/site";
+import { requestOrigin } from "@/lib/origin";
 import { REPO_URL } from "@/lib/project";
 
 /**
  * The BODY is cached, not the Response — a `use cache` scope must return
  * something serialisable, and a Response is a class instance.
  */
+/**
+ * Per request, not cached: a Skill file is a thing people SHARE, so every
+ * copy must carry the URL of the deployment it came from.
+ */
 async function body(): Promise<string> {
-  "use cache";
-  cacheLife("days");
+  const SITE_URL = await requestOrigin();
+  const abs = (path: string) => `${SITE_URL}${path}`;
 
   const free = QUERIES.filter((q) => q.tier === "live");
   const paid = QUERIES.filter((q) => q.tier === "stored");

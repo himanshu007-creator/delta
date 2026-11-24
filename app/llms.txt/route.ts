@@ -10,9 +10,9 @@
  * the kind of unsourced assertion this product exists to avoid.
  */
 
-import { cacheLife } from "next/cache";
 import { comparablePairs, SEED } from "@/lib/seed";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, abs } from "@/lib/site";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/site";
+import { requestOrigin } from "@/lib/origin";
 import { isPageworthyVendor, stackIndex } from "@/lib/stack-index";
 
 /**
@@ -29,9 +29,15 @@ import { isPageworthyVendor, stackIndex } from "@/lib/stack-index";
  * "Only plain objects... can be passed to Client Components". So cache the
  * string and construct the Response outside.
  */
+/**
+ * Built per request rather than cached, so the URLs inside name the host the
+ * reader reached — a fork should advertise itself, not this deployment. The
+ * body is a few kilobytes of text assembled from a committed index, and the
+ * CDN still caches it per host via Cache-Control below.
+ */
 async function body(): Promise<string> {
-  "use cache";
-  cacheLife("days");
+  const origin = await requestOrigin();
+  const abs = (path: string) => `${origin}${path}`;
   const ix = stackIndex();
   const vendors = ix.vendors.filter((v) => v.domains.length >= 2 && isPageworthyVendor(v.vendor));
   const pairs = comparablePairs();

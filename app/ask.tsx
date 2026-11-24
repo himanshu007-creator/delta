@@ -15,7 +15,8 @@
  * a deep link with a query string is the entire mechanism.
  */
 
-import { SITE_NAME, abs } from "@/lib/site";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { AssistantLinks } from "./origin";
 
 /**
  * Where each assistant accepts a prefilled prompt.
@@ -41,12 +42,6 @@ export function AskAbout({
   ask: string;
   className?: string;
 }) {
-  const url = path.startsWith("http") ? path : abs(path);
-
-  // The URL goes FIRST. Assistants that fetch a link do it more reliably when
-  // the link opens the prompt, and a truncated prompt still contains it.
-  const prompt = `${url}\n\n${ask} Cite the source links shown on the page, and say so if something is missing rather than filling it in.`;
-
   return (
     <aside className={`card-quiet p-5 ${className}`}>
       <p className="eyebrow mb-2">Ask an assistant</p>
@@ -54,21 +49,9 @@ export function AskAbout({
         {ask} Opens with the question filled in.
       </p>
 
-      <div className="flex flex-wrap gap-2">
-        {ASSISTANTS.map((a) => (
-          <a
-            key={a.name}
-            className="btn btn-sm no-underline"
-            href={a.base + encodeURIComponent(prompt)}
-            // noopener for the usual reason; nofollow because these are
-            // utility links to third parties, not endorsements we vouch for.
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-          >
-            {a.name} →
-          </a>
-        ))}
-      </div>
+      {/* The href is finished on the client, so a fork links to ITSELF — see
+          AssistantLinks. Server-rendered with the canonical URL meanwhile. */}
+      <AssistantLinks assistants={ASSISTANTS} path={path} ask={ask} fallbackOrigin={SITE_URL} />
 
       <p className="t-micro muted mt-4 mb-0">
         {SITE_NAME} publishes <a href="/llms.txt">llms.txt</a> and schema.org data on every page,

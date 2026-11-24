@@ -23,6 +23,7 @@ import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL, abs } from "@/lib/
 import { Faq, SectionHead, SiteFooter } from "./ui";
 import { SiteNav } from "./nav";
 import { AskAbout } from "./ask";
+import { LiveCode } from "./origin";
 import { JsonLd } from "./jsonld";
 import { SearchBox } from "./search";
 import { SEARCH_INDEX } from "@/lib/search-index";
@@ -269,7 +270,14 @@ export default function Home() {
             <div className="lg:col-span-3">
               <div className="code-block">
                 <p className="code-label">Claude Code</p>
-                <pre className="code-pre"><code>{`claude mcp add --transport http delta ${SITE_URL}/api/mcp`}</code></pre>
+                <pre className="code-pre">
+                  <code>
+                    <LiveCode
+                      template="claude mcp add --transport http delta {ORIGIN}/api/mcp"
+                      fallback={SITE_URL}
+                    />
+                  </code>
+                </pre>
               </div>
               <p className="t-micro muted mt-3">
                 Or append <code className="mono">.md</code> to any page for a clean Markdown

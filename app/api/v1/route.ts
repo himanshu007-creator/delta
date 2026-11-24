@@ -8,14 +8,17 @@
 
 import { NextResponse } from "next/server";
 import { QUERIES, catalogue } from "@/lib/queries";
-import { SITE_NAME, abs } from "@/lib/site";
+import { SITE_NAME } from "@/lib/site";
+import { requestOrigin } from "@/lib/origin";
 
 export async function GET() {
+  // Built from the request origin, so a fork's index advertises the fork.
+  const origin = await requestOrigin();
   return NextResponse.json({
     name: `${SITE_NAME} API`,
-    docs: abs("/docs"),
-    mcp: abs("/api/mcp"),
-    skill: abs("/skill/SKILL.md"),
+    docs: `${origin}/docs`,
+    mcp: `${origin}/api/mcp`,
+    skill: `${origin}/skill/SKILL.md`,
     usage: "POST /api/v1/{query} with a JSON body. No key, no quota.",
     auth: "None. This API is free and unauthenticated; the data is public records.",
     counts: {

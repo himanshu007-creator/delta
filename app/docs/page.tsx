@@ -15,6 +15,7 @@ import { JsonLd } from "../jsonld";
 import { SectionHead, SiteFooter } from "../ui";
 import { SiteNav } from "../nav";
 import { AskAbout } from "../ask";
+import { LiveCode, LiveOrigin } from "../origin";
 
 export const metadata: Metadata = {
   title: "API and MCP server",
@@ -25,13 +26,20 @@ export const metadata: Metadata = {
   openGraph: { title: `${SITE_NAME} — API and MCP server`, url: "/docs", images: ["/opengraph-image"] },
 };
 
+/** The build-time value. <LiveCode> swaps it for the real one client-side. */
 const MCP_URL = `${SITE_URL}/api/mcp`;
 
+/**
+ * A snippet whose `{ORIGIN}` placeholders resolve to wherever the reader
+ * actually is — their fork, their domain, their preview, or localhost.
+ */
 function Code({ children, label }: { children: string; label?: string }) {
   return (
     <div className="code-block">
       {label && <p className="code-label">{label}</p>}
-      <pre className="code-pre"><code>{children}</code></pre>
+      <pre className="code-pre">
+        <code><LiveCode template={children} fallback={SITE_URL} /></code>
+      </pre>
     </div>
   );
 }
@@ -70,26 +78,28 @@ export default function Docs() {
         <SectionHead eyebrow="mcp" title="Add the server" />
 
         <p className="t-body mb-4">
-          Streamable HTTP, stateless, <strong>no authentication</strong>. Point any MCP client at:
+          Streamable HTTP, stateless, <strong>no authentication</strong>. These snippets use the
+          address you are reading this on — <code className="mono"><LiveOrigin fallback={SITE_URL} /></code> —
+          so a fork works without editing anything. Point any MCP client at:
         </p>
-        <Code>{MCP_URL}</Code>
+        <Code>{"{ORIGIN}/api/mcp"}</Code>
 
         <div className="mt-6 space-y-5">
-          <Code label="Claude Code">{`claude mcp add --transport http delta ${MCP_URL}`}</Code>
+          <Code label="Claude Code">{"claude mcp add --transport http delta {ORIGIN}/api/mcp"}</Code>
 
           <Code label="Claude Desktop — claude_desktop_config.json">
 {`{
   "mcpServers": {
     "delta": {
       "type": "http",
-      "url": "${MCP_URL}"
+      "url": "{ORIGIN}/api/mcp"
     }
   }
 }`}
           </Code>
 
           <Code label="Any client — raw JSON-RPC, to check it works">
-{`curl -s ${MCP_URL} \\
+{`curl -s {ORIGIN}/api/mcp \\
   -H 'content-type: application/json' \\
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | jq '.result.tools[].name'`}
           </Code>
@@ -159,12 +169,12 @@ export default function Docs() {
       <section className="mb-14">
         <SectionHead eyebrow="rest" title="Or just POST to it" />
         <Code label="One named query per path">
-{`curl -s ${SITE_URL}/api/v1/company_dossier \\
+{`curl -s {ORIGIN}/api/v1/company_dossier \\
   -H 'content-type: application/json' \\
   -d '{"domain":"adyen.com"}'`}
         </Code>
         <Code label="Change history, where the store is configured">
-{`curl -s ${SITE_URL}/api/v1/changes_feed \\
+{`curl -s {ORIGIN}/api/v1/changes_feed \\
   -H 'content-type: application/json' \\
   -d '{"domain":"adyen.com","limit":20}'`}
         </Code>
@@ -181,9 +191,9 @@ export default function Docs() {
           Append <code className="mono">.md</code> to any public URL. Same facts, same sources, no
           markup — for an agent that just needs to read rather than query.
         </p>
-        <Code>{`${SITE_URL}/c/adyen.com.md
-${SITE_URL}/stack/anthropic.md
-${SITE_URL}/compare/asana.com-vs-linear.app.md`}</Code>
+        <Code>{`{ORIGIN}/c/adyen.com.md
+{ORIGIN}/stack/anthropic.md
+{ORIGIN}/compare/asana.com-vs-linear.app.md`}</Code>
         <p className="t-small muted mt-4">
           Each HTML page declares its twin with{" "}
           <code className="mono">&lt;link rel=&quot;alternate&quot; type=&quot;text/markdown&quot;&gt;</code>, and{" "}

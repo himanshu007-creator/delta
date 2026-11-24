@@ -20,6 +20,7 @@
 
 import { QUERIES, byName } from "@/lib/queries";
 import { SITE_NAME } from "@/lib/site";
+import { requestOrigin } from "@/lib/origin";
 
 export const maxDuration = 300;
 
@@ -138,6 +139,9 @@ export async function POST(req: Request) {
   switch (method) {
     case "initialize": {
       const asked = typeof params.protocolVersion === "string" ? params.protocolVersion : "";
+      // Self-report the endpoint the client actually reached, so an agent can
+      // quote a working URL on a fork or a custom domain.
+      const origin = await requestOrigin();
       // Echo the client's revision when we know it, else name ours and let the
       // client decide whether it can proceed. Guessing would break on both.
       const version = (SUPPORTED as readonly string[]).includes(asked) ? asked : LATEST;
@@ -146,9 +150,10 @@ export async function POST(req: Request) {
         capabilities: { tools: { listChanged: false } },
         serverInfo: { name: SITE_NAME.toLowerCase(), version: "1.0.0" },
         instructions:
-          `${SITE_NAME} tracks what companies publish — pricing, vendor stack, releases, hiring, ` +
+          `${SITE_NAME} (${origin}) tracks what companies publish — pricing, vendor stack, releases, hiring, ` +
           `security posture, legal entity — and what changed, from public records only. ` +
           `Free and unauthenticated — no key, no quota. Query as freely as the task needs. ` +
+          `Every page also exists as Markdown: append .md to any URL under ${origin}. ` +
           `Every fact carries a source URL and a quote: cite them, and report gaps as gaps rather ` +
           `than filling them in.`,
       });

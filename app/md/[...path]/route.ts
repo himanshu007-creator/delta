@@ -24,8 +24,21 @@ import { footprintOf, identityOf, interpret } from "@/lib/interpret";
 import { publicDomain } from "@/lib/public-dossier";
 import { SEED, comparablePairs, parsePair, seedFor } from "@/lib/seed";
 import { isPageworthyVendor, prettyVendor, stackIndex, vendorRow } from "@/lib/stack-index";
-import { SITE_NAME, SITE_URL, abs } from "@/lib/site";
+import { SITE_NAME } from "@/lib/site";
+import { requestOrigin } from "@/lib/origin";
 import { countryName } from "@/lib/worldmap";
+
+/*
+ * The origin is THREADED through every builder, never stored at module scope.
+ *
+ * A `let ORIGIN` set at the top of GET looks simpler and is a race: two
+ * concurrent requests on different hosts — a custom domain and a preview URL,
+ * say — would have the second overwrite the first mid-render, and the first
+ * would emit links to the wrong deployment. Module state outlives a request
+ * in every serverless runtime, so it cannot hold per-request values.
+ */
+type Ctx = { origin: string; abs: (path: string) => string };
+const ctxFor = (origin: string): Ctx => ({ origin, abs: (p) => `${origin}${p}` });
 
 const md = (body: string) =>
   new Response(body, {
@@ -42,28 +55,31 @@ const missing = () =>
   });
 
 /** A footer every document carries, so a quoted answer can cite us. */
-const footer = (canonical: string) =>
-  `\n---\n\nSource: ${SITE_NAME} — ${abs(canonical)}\n` +
+const footer = (canonical: string, site: Ctx) =>
+  `\n---\n\nSource: ${SITE_NAME} — ${site.abs(canonical)}\n` +
   `Public records only; every fact above links to the page it came from.\n` +
-  `Refreshed at 00:00 and 12:00 UTC. Free, unauthenticated API and MCP server: ${abs("/docs")}\n`;
+  `Refreshed at 00:00 and 12:00 UTC. Free, unauthenticated API and MCP server: ${site.abs("/docs")}\n`;
 
-export async function GET(_req: Request, ctx: RouteContext<"/md/[...path]">) {
-  const { path } = await ctx.params;
+export async function GET(_req: Request, routeCtx: RouteContext<"/md/[...path]">) {
+  // Absolute links inside a Markdown twin must point at the host the agent
+  // actually fetched, or a fork's output sends readers to someone else's copy.
+  const site = ctxFor(await requestOrigin());
+  const { path } = await routeCtx.params;
   const parts = (path ?? []).map((p) => decodeURIComponent(p));
   const [kind, slug] = parts;
 
-  if (kind === "c" && slug) return company(slug);
-  if (kind === "c" && !slug) return companyIndex();
-  if (kind === "stack" && slug) return vendor(slug);
-  if (kind === "stack" && !slug) return vendorIndex();
-  if (kind === "compare" && slug) return compare(slug);
-  if (kind === "compare" && !slug) return compareIndex();
+  if (kind === "c" && slug) return company(slug, site);
+  if (kind === "c" && !slug) return companyIndex(site);
+  if (kind === "stack" && slug) return vendor(slug, site);
+  if (kind === "stack" && !slug) return vendorIndex(site);
+  if (kind === "compare" && slug) return compare(slug, site);
+  if (kind === "compare" && !slug) return compareIndex(site);
   return missing();
 }
 
 // --- /c/[domain].md ---------------------------------------------------------
 
-async function company(raw: string) {
+async function company(raw: string, site: Ctx) {
   const domain = publicDomain(raw);
   if (!domain) return missing();
 
@@ -128,12 +144,12 @@ async function company(raw: string) {
       ? "_From our index, refreshed twice daily._"
       : "_Read live from public sources on request; this company is not tracked yet._",
   );
-  lines.push(footer(`/c/${domain}`));
+  lines.push(footer(`/c/${domain}`, site));
 
   return md(lines.join("\n"));
 }
 
-function companyIndex() {
+function companyIndex(site: Ctx) {
   const ix = stackIndex();
   const vendorCount = new Map(ix.entries.map((e) => [e.domain, e.vendors.length]));
   const byCat = new Map<string, typeof SEED[number][]>();
@@ -151,17 +167,17 @@ function companyIndex() {
   for (const [cat, list] of [...byCat].sort((a, b) => b[1].length - a[1].length)) {
     lines.push(`## ${cat} (${list.length})`, "", "| Company | Domain | Vendors | Page |", "|---|---|---|---|");
     for (const c of [...list].sort((a, b) => a.name.localeCompare(b.name))) {
-      lines.push(`| ${c.name} | ${c.domain} | ${vendorCount.get(c.domain) ?? 0} | ${abs(`/c/${c.domain}`)} |`);
+      lines.push(`| ${c.name} | ${c.domain} | ${vendorCount.get(c.domain) ?? 0} | ${site.abs(`/c/${c.domain}`)} |`);
     }
     lines.push("");
   }
-  lines.push(footer("/c"));
+  lines.push(footer("/c", site));
   return md(lines.join("\n"));
 }
 
 // --- /stack/[vendor].md -----------------------------------------------------
 
-function vendor(raw: string) {
+function vendor(raw: string, site: Ctx) {
   const slug = raw.toLowerCase();
   const row = vendorRow(slug);
   if (!row || !isPageworthyVendor(slug)) return missing();
@@ -178,14 +194,14 @@ function vendor(raw: string) {
     "",
     "## Adopters",
     "",
-    ...row.domains.map((d) => `- ${d} — ${abs(`/c/${d}`)}`),
+    ...row.domains.map((d) => `- ${d} — ${site.abs(`/c/${d}`)}`),
     "",
-    footer(`/stack/${slug}`),
+    footer(`/stack/${slug}`, site),
   ];
   return md(lines.join("\n"));
 }
 
-function vendorIndex() {
+function vendorIndex(site: Ctx) {
   const ix = stackIndex();
   const rows = ix.vendors
     .filter((v) => v.domains.length >= 2 && isPageworthyVendor(v.vendor))
@@ -197,14 +213,14 @@ function vendorIndex() {
     "",
     "| Vendor | Companies | Page |",
     "|---|---|---|",
-    ...rows.map((v) => `| ${prettyVendor(v.vendor)} | ${v.domains.length} | ${abs(`/stack/${v.vendor}`)} |`),
+    ...rows.map((v) => `| ${prettyVendor(v.vendor)} | ${v.domains.length} | ${site.abs(`/stack/${v.vendor}`)} |`),
     "",
-    footer("/stack"),
+    footer("/stack", site),
   ];
   return md(lines.join("\n"));
 }
 
-function compareIndex() {
+function compareIndex(site: Ctx) {
   const pairs = comparablePairs();
   const byCategory = new Map<string, typeof pairs>();
   for (const p of pairs) {
@@ -221,18 +237,18 @@ function compareIndex() {
   for (const [cat, list] of [...byCategory].sort()) {
     lines.push(`## ${cat} (${list.length})`, "");
     for (const p of list.slice(0, 40)) {
-      lines.push(`- ${seedFor(p.a)?.name ?? p.a} vs ${seedFor(p.b)?.name ?? p.b} — ${abs(`/compare/${p.slug}`)}`);
+      lines.push(`- ${seedFor(p.a)?.name ?? p.a} vs ${seedFor(p.b)?.name ?? p.b} — ${site.abs(`/compare/${p.slug}`)}`);
     }
     if (list.length > 40) lines.push(`- …and ${list.length - 40} more in this category.`);
     lines.push("");
   }
-  lines.push(footer("/compare"));
+  lines.push(footer("/compare", site));
   return md(lines.join("\n"));
 }
 
 // --- /compare/[pair].md -----------------------------------------------------
 
-async function compare(raw: string) {
+async function compare(raw: string, site: Ctx) {
   const parsed = parsePair(raw.toLowerCase());
   if (!parsed) return missing();
   const { a, b } = parsed;
@@ -259,11 +275,11 @@ async function compare(raw: string) {
         `| \`${r.p}\` | ${(r.av ?? "—").replace(/\|/g, "\\|").slice(0, 110)} | ${(r.bv ?? "—").replace(/\|/g, "\\|").slice(0, 110)} |`,
     ),
     "",
-    `Full dossiers: ${abs(`/c/${a}`)} · ${abs(`/c/${b}`)}`,
+    `Full dossiers: ${site.abs(`/c/${a}`)} · ${site.abs(`/c/${b}`)}`,
     "",
     "This is today's snapshot. What moves a decision is which of them is CHANGING —",
-    `and that history only exists where a deployment has been watching: ${SITE_URL}/docs`,
-    footer(`/compare/${raw.toLowerCase()}`),
+    `and that history only exists where a deployment has been watching: ${site.origin}/docs`,
+    footer(`/compare/${raw.toLowerCase()}`, site),
   ];
   return md(lines.join("\n"));
 }
