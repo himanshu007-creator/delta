@@ -16,32 +16,25 @@ export const REPO_URL =
 export const LICENSE = "MIT";
 
 /**
- * What a deployment actually requires.
+ * Deploying it, in the order you actually do it.
  *
- * The honest answer is "nothing", and that is the point of listing it: the app
- * runs on a bare Vercel deployment with no database and no API keys, crawling
- * live on request. Everything below is an upgrade, not a prerequisite.
+ * Infrastructure is deliberately absent from this list. A visitor does not
+ * need to know what the history is kept in, only that it starts accruing once
+ * the thing is running — naming a database here made a one-click deploy read
+ * like a setup chore, which is the opposite of true.
  */
-export const REQUIREMENTS = [
+export const DEPLOY_STEPS = [
   {
-    name: "Nothing",
-    need: "required",
-    what: "Deploy to Vercel and it works. Pages crawl public sources live on request.",
+    step: "Fork it",
+    what: "One repository, no services to sign up for, nothing to configure.",
   },
   {
-    name: "Postgres (Supabase free tier)",
-    need: "optional",
-    what: "Stores a crawl index so pages load from one query instead of ~25 requests — and keeps the change history, which is the part that cannot be re-created later.",
+    step: "Deploy to Vercel",
+    what: "Import and go. Pages read public sources on request, and the API and MCP server are live immediately.",
   },
   {
-    name: "GitHub Actions",
-    need: "optional",
-    what: "Runs the 12-hour crawl window. Free, and the only reason history accrues at all.",
-  },
-  {
-    name: "A model API key",
-    need: "optional",
-    what: "Only for reading awkward pages that resist deterministic parsing. Most sources never need one.",
+    step: "Turn on the schedule",
+    what: "Enable the included workflow and it starts recording twice a day. From then on it is building the history nobody can look up afterwards.",
   },
 ] as const;
 

@@ -9,7 +9,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { QUERIES } from "@/lib/queries";
-import { FAIR_USE_RPM, REPO_URL, REQUIREMENTS } from "@/lib/project";
+import { DEPLOY_STEPS, FAIR_USE_RPM, REPO_URL } from "@/lib/project";
 import { SITE_NAME, SITE_URL, abs } from "@/lib/site";
 import { JsonLd } from "../jsonld";
 import { SectionHead, SiteFooter } from "../ui";
@@ -106,8 +106,9 @@ export default function Docs() {
         </div>
 
         <p className="t-small muted mt-5">
-          No key, no account, no quota. The only thing a tool will refuse for is a missing
-          optional history store, and it says exactly that rather than returning an empty list.
+          No key, no account, no quota. The only thing a tool will refuse for is history a
+          deployment has not recorded yet, and it says exactly that rather than returning an
+          empty list.
         </p>
       </section>
 
@@ -115,7 +116,7 @@ export default function Docs() {
       <section className="mb-14">
         <SectionHead eyebrow="tools" title={`${QUERIES.length} queries, same names everywhere`} />
 
-        <h3 className="t-h3 mt-6 mb-3">Works on any deployment</h3>
+        <h3 className="t-h3 mt-6 mb-3">Current state — always available</h3>
         <div className="table-wrap">
           <table className="fact-table">
             <thead>
@@ -137,7 +138,7 @@ export default function Docs() {
           </table>
         </div>
 
-        <h3 className="t-h3 mt-8 mb-3">Needs the optional history store</h3>
+        <h3 className="t-h3 mt-8 mb-3">Recorded history</h3>
         <div className="table-wrap">
           <table className="fact-table">
             <thead>
@@ -159,9 +160,11 @@ export default function Docs() {
           </table>
         </div>
 
-        <p className="t-small muted mt-4">
-          This table is generated from the server&rsquo;s own query registry, so it cannot describe a
-          tool that does not exist.
+        <p className="t-small muted mt-4" style={{ maxWidth: "62ch" }}>
+          Current state is read on demand, so those tools answer anywhere. History accrues only
+          while a deployment is running its schedule — which is exactly why it is worth having.
+          This table is generated from the server&rsquo;s own query registry, so it cannot describe
+          a tool that does not exist.
         </p>
       </section>
 
@@ -173,7 +176,7 @@ export default function Docs() {
   -H 'content-type: application/json' \\
   -d '{"domain":"adyen.com"}'`}
         </Code>
-        <Code label="Change history, where the store is configured">
+        <Code label="Recorded history">
 {`curl -s {ORIGIN}/api/v1/changes_feed \\
   -H 'content-type: application/json' \\
   -d '{"domain":"adyen.com","limit":20}'`}
@@ -202,28 +205,28 @@ export default function Docs() {
         </p>
       </section>
 
-      {/* --- What a deployment needs. "Nothing" is the honest first row. --- */}
-      <section className="mb-14">
-        <SectionHead eyebrow="self-host" title="What it needs to run" />
-        <div className="card p-5">
-          <dl className="m-0 space-y-4">
-            {REQUIREMENTS.map((r) => (
-              <div key={r.name}>
-                <dt className="t-h3 m-0 flex items-baseline gap-2">
-                  {r.name}
-                  <span className={r.need === "required" ? "pill pill-strong t-micro" : "pill t-micro"}>
-                    {r.need}
-                  </span>
-                </dt>
-                <dd className="t-small muted mt-1 mb-0" style={{ maxWidth: "62ch" }}>{r.what}</dd>
+      {/* --- Deploying it, as three steps rather than a dependency list. --- */}
+      <section className="section">
+        <SectionHead eyebrow="run your own" title="Three steps" />
+        <ol className="steps">
+          {DEPLOY_STEPS.map((d, i) => (
+            <li key={d.step} className="step">
+              <span className="step-n" aria-hidden>{i + 1}</span>
+              <div>
+                <p className="t-h3 m-0">{d.step}</p>
+                <p className="t-small muted mt-1 mb-0">{d.what}</p>
               </div>
-            ))}
-          </dl>
+            </li>
+          ))}
+        </ol>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <a href={REPO_URL} className="btn btn-primary no-underline" rel="noopener">
+            Source on GitHub →
+          </a>
         </div>
-        <p className="t-small muted mt-4" style={{ maxWidth: "62ch" }}>
+        <p className="t-small muted mt-5 measure">
           Free and unauthenticated, with a soft limit of {FAIR_USE_RPM} requests a minute so one
-          runaway loop cannot take a deployment down for everyone else. Source and deploy
-          instructions: <a href={REPO_URL} rel="noopener">{REPO_URL.replace(/^https:\/\//, "")}</a>.
+          runaway loop cannot take a deployment down for everyone else.
         </p>
       </section>
 

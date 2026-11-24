@@ -497,13 +497,22 @@ a.tile:hover {
 }
 
 /* --- Code blocks --------------------------------------------------------- */
-.code-block { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--surface-2); }
+.code-block {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface-2);
+}
+/* Consecutive blocks were flush against each other and read as one control
+   with a stray heading in the middle. */
+.code-block + .code-block { margin-top: 1rem; }
+
 .code-label {
   margin: 0;
-  padding: 0.5rem 0.9rem;
+  padding: 0.65rem 1.1rem;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-muted);
   border-bottom: 1px solid var(--border);
@@ -511,19 +520,61 @@ a.tile:hover {
 }
 .code-pre {
   margin: 0;
-  padding: 0.9rem;
+  padding: 1.1rem;
   overflow-x: auto;
   font-family: var(--font-mono);
   font-size: 0.82rem;
-  line-height: 1.6;
+  line-height: 1.7;
   /* Long commands wrap rather than forcing the whole page sideways on a
      phone; the backslash continuations stay readable either way. */
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+@media (max-width: 639.98px) {
+  .code-label { padding: 0.55rem 0.85rem; }
+  .code-pre { padding: 0.85rem; font-size: 0.76rem; }
+}
 
 /* A table of prose needs to scroll on a phone, not compress to nothing. */
 .table-wrap { overflow-x: auto; }
+
+/* --- Numbered steps ------------------------------------------------------ */
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.35rem;
+  background: var(--surface);
+}
+.step-n {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  background: var(--mint);
+  color: var(--on-mint);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+  /* Nudge onto the cap-height of the heading beside it. */
+  margin-top: 0.1rem;
+}
+@media (max-width: 479.98px) {
+  .step { padding: 1rem; gap: 0.8rem; }
+}
 
 /* --- Directory rows ------------------------------------------------------ */
 .dir-row {

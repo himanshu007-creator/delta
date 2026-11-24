@@ -6,8 +6,8 @@
  * and buy nothing in return. An agent firing twenty queries to answer one
  * question is the whole point.
  *
- * The only thing a tool can refuse for is a missing optional history store,
- * and it says exactly that.
+ * The only thing a tool can refuse for is history this deployment has not
+ * recorded yet, and it says exactly that.
  *
  * ponytail: the JSON-RPC subset is implemented here rather than pulling in
  * @modelcontextprotocol/sdk. A stateless tools-only server needs initialize,
@@ -69,7 +69,7 @@ function toolsList() {
       // needs a key can say so to its user instead of retrying blindly.
       description:
         q.describe +
-        (q.tier === "stored" ? " Needs the optional history store." : ""),
+        (q.tier === "stored" ? " Reads recorded history." : ""),
       inputSchema: schemaFor(q),
     })),
   };

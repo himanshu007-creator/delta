@@ -17,7 +17,7 @@ import { HISTORY_ART, HISTORY_ART_NARROW, STEP_ART } from "@/lib/ascii";
 import { SEED, comparablePairs } from "@/lib/seed";
 import { ADAPTERS } from "@/lib/sources/registry";
 import { isPageworthyVendor, stackIndex } from "@/lib/stack-index";
-import { LICENSE, REPO_URL, REQUIREMENTS } from "@/lib/project";
+import { DEPLOY_STEPS, LICENSE, REPO_URL } from "@/lib/project";
 import { QUERIES } from "@/lib/queries";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL, abs } from "@/lib/site";
 import { Faq, SectionHead, SiteFooter } from "./ui";
@@ -94,13 +94,12 @@ const FAQ = [
     ),
   },
   {
-    q: "Does it need a database?",
+    q: "What does it take to run my own?",
     a: (
       <>
-        No. Deploy it to Vercel with no configuration and pages crawl public sources live. Add a
-        free Postgres and a scheduled workflow and it also keeps the <em>change history</em>,
-        which is the part nobody can look up afterwards — it only exists if something was
-        watching.
+        Fork it and deploy. There is nothing to configure and nothing to sign up for — pages read
+        public sources on request, and the API and MCP server are live immediately. Turn on the
+        included schedule and it starts recording, which is how the <em>history</em> builds.
       </>
     ),
   },
@@ -327,27 +326,25 @@ export default function Home() {
           </div>
         </section>
 
-        {/* --- Self-host. "Nothing" is the honest first row. ---------------- */}
+        {/* --- Self-host, as three steps rather than a dependency list. ---- */}
         <section className="section">
-          <SectionHead eyebrow="run your own" title="What it needs" />
-          <div className="grid gap-3 sm:grid-cols-2">
-            {REQUIREMENTS.map((r) => (
-              <div key={r.name} className={r.need === "required" ? "card p-5" : "card-quiet p-5"}>
-                <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="t-h3 m-0">{r.name}</h3>
-                  <span className={r.need === "required" ? "pill pill-strong t-micro" : "pill t-micro"}>
-                    {r.need}
-                  </span>
+          <SectionHead eyebrow="run your own" title="Fork it and deploy" />
+          <ol className="steps">
+            {DEPLOY_STEPS.map((d, i) => (
+              <li key={d.step} className="step">
+                <span className="step-n" aria-hidden>{i + 1}</span>
+                <div>
+                  <p className="t-h3 m-0">{d.step}</p>
+                  <p className="t-small muted mt-1 mb-0">{d.what}</p>
                 </div>
-                <p className="t-small muted mt-2 mb-0">{r.what}</p>
-              </div>
+              </li>
             ))}
-          </div>
-          <div className="mt-6 flex flex-wrap gap-3">
+          </ol>
+          <div className="mt-7 flex flex-wrap gap-3">
             <a href={REPO_URL} className="btn btn-primary no-underline" rel="noopener">
               Source on GitHub →
             </a>
-            <Link href="/docs" className="btn no-underline">Deploy and connect</Link>
+            <Link href="/docs" className="btn no-underline">Read the docs</Link>
           </div>
         </section>
 
@@ -393,8 +390,8 @@ function faqText(q: string): string {
       `${SOURCES} public sources: company pages, public DNS, GitHub, registries, app stores, status pages and national company registries. Every fact stores the source URL and a short quote.`,
     "Do you scrape G2, Capterra or Reddit?":
       "No. Those sites block automated access and this does not defeat blocks, directly or through a provider. Published ratings are read from search results, and gaps are disclosed rather than guessed.",
-    "Does it need a database?":
-      "No. It deploys to Vercel with no configuration and crawls public sources live. Adding a free Postgres and a scheduled workflow also keeps the change history, which only exists if something was watching.",
+    "What does it take to run my own?":
+      "Fork it and deploy. Nothing to configure and nothing to sign up for. Turn on the included schedule and it begins recording history.",
     "What if it is wrong?":
       "Every number links to its source. Values that could not be read with confidence are marked, and an unresolved company identity says so rather than naming a plausible stranger. The source is open, so bugs are fixable.",
   };

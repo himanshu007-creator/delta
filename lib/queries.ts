@@ -7,9 +7,9 @@
  * any of them knowing how a query is implemented.
  *
  * Everything here is free and unauthenticated. The only distinction left is
- * whether a query needs the optional history store: `live` queries work on a
- * bare deployment with no database at all, and `stored` queries report that
- * the store is not configured rather than pretending to have data.
+ * whether a query reads CURRENT STATE or HISTORY. Current state can always be
+ * read on demand. History only exists where a deployment has been recording,
+ * so those queries say that plainly rather than pretending to have data.
  */
 
 import { publicDomain } from "./domain";
@@ -47,8 +47,8 @@ export type QueryDef = {
   name: string;
   describe: string;
   /**
-   * `live` works with no database. `stored` needs the optional history store
-   * and says so plainly when it is absent.
+   * `live` answers from public sources on demand. `stored` reads the recorded
+   * history, which exists only where this deployment has been running.
    */
   tier: "live" | "stored";
   /** Parameter names, for the MCP tool schema and the Skill. */
@@ -81,10 +81,19 @@ const limitOf = (p: Record<string, unknown>, fallback = 50, cap = 500) => {
   return Number.isFinite(n) && n > 0 ? Math.min(Math.floor(n), cap) : fallback;
 };
 
+/**
+ * No history yet.
+ *
+ * Phrased as a state of the deployment rather than a missing dependency,
+ * because that is what it is from the caller's side — and because telling an
+ * agent to "configure the store" is advice it cannot act on.
+ */
 const noStore = (name: string): QueryResult => ({
   ok: false,
   status: 503,
-  error: `"${name}" needs the history store, which is not configured on this deployment.`,
+  error:
+    `"${name}" reads recorded history, and this deployment has not recorded any yet. ` +
+    `History begins once its scheduled crawl runs. Current state is available now via "company_dossier".`,
 });
 
 /** Shape a stored fact for output: the quote and source are the point. */

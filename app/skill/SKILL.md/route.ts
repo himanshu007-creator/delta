@@ -82,17 +82,17 @@ watchlist scoped to a name of your choosing; it is not a credential.
 
 ## Works anywhere
 
-No key, no quota, no account. These work on any deployment, including one with
-no database at all — they read public sources live.
+No key, no quota, no account. These read public sources on demand, so they
+answer on any deployment.
 
 | Query | Arguments | Returns |
 |---|---|---|
 ${free.map(row).join("\n")}
 
-## Needs the history store
+## Recorded history
 
-These read the change history, so they need the optional store to be
-configured. On a deployment without one they say so plainly rather than
+These read recorded history, which exists only where a deployment has been
+running its schedule. Where it has not, they say so plainly rather than
 returning an empty list.
 
 | Query | Arguments | Returns |
