@@ -8,7 +8,6 @@
 
 import { NextResponse } from "next/server";
 import { QUERIES, catalogue } from "@/lib/queries";
-import { FREE_CALLS_PER_DAY } from "@/lib/offer";
 import { SITE_NAME, abs } from "@/lib/site";
 
 export async function GET() {
@@ -17,12 +16,13 @@ export async function GET() {
     docs: abs("/docs"),
     mcp: abs("/api/mcp"),
     skill: abs("/skill/SKILL.md"),
-    usage: "POST /api/v1/{query} with a JSON body. Licence key in an Authorization or x-license-key header.",
-    metering: {
-      free: `${FREE_CALLS_PER_DAY} calls/day without a key; public queries only.`,
-      paid: "Unmetered. Plans are priced on companies tracked, not on calls.",
+    usage: "POST /api/v1/{query} with a JSON body. No key, no quota.",
+    auth: "None. This API is free and unauthenticated; the data is public records.",
+    counts: {
+      total: QUERIES.length,
+      live: QUERIES.filter((q) => q.tier === "live").length,
+      needsStore: QUERIES.filter((q) => q.tier === "stored").length,
     },
-    counts: { total: QUERIES.length, free: QUERIES.filter((q) => q.tier === "public").length },
     queries: catalogue(),
   });
 }

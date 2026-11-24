@@ -12,9 +12,9 @@
 
 import { cacheLife } from "next/cache";
 import { QUERIES } from "@/lib/queries";
-import { FREE_CALLS_PER_DAY } from "@/lib/offer";
 import { SEED } from "@/lib/seed";
 import { SITE_NAME, SITE_URL, abs } from "@/lib/site";
+import { REPO_URL } from "@/lib/project";
 
 /**
  * The BODY is cached, not the Response — a `use cache` scope must return
@@ -24,8 +24,8 @@ async function body(): Promise<string> {
   "use cache";
   cacheLife("days");
 
-  const free = QUERIES.filter((q) => q.tier === "public");
-  const paid = QUERIES.filter((q) => q.tier === "licensed");
+  const free = QUERIES.filter((q) => q.tier === "live");
+  const paid = QUERIES.filter((q) => q.tier === "stored");
 
   const row = (q: (typeof QUERIES)[number]) => {
     const args = q.params.length
@@ -69,35 +69,33 @@ Or REST, one named query per path:
 \`\`\`
 POST ${SITE_URL}/api/v1/{query}
 Content-Type: application/json
-Authorization: Bearer <licence key>     # only for historical queries
 
 { "domain": "linear.app" }
 \`\`\`
 
-The licence key goes in a header, never a query string — those end up in logs
-and browser history.
+No authentication. Pass an optional \`x-watcher\` header only if you want a
+watchlist scoped to a name of your choosing; it is not a credential.
 
-## Free — no key needed
+## Works anywhere
 
-Current state is free, because it is already on the company's own website and on
-${SITE_NAME}'s public pages. ${FREE_CALLS_PER_DAY} calls a day without an account;
-unmetered on any paid plan.
+No key, no quota, no account. These work on any deployment, including one with
+no database at all — they read public sources live.
 
 | Query | Arguments | Returns |
 |---|---|---|
 ${free.map(row).join("\n")}
 
-## Licensed — historical data
+## Needs the history store
 
-History cannot be looked up anywhere else, which is why it is the paid part.
-These need a licence key. Plans are priced on how many companies you track —
-calls are not metered, so query as freely as the task needs.
+These read the change history, so they need the optional store to be
+configured. On a deployment without one they say so plainly rather than
+returning an empty list.
 
 | Query | Arguments | Returns |
 |---|---|---|
 ${paid.map(row).join("\n")}
 
-Plans: ${abs("/#pricing")}
+Source: ${REPO_URL}
 
 ## How to answer with this data
 

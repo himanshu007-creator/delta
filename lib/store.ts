@@ -1,7 +1,7 @@
 /**
  * The crawl store.
  *
- * Talks PostgREST directly, like lib/usage-store.ts, so there is no Supabase
+ * Talks PostgREST directly, so there is no Supabase
  * SDK dependency and the same service-role credential serves both. Every write
  * goes through a SECURITY DEFINER function — the app never sends SQL, and the
  * diff-and-append is one atomic statement rather than a read-then-write that
@@ -22,13 +22,21 @@ const key = () => process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 export const storeConfigured = () => Boolean(url() && key());
 
 /**
- * Production must FAIL CLOSED. Without this a misconfigured deploy would crawl
- * happily, write nowhere, and look healthy — losing history that cannot be
- * recovered, because a 12h window only happens once.
+ * The store is OPTIONAL, so this no longer throws.
+ *
+ * It used to fail closed in production, which was right when a deployment was
+ * ours and a silent write-nowhere crawl lost history that a 12h window only
+ * offers once. Now that anyone can deploy this, a missing database is the
+ * documented zero-config path, not a misconfiguration — so the CRAWLER still
+ * refuses to run without one (crawling and discarding the result is pure
+ * waste), while the app serves pages live.
  */
 export function assertStore(): void {
-  if (!storeConfigured() && process.env.NODE_ENV === "production") {
-    throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required in production");
+  if (!storeConfigured()) {
+    throw new Error(
+      "This command needs the optional history store. Set SUPABASE_URL and " +
+        "SUPABASE_SERVICE_ROLE_KEY, or skip it — the app serves pages without one.",
+    );
   }
 }
 
@@ -117,8 +125,9 @@ export const recordUnchanged = (domain: string, kind: string) =>
 export const recordFailure = (domain: string, kind: string, reason: string) =>
   rpc<null>("record_failure", { p_domain: domain, p_kind: kind, p_reason: reason });
 
-export const watchCompany = (licenseKey: string, domain: string) =>
-  rpc<null>("watch_company", { p_license_key: licenseKey, p_domain: domain });
+/** `watcher` is a caller-chosen id, not a credential. See lib/queries.ts. */
+export const watchCompany = (watcher: string, domain: string) =>
+  rpc<null>("watch_company", { p_license_key: watcher, p_domain: domain });
 
 // ---------------------------------------------------------------------------
 // Reads
@@ -141,9 +150,9 @@ export const companyFacts = (domain: string) =>
 export const companyChanges = (domain: string, limit = 200) =>
   rpc<StoredChange[]>("company_changes", { p_domain: domain, p_limit: limit });
 
-export const watchlistChanges = (licenseKey: string, since: Date, limit = 200) =>
+export const watchlistChanges = (watcher: string, since: Date, limit = 200) =>
   rpc<StoredChange[]>("watchlist_changes", {
-    p_license_key: licenseKey, p_since: since.toISOString(), p_limit: limit,
+    p_license_key: watcher, p_since: since.toISOString(), p_limit: limit,
   });
 
 export const vendorAdopters = (vendor: string) =>

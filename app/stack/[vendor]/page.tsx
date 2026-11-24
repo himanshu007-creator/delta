@@ -183,7 +183,7 @@ export default async function VendorPage(props: PageProps<"/stack/[vendor]">) {
             it happens rather than as a snapshot.
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-3">
-            <Link href="/#pricing" className="btn btn-primary no-underline">See the changes</Link>
+            <Link href="/docs" className="btn btn-primary no-underline">Query this with an agent</Link>
             <Link href="/stack" className="t-small no-underline">Browse all {ix.vendors.length} vendors</Link>
           </div>
         </div>

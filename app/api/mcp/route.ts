@@ -1,17 +1,13 @@
 /**
  * The MCP server — Streamable HTTP, one tool per named query.
  *
- * This is the surface the product is really sold through. The MCP directories
- * are the whole marketing budget (ad spend is subtracted from profit), so the
- * server is free to install and free to try: every `public` query works with
- * no key at all, because it returns current state that is already on our own
- * public pages. The `licensed` queries read history, and those need a key.
- * That split is the upgrade prompt, and it is a far better one than a hard
- * call cap on a server nobody has installed.
+ * No authentication, no key, no metering. The data is public records and the
+ * project is open source, so a gate would cost every agent that might use this
+ * and buy nothing in return. An agent firing twenty queries to answer one
+ * question is the whole point.
  *
- * Paid plans do not meter calls at all. Pricing is per company tracked, so an
- * agent firing twenty queries to answer one question costs us an indexed read
- * and is exactly what the product is for.
+ * The only thing a tool can refuse for is a missing optional history store,
+ * and it says exactly that.
  *
  * ponytail: the JSON-RPC subset is implemented here rather than pulling in
  * @modelcontextprotocol/sdk. A stateless tools-only server needs initialize,
@@ -22,7 +18,6 @@
  * No `export const runtime`: Cache Components is on and rejects it.
  */
 
-import { useLicense } from "@/lib/license";
 import { QUERIES, byName } from "@/lib/queries";
 import { SITE_NAME } from "@/lib/site";
 
@@ -39,7 +34,7 @@ const LATEST = SUPPORTED[0];
 const CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "POST, GET, OPTIONS",
-  "access-control-allow-headers": "content-type, authorization, x-license-key, mcp-protocol-version, mcp-session-id",
+  "access-control-allow-headers": "content-type, x-watcher, mcp-protocol-version, mcp-session-id",
   "access-control-expose-headers": "mcp-session-id, mcp-protocol-version",
 } as const;
 
@@ -73,18 +68,20 @@ function toolsList() {
       // needs a key can say so to its user instead of retrying blindly.
       description:
         q.describe +
-        (q.tier === "licensed"
-          ? " Requires a licence key (historical data)."
-          : " Free, no key required."),
+        (q.tier === "stored" ? " Needs the optional history store." : ""),
       inputSchema: schemaFor(q),
     })),
   };
 }
 
-const licenseFrom = (req: Request): string | null =>
-  req.headers.get("x-license-key") ??
-  req.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
-  null;
+/**
+ * An optional, caller-chosen id used only to scope a watchlist. Not a
+ * credential: it authenticates nothing and any string works.
+ */
+const watcherFrom = (req: Request): string | null => {
+  const v = req.headers.get("x-watcher");
+  return v && v.trim() ? v.trim().slice(0, 120) : null;
+};
 
 /** A tool result. `isError` is how MCP reports a failure the model should see. */
 const content = (payload: unknown, isError = false) => ({
@@ -104,28 +101,7 @@ async function callTool(req: Request, params: Record<string, unknown>) {
     );
   }
 
-  const licenseKey = licenseFrom(req);
-
-  if (def.tier === "licensed") {
-    // Charge before the work, for the same reason the REST route does: a flood
-    // of concurrent calls would otherwise all read the same stale count.
-    const license = await useLicense(licenseKey, def.units);
-    if (!license.ok) {
-      return content(
-        license.reason === "unconfigured"
-          ? { error: "Licensing is not configured on this deployment.", reason: license.reason }
-          : {
-              error: `"${name}" returns historical data, which needs a licence key.`,
-              reason: license.reason,
-              remedy: "Set the key as a Bearer token. Plans: /#pricing",
-              freeAlternative: `"company_dossier" returns current state with no key.`,
-            },
-        true,
-      );
-    }
-  }
-
-  const result = await def.run(args, { licenseKey });
+  const result = await def.run(args, { watcher: watcherFrom(req) });
   if (!result.ok) return content({ error: result.error }, true);
 
   return content({
@@ -172,8 +148,7 @@ export async function POST(req: Request) {
         instructions:
           `${SITE_NAME} tracks what companies publish — pricing, vendor stack, releases, hiring, ` +
           `security posture, legal entity — and what changed, from public records only. ` +
-          `Current state is free; the change history needs a licence key sent as a Bearer token. ` +
-          `Calls are not metered on a paid plan — query as freely as the task needs. ` +
+          `Free and unauthenticated — no key, no quota. Query as freely as the task needs. ` +
           `Every fact carries a source URL and a quote: cite them, and report gaps as gaps rather ` +
           `than filling them in.`,
       });

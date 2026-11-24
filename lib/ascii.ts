@@ -316,11 +316,16 @@ export const stepField: Field = (x, y) => {
  * instead of as text, which is what makes it look like data. One render serves
  * both themes — more ink means more value on a light background and more
  * visibility on a dark one, so there is no light/dark pair to swap.
+ *
+ * The column count is high on purpose. The art is sized in CSS to fill its
+ * container, so FEWER columns means a bigger glyph, and at 108 columns across
+ * a full-width band each cell read as a visible block rather than as a step in
+ * a gradient. Resolution has to come from the render, not the font size.
  */
-export const HISTORY_ART = render(historyField, { cols: 108, rows: 24, ramp: "soft", gamma: 1.3 });
+export const HISTORY_ART = render(historyField, { cols: 190, rows: 30, ramp: "soft", gamma: 1.3 });
 
 /** Narrow build for phones, where 108 columns would wrap and shear. */
-export const HISTORY_ART_NARROW = render(historyField, { cols: 52, rows: 15, ramp: "soft", gamma: 1.25 });
+export const HISTORY_ART_NARROW = render(historyField, { cols: 76, rows: 20, ramp: "soft", gamma: 1.25 });
 
 /** A sparkline-sized step change, for inline use beside a claim. */
 export const STEP_ART = render(stepField, { cols: 44, rows: 7, ramp: "soft", gamma: 1 });

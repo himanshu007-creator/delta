@@ -9,7 +9,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { QUERIES } from "@/lib/queries";
-import { FAIR_USE_RPM, FREE_CALLS_PER_DAY, TIERS } from "@/lib/offer";
+import { FAIR_USE_RPM, REPO_URL, REQUIREMENTS } from "@/lib/project";
 import { SITE_NAME, SITE_URL, abs } from "@/lib/site";
 import { JsonLd } from "../jsonld";
 import { SectionHead, SiteFooter } from "../ui";
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   title: "API and MCP server",
   description:
     `Connect ${SITE_NAME} to Claude or any agent. A Model Context Protocol server and a REST API ` +
-    `over the same named queries — current state free, change history on a licence key.`,
+    `over the same named queries. Free, unauthenticated, and open source.`,
   alternates: { canonical: "/docs" },
   openGraph: { title: `${SITE_NAME} — API and MCP server`, url: "/docs", images: ["/opengraph-image"] },
 };
@@ -37,9 +37,8 @@ function Code({ children, label }: { children: string; label?: string }) {
 }
 
 export default function Docs() {
-  const free = QUERIES.filter((q) => q.tier === "public");
-  const paid = QUERIES.filter((q) => q.tier === "licensed");
-  const starter = TIERS.find((t) => t.slug === "starter")!;
+  const live = QUERIES.filter((q) => q.tier === "live");
+  const stored = QUERIES.filter((q) => q.tier === "stored");
 
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:py-12">
@@ -71,27 +70,19 @@ export default function Docs() {
         <SectionHead eyebrow="mcp" title="Add the server" />
 
         <p className="t-body mb-4">
-          Streamable HTTP, stateless, no sign-up. Point any MCP client at:
+          Streamable HTTP, stateless, <strong>no authentication</strong>. Point any MCP client at:
         </p>
         <Code>{MCP_URL}</Code>
 
         <div className="mt-6 space-y-5">
           <Code label="Claude Code">{`claude mcp add --transport http delta ${MCP_URL}`}</Code>
 
-          <Code label="Claude Code — with a licence key for history">
-{`claude mcp add --transport http delta ${MCP_URL} \\
-  --header "Authorization: Bearer YOUR-LICENCE-KEY"`}
-          </Code>
-
           <Code label="Claude Desktop — claude_desktop_config.json">
 {`{
   "mcpServers": {
     "delta": {
       "type": "http",
-      "url": "${MCP_URL}",
-      "headers": {
-        "Authorization": "Bearer YOUR-LICENCE-KEY"
-      }
+      "url": "${MCP_URL}"
     }
   }
 }`}
@@ -105,9 +96,8 @@ export default function Docs() {
         </div>
 
         <p className="t-small muted mt-5">
-          Omit the header and the server still works — every free query below answers without a
-          key. A licensed query returns a readable error naming the free alternative rather than
-          failing silently.
+          No key, no account, no quota. The only thing a tool will refuse for is a missing
+          optional history store, and it says exactly that rather than returning an empty list.
         </p>
       </section>
 
@@ -115,14 +105,14 @@ export default function Docs() {
       <section className="mb-14">
         <SectionHead eyebrow="tools" title={`${QUERIES.length} queries, same names everywhere`} />
 
-        <h3 className="t-h3 mt-6 mb-3">Free — no key</h3>
+        <h3 className="t-h3 mt-6 mb-3">Works on any deployment</h3>
         <div className="table-wrap">
           <table className="fact-table">
             <thead>
               <tr><th scope="col">Tool</th><th scope="col">Arguments</th><th scope="col">Returns</th></tr>
             </thead>
             <tbody>
-              {free.map((q) => (
+              {live.map((q) => (
                 <tr key={q.name}>
                   <th scope="row"><code className="mono">{q.name}</code></th>
                   <td className="mono t-micro">
@@ -137,14 +127,14 @@ export default function Docs() {
           </table>
         </div>
 
-        <h3 className="t-h3 mt-8 mb-3">Licensed — change history</h3>
+        <h3 className="t-h3 mt-8 mb-3">Needs the optional history store</h3>
         <div className="table-wrap">
           <table className="fact-table">
             <thead>
               <tr><th scope="col">Tool</th><th scope="col">Arguments</th><th scope="col">Returns</th></tr>
             </thead>
             <tbody>
-              {paid.map((q) => (
+              {stored.map((q) => (
                 <tr key={q.name}>
                   <th scope="row"><code className="mono">{q.name}</code></th>
                   <td className="mono t-micro">
@@ -173,16 +163,14 @@ export default function Docs() {
   -H 'content-type: application/json' \\
   -d '{"domain":"adyen.com"}'`}
         </Code>
-        <Code label="History needs the key in a header, never a query string">
+        <Code label="Change history, where the store is configured">
 {`curl -s ${SITE_URL}/api/v1/changes_feed \\
   -H 'content-type: application/json' \\
-  -H 'Authorization: Bearer YOUR-LICENCE-KEY' \\
   -d '{"domain":"adyen.com","limit":20}'`}
         </Code>
         <p className="t-small muted mt-4">
-          <code className="mono">GET /api/v1</code> returns the catalogue, so discovery needs no
-          licence either. Keys go in a header because query strings end up in logs, proxies and
-          browser history.
+          <code className="mono">GET /api/v1</code> returns the catalogue. CORS is open, so a
+          browser can call this directly from a page.
         </p>
       </section>
 
@@ -204,33 +192,28 @@ ${SITE_URL}/compare/asana.com-vs-linear.app.md`}</Code>
         </p>
       </section>
 
-      {/* --- Limits, stated plainly. ---------------------------------------- */}
+      {/* --- What a deployment needs. "Nothing" is the honest first row. --- */}
       <section className="mb-14">
-        <SectionHead eyebrow="limits" title="What is metered, and what is not" />
+        <SectionHead eyebrow="self-host" title="What it needs to run" />
         <div className="card p-5">
-          <dl className="t-small m-0 space-y-3">
-            <div className="flex justify-between gap-6">
-              <dt className="muted">Public pages and <code className="mono">.md</code> twins</dt>
-              <dd className="m-0">Unlimited, no account</dd>
-            </div>
-            <div className="flex justify-between gap-6">
-              <dt className="muted">API + MCP, no key</dt>
-              <dd className="m-0">{FREE_CALLS_PER_DAY} calls/day</dd>
-            </div>
-            <div className="flex justify-between gap-6">
-              <dt className="muted">API + MCP, any paid plan</dt>
-              <dd className="m-0">Unmetered, fair use ({FAIR_USE_RPM}/min)</dd>
-            </div>
-            <div className="flex justify-between gap-6">
-              <dt className="muted">What you actually pay for</dt>
-              <dd className="m-0">Companies tracked — from ${starter.monthly}/mo</dd>
-            </div>
+          <dl className="m-0 space-y-4">
+            {REQUIREMENTS.map((r) => (
+              <div key={r.name}>
+                <dt className="t-h3 m-0 flex items-baseline gap-2">
+                  {r.name}
+                  <span className={r.need === "required" ? "pill pill-strong t-micro" : "pill t-micro"}>
+                    {r.need}
+                  </span>
+                </dt>
+                <dd className="t-small muted mt-1 mb-0" style={{ maxWidth: "62ch" }}>{r.what}</dd>
+              </div>
+            ))}
           </dl>
         </div>
         <p className="t-small muted mt-4" style={{ maxWidth: "62ch" }}>
-          Calls are not metered on a paid plan. Our cost is crawling unique companies; serving a
-          read is an indexed query against data we already hold. An agent firing twenty queries to
-          answer one question is the product working, not a billing event.
+          Free and unauthenticated, with a soft limit of {FAIR_USE_RPM} requests a minute so one
+          runaway loop cannot take a deployment down for everyone else. Source and deploy
+          instructions: <a href={REPO_URL} rel="noopener">{REPO_URL.replace(/^https:\/\//, "")}</a>.
         </p>
       </section>
 

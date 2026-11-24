@@ -1,45 +1,34 @@
 /**
  * The landing page.
  *
- * Deliberately short. The product is a dataset, and the fastest way to believe
- * a dataset is to look at it — so the page's job is to say what it is in one
- * line, hand over a search box, and get out of the way. Every number on it is
- * computed from the code that generates the pages, so none of them can drift
- * into a claim.
+ * It is free and open source now, so there is no price to argue for — which
+ * removes the usual job of a landing page and leaves a better one: show that
+ * the data is real, then get out of the way. The page is therefore built
+ * around three things a visitor can do in the next ten seconds (look up a
+ * company, connect an agent, read the source) rather than around persuasion.
+ *
+ * Every figure on it is computed from the code that generates the pages, so
+ * none of them can drift into a claim.
  */
 
 import Link from "next/link";
 import type { Metadata } from "next";
-import { cacheLife } from "next/cache";
 import { HISTORY_ART, HISTORY_ART_NARROW, STEP_ART } from "@/lib/ascii";
 import { SEED, comparablePairs } from "@/lib/seed";
 import { ADAPTERS } from "@/lib/sources/registry";
 import { isPageworthyVendor, stackIndex } from "@/lib/stack-index";
-import { SEARCH_INDEX } from "@/lib/search-index";
+import { LICENSE, REPO_URL, REQUIREMENTS } from "@/lib/project";
+import { QUERIES } from "@/lib/queries";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL, abs } from "@/lib/site";
-import {
-  BASE_PRICE,
-  CHECKOUT_READY,
-  CHECKOUT_URL,
-  DEAL_ENDS,
-  FREE_CALLS_PER_DAY,
-  LIFETIME_PAYBACK_MONTHS,
-  REFUND,
-  TIERS,
-  dealIsOpen,
-  daysUntilDeadline,
-} from "@/lib/offer";
-import { Faq, SectionHead, SiteFooter, WaveRule } from "./ui";
-import { SearchBox } from "./search";
-import { AskAbout } from "./ask";
-import { PlanBuilder } from "./plan";
-import { JsonLd } from "./jsonld";
+import { Faq, SectionHead, SiteFooter } from "./ui";
 import { SiteNav } from "./nav";
+import { AskAbout } from "./ask";
+import { JsonLd } from "./jsonld";
+import { SearchBox } from "./search";
+import { SEARCH_INDEX } from "@/lib/search-index";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
-  // A child's openGraph REPLACES the parent's rather than merging, so the
-  // image has to be named here or the root page loses its share preview.
   openGraph: {
     type: "website",
     url: "/",
@@ -50,7 +39,7 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", images: ["/opengraph-image"] },
 };
 
-// --- Real numbers, all computed from the code that builds the pages --------
+// --- Real numbers, computed from the code that builds the pages -----------
 
 const COMPANIES = SEED.length;
 const SOURCES = ADAPTERS.length;
@@ -59,20 +48,30 @@ const VENDORS = stackIndex().vendors.filter(
 ).length;
 const PAIRS = comparablePairs().length;
 const PAGES = COMPANIES + VENDORS + PAIRS;
+const TOOLS = QUERIES.length;
 
-/** What a dossier actually contains. Two or three words each — this is a list, not prose. */
 const READS = [
   ["Pricing", "every tier, monthly and annual"],
   ["Vendor stack", "from public DNS records"],
   ["Releases", "changelogs, versions, APIs"],
   ["Hiring", "open roles by team and city"],
-  ["Security", "CVEs, posture, breaches"],
-  ["Legal entity", "registry name and address"],
+  ["Security", "DMARC, CVEs, posture"],
+  ["Legal entity", "registry name and country"],
   ["Reliability", "incidents and time to recover"],
-  ["Reviews", "app stores, registries, forums"],
+  ["Reach", "rank, locales, app presence"],
 ] as const;
 
 const FAQ = [
+  {
+    q: "Is it really free?",
+    a: (
+      <>
+        Yes, and {LICENSE} licensed. There is no account, no key and no quota. The data is public
+        records, so putting a gate on it would cost every agent that might use this and buy
+        nothing in return.
+      </>
+    ),
+  },
   {
     q: "Where does the data come from?",
     a: (
@@ -84,41 +83,23 @@ const FAQ = [
     ),
   },
   {
-    q: "Why is the current state free?",
-    a: (
-      <>
-        Because you could read their pricing page yourself. Charging for something you can get in
-        a browser tab is charging for nothing. What you cannot get is what it said last March —
-        that needs someone to have been watching, which is the part we sell.
-      </>
-    ),
-  },
-  {
     q: "Do you scrape G2, Capterra or Reddit?",
     a: (
       <>
-        No. Those sites block automated access, and defeating a block is not something we will do
-        or rent. Where a rating is published in search results we read it from there, and where we
-        cannot see something the page says so instead of guessing.
+        No. Those sites block automated access, and defeating a block is not something this does
+        or rents. Where a rating is published in search results it is read from there, and where
+        something cannot be seen the page says so instead of guessing.
       </>
     ),
   },
   {
-    q: "How often does it update?",
+    q: "Does it need a database?",
     a: (
       <>
-        Twice a day, at 00:00 and 12:00 UTC, the same for everybody. One fixed schedule means one
-        timestamp you can trust rather than a per-customer cadence nobody can reason about.
-      </>
-    ),
-  },
-  {
-    q: "Can an agent use this?",
-    a: (
-      <>
-        That is the main way in. There is a REST API and an MCP server, so Claude or any agent can
-        query the dataset directly. The free tier includes {FREE_CALLS_PER_DAY} calls a day with no
-        card.
+        No. Deploy it to Vercel with no configuration and pages crawl public sources live. Add a
+        free Postgres and a scheduled workflow and it also keeps the <em>change history</em>,
+        which is the part nobody can look up afterwards — it only exists if something was
+        watching.
       </>
     ),
   },
@@ -126,9 +107,9 @@ const FAQ = [
     q: "What if it is wrong?",
     a: (
       <>
-        Every number links to its source, so a wrong one is checkable rather than arguable. Prices
-        we could not read with confidence are marked as such instead of being filled in by a
-        guess. {REFUND}
+        Every number links to its source, so a wrong one is checkable rather than arguable. Values
+        that could not be read with confidence are marked, and an unresolved company identity says
+        so rather than naming a plausible stranger. Found a bug? The source is right there.
       </>
     ),
   },
@@ -137,9 +118,6 @@ const FAQ = [
 export default function Home() {
   return (
     <>
-      {/* Organization + WebSite with a SearchAction. The search action is what
-          lets a search engine or an assistant query the dataset directly
-          rather than only crawling whatever we happened to link. */}
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -160,21 +138,26 @@ export default function Home() {
               publisher: { "@id": `${SITE_URL}#org` },
               potentialAction: {
                 "@type": "SearchAction",
-                target: {
-                  "@type": "EntryPoint",
-                  urlTemplate: `${SITE_URL}/c/{search_term_string}`,
-                },
+                target: { "@type": "EntryPoint", urlTemplate: `${SITE_URL}/c/{search_term_string}` },
                 "query-input": "required name=search_term_string",
               },
             },
             {
+              "@type": "SoftwareSourceCode",
+              name: SITE_NAME,
+              codeRepository: REPO_URL,
+              license: "https://opensource.org/licenses/MIT",
+              programmingLanguage: "TypeScript",
+              description: SITE_DESCRIPTION,
+            },
+            {
               "@type": "Dataset",
-              name: `${SITE_NAME} competitor change history`,
-              description: `Change history for ${COMPANIES} companies across ${SOURCES} public sources, refreshed twice daily.`,
+              name: `${SITE_NAME} company records`,
+              description: `Public-record facts for ${COMPANIES} companies across ${SOURCES} sources.`,
               url: SITE_URL,
               isAccessibleForFree: true,
+              license: "https://opensource.org/licenses/MIT",
               creator: { "@id": `${SITE_URL}#org` },
-              license: abs("/terms"),
             },
             {
               "@type": "FAQPage",
@@ -188,57 +171,128 @@ export default function Home() {
         }}
       />
 
-      <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:py-12">
+      <main className="mx-auto w-full max-w-5xl px-5 sm:px-6 py-6 sm:py-8">
         <SiteNav />
 
         {/* --- Hero. One claim, one line, then the search box. ------------- */}
-        <header className="mb-10">
-          <p className="eyebrow mb-3">Competitor change intelligence</p>
-          <h1 className="t-display" style={{ maxWidth: "24ch" }}>
+        <header className="hero">
+          <p className="eyebrow mb-4">
+            Open source · {LICENSE} · competitor change intelligence
+          </p>
+          <h1 className="t-display measure-tight">
             Know what they changed — and what it was before.
           </h1>
-          <p className="t-body muted mt-4" style={{ maxWidth: "58ch" }}>
+          <p className="lede mt-5 measure">
             Pricing, vendor stack, releases, hiring and legal filings for {COMPANIES} companies,
-            read from {SOURCES} public sources twice a day. Every fact links to its source.
+            read from {SOURCES} public sources. Every fact links to the page it came from.
           </p>
 
-          <div className="mt-7" style={{ maxWidth: "30rem" }}>
-            <SearchBox index={SEARCH_INDEX} />
-            <p className="t-micro muted mt-2">
-              {PAGES.toLocaleString("en-GB")} pages, free and without an account. Try{" "}
-              <Link href="/c/linear.app">linear.app</Link>, <Link href="/stack/anthropic">Anthropic</Link>{" "}
-              or <Link href="/compare">a head-to-head</Link>.
-            </p>
+          <div className="mt-8" style={{ maxWidth: "32rem" }}>
+            <SearchHero />
+          </div>
+
+          <div className="mt-10 stats">
+            <div className="stat">
+              <p className="stat-n m-0">{COMPANIES}</p>
+              <p className="stat-l m-0">companies tracked</p>
+            </div>
+            <div className="stat">
+              <p className="stat-n m-0">{SOURCES}</p>
+              <p className="stat-l m-0">public sources</p>
+            </div>
+            <div className="stat">
+              <p className="stat-n m-0">{PAGES.toLocaleString("en-GB")}</p>
+              <p className="stat-l m-0">pages, no account</p>
+            </div>
+            <div className="stat">
+              <p className="stat-n m-0">{TOOLS}</p>
+              <p className="stat-l m-0">MCP tools, no key</p>
+            </div>
           </div>
         </header>
 
-        {/* --- The one picture. ------------------------------------------- */}
-        <figure className="m-0 mb-4">
-          <div
-            className="ascii t-micro"
-            aria-hidden
-            style={{ color: "var(--ocean)", opacity: 0.85, overflow: "hidden" }}
-          >
-            {/* Two renders rather than a horizontal scroll: 108 columns of
-                monospace shears badly on a phone. */}
-            <span className="hidden sm:block">{HISTORY_ART}</span>
-            <span className="block sm:hidden">{HISTORY_ART_NARROW}</span>
-          </div>
-          <figcaption className="t-micro muted mt-2">
+        {/* --- The one picture. --------------------------------------------- */}
+        <figure className="band m-0">
+          {/* Two renders, each sized so its exact column count fills the band.
+              A fixed font-size made 108 columns of monospace overflow and the
+              glyphs read as blocks instead of a gradient. */}
+          <div className="ascii art-wide" aria-hidden>{HISTORY_ART}</div>
+          <div className="ascii art-narrow" aria-hidden>{HISTORY_ART_NARROW}</div>
+          <figcaption className="t-micro muted measure band-cap">
             Time runs left to right, tracked surfaces stack upward, brightness is the recorded
             value. The seam is a change event — and the level stays higher after it.
           </figcaption>
         </figure>
 
-        <WaveRule />
+        {/* --- Three things to do right now. -------------------------------- */}
+        <section className="section">
+          <SectionHead eyebrow="start here" title="Three ways in" />
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Link href="/c/adyen.com" className="entry no-underline">
+              <span className="entry-kicker">A company</span>
+              <p className="entry-title">adyen.com</p>
+              <p className="t-small muted mt-2 mb-0">
+                Legal entity, 20 vendors, where it is registered, what it publishes for machines.
+              </p>
+            </Link>
+            <Link href="/stack/anthropic" className="entry no-underline">
+              <span className="entry-kicker">A vendor</span>
+              <p className="entry-title">Who uses Anthropic</p>
+              <p className="t-small muted mt-2 mb-0">
+                Read from public DNS — back-office purchases that script detection cannot see.
+              </p>
+            </Link>
+            <Link href="/compare/asana.com-vs-linear.app" className="entry no-underline">
+              <span className="entry-kicker">A head-to-head</span>
+              <p className="entry-title">Asana vs Linear</p>
+              <p className="t-small muted mt-2 mb-0">
+                Only the facts where they actually differ, out of {PAIRS} generated pairs.
+              </p>
+            </Link>
+          </div>
+        </section>
 
-        {/* --- What a dossier holds. A list, not paragraphs. --------------- */}
-        <section className="mt-14">
-          <SectionHead eyebrow="what we read" title="Eight things, per company" />
-          <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2 list-none p-0 m-0">
+        {/* --- For agents. The differentiator, with the snippet inline. ----- */}
+        <section className="section">
+          <div className="grid gap-8 lg:grid-cols-5 items-start">
+            <div className="lg:col-span-2">
+              <SectionHead eyebrow="for agents" title="Point Claude at it" />
+              <p className="t-body muted m-0 measure">
+                A Model Context Protocol server with {TOOLS} tools and <strong>no authentication
+                at all</strong>. No key, no account, no quota — an agent firing twenty queries to
+                answer one question is the point, not a billing event.
+              </p>
+              <p className="t-small mt-4 mb-0">
+                <Link href="/docs">Full API and MCP docs →</Link>
+              </p>
+            </div>
+            <div className="lg:col-span-3">
+              <div className="code-block">
+                <p className="code-label">Claude Code</p>
+                <pre className="code-pre"><code>{`claude mcp add --transport http delta ${SITE_URL}/api/mcp`}</code></pre>
+              </div>
+              <p className="t-micro muted mt-3">
+                Or append <code className="mono">.md</code> to any page for a clean Markdown
+                version — <Link href="/c/adyen.com.md">/c/adyen.com.md</Link>. There is a{" "}
+                <Link href="/skill/SKILL.md">Claude Skill</Link> and an{" "}
+                <Link href="/llms.txt">llms.txt</Link> too.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <hr className="rule" />
+
+        {/* --- What a dossier holds. ---------------------------------------- */}
+        <section className="section-tight">
+          <SectionHead eyebrow="what it reads" title="Eight things, per company" />
+          <ul className="grid gap-x-10 gap-y-3 sm:grid-cols-2 list-none p-0 m-0">
             {READS.map(([what, how]) => (
-              <li key={what} className="flex items-baseline justify-between gap-4 border-b pb-3"
-                  style={{ borderColor: "var(--border)" }}>
+              <li
+                key={what}
+                className="flex items-baseline justify-between gap-4 border-b pb-3"
+                style={{ borderColor: "var(--border)" }}
+              >
                 <span className="t-h3">{what}</span>
                 <span className="t-micro muted" style={{ textAlign: "right" }}>{how}</span>
               </li>
@@ -246,14 +300,15 @@ export default function Home() {
           </ul>
         </section>
 
-        {/* --- The moat, stated plainly. ---------------------------------- */}
-        <section className="mt-16 grid gap-8 sm:grid-cols-5 items-center">
+        {/* --- Why history is the interesting part. ------------------------- */}
+        <section className="section grid gap-8 sm:grid-cols-5 items-center">
           <div className="sm:col-span-3">
-            <SectionHead eyebrow="what is worth paying for" title="The present is free. The past is the product." />
-            <p className="t-body muted m-0" style={{ maxWidth: "48ch" }}>
-              Anyone can open a competitor&rsquo;s pricing page today. Knowing that they raised the
+            <SectionHead eyebrow="the interesting part" title="Today is easy. Last March is not." />
+            <p className="t-body muted m-0 measure">
+              Anyone can open a competitor&rsquo;s pricing page right now. Knowing they raised the
               middle tier 20% on a Tuesday, moved SSO to Enterprise, and did it the same week their
-              hiring stopped — that needs a record. We keep the record.
+              hiring stopped — that needs a record, and a record only exists if something was
+              watching. Run the crawl and yours starts accruing from that day.
             </p>
           </div>
           <div className="sm:col-span-2">
@@ -264,80 +319,40 @@ export default function Home() {
           </div>
         </section>
 
-        {/* --- Pricing. ---------------------------------------------------- */}
-        <section id="pricing" className="mt-20 scroll-mt-8">
-          <SectionHead eyebrow="pricing" title="Generous on companies. Priced on history." />
-
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {TIERS.map((t) => (
-              <div key={t.slug} className={t.slug === "pro" ? "card p-5" : "card-quiet p-5"}>
-                <div className="flex items-baseline justify-between gap-2">
-                  <h3 className="t-h3 m-0">{t.name}</h3>
-                  {t.slug === "pro" && <span className="pill pill-strong t-micro">Most bought</span>}
+        {/* --- Self-host. "Nothing" is the honest first row. ---------------- */}
+        <section className="section">
+          <SectionHead eyebrow="run your own" title="What it needs" />
+          <div className="grid gap-3 sm:grid-cols-2">
+            {REQUIREMENTS.map((r) => (
+              <div key={r.name} className={r.need === "required" ? "card p-5" : "card-quiet p-5"}>
+                <div className="flex items-baseline justify-between gap-3">
+                  <h3 className="t-h3 m-0">{r.name}</h3>
+                  <span className={r.need === "required" ? "pill pill-strong t-micro" : "pill t-micro"}>
+                    {r.need}
+                  </span>
                 </div>
-                <p className="t-h2 mt-2 mb-1">
-                  {t.monthly === 0 ? "Free" : `$${t.monthly}`}
-                  {t.monthly ? <span className="t-micro muted"> /mo</span> : null}
-                </p>
-                <p className="t-micro muted mt-0 mb-4">{t.who}</p>
-
-                <dl className="t-small m-0 space-y-1">
-                  <div className="flex justify-between gap-2">
-                    <dt className="muted">Companies</dt>
-                    <dd className="m-0">{t.companies.toLocaleString("en-GB")}</dd>
-                  </div>
-                  <div className="flex justify-between gap-2">
-                    <dt className="muted">History</dt>
-                    <dd className="m-0">{t.history}</dd>
-                  </div>
-                  <div className="flex justify-between gap-2">
-                    <dt className="muted">API + MCP</dt>
-                    <dd className="m-0">{t.slug === "free" ? `${FREE_CALLS_PER_DAY}/day` : "Unmetered"}</dd>
-                  </div>
-                  <div className="flex justify-between gap-2">
-                    <dt className="muted">Seats</dt>
-                    <dd className="m-0">{t.seats}</dd>
-                  </div>
-                </dl>
-
-                <ul className="t-micro muted mt-4 mb-0 list-none p-0 space-y-1">
-                  {t.adds.map((a) => <li key={a}>+ {a}</li>)}
-                </ul>
+                <p className="t-small muted mt-2 mb-0">{r.what}</p>
               </div>
             ))}
           </div>
-
-          {/* Build-your-own. Deliberately placed AFTER the tiers: most people
-              are served by one of them, and the builder says so. */}
-          <div className="mt-6">
-            <PlanBuilder supportEmail={process.env.NEXT_PUBLIC_SUPPORT_EMAIL} />
-            <p className="t-micro muted mt-3">
-              Move the sliders. If a standard tier already covers it, this tells you which one
-              instead of quoting you more.
-            </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a href={REPO_URL} className="btn btn-primary no-underline" rel="noopener">
+              Source on GitHub →
+            </a>
+            <Link href="/docs" className="btn no-underline">Deploy and connect</Link>
           </div>
-
-          <LifetimeOffer />
-
-          <p className="t-micro muted mt-4">
-            Priced on companies tracked, and nothing else. The REST API and the MCP server are
-            unmetered on every paid tier — an agent that fires twenty queries to answer one
-            question is the product working, not a billing event. The free tier gets{" "}
-            {FREE_CALLS_PER_DAY} calls a day with no card, because an agent that cannot try it
-            will never buy it.
-          </p>
         </section>
 
-        {/* --- FAQ. -------------------------------------------------------- */}
-        <section className="mt-20">
-          <SectionHead eyebrow="before you buy" title="The questions worth asking" />
+        {/* --- FAQ. --------------------------------------------------------- */}
+        <section className="section-tight">
+          <SectionHead eyebrow="questions" title="The ones worth asking" />
           <Faq items={FAQ} />
         </section>
 
         <AskAbout
-          className="mt-12"
+          className="section-tight"
           path="/"
-          ask={`What is ${SITE_NAME}, which public sources does it read, and what could I do with its API and MCP server?`}
+          ask={`What is ${SITE_NAME}, which public sources does it read, and what could I do with its MCP server?`}
         />
 
         <SiteFooter />
@@ -346,65 +361,34 @@ export default function Home() {
   );
 }
 
-/**
- * The lifetime offer, in its own cached scope.
- *
- * It reads the clock, and Cache Components refuses an unstable value during
- * prerender — correctly, since a day counter baked into a static page would be
- * wrong by tomorrow. Caching it by the hour prerenders a real number and
- * refreshes it, which also means the block disappears by itself once the
- * deadline passes rather than relying on anyone remembering to remove it.
- */
-async function LifetimeOffer() {
-  "use cache";
-  cacheLife("hours");
-
-  if (!dealIsOpen()) return null;
-  const daysLeft = daysUntilDeadline();
-
+/** The hero search, split out so the page body stays readable. */
+function SearchHero() {
   return (
-    <div className="card-mint mt-6 p-6 sm:flex sm:items-center sm:justify-between sm:gap-8">
-      <div>
-        <p className="eyebrow mb-2">Lifetime</p>
-        <p className="t-h2 m-0">${BASE_PRICE} once, for Pro — forever</p>
-        <p className="t-small mt-2 mb-0" style={{ maxWidth: "46ch" }}>
-          {LIFETIME_PAYBACK_MONTHS} months of Pro at the monthly price. The price rises $10 every
-          10 sales and the offer closes on{" "}
-          {DEAL_ENDS.toLocaleDateString("en-GB", { day: "numeric", month: "long" })}
-          {daysLeft > 0 ? ` — ${daysLeft} day${daysLeft === 1 ? "" : "s"} left` : ""}.
-        </p>
-      </div>
-      <div className="mt-5 sm:mt-0 shrink-0">
-        <a href={CHECKOUT_URL} className="btn btn-primary no-underline">
-          {CHECKOUT_READY ? "Get lifetime access" : "See the data first"}
-        </a>
-        <p className="t-micro mt-2 mb-0">{REFUND}</p>
-      </div>
-    </div>
+    <>
+      <SearchBoxWrapper />
+      <p className="t-micro muted mt-3">
+        {VENDORS} vendors · {PAIRS} comparisons · free and without an account.
+      </p>
+    </>
   );
 }
 
-/**
- * Plain-text answers for the FAQPage JSON-LD.
- *
- * The visible answers are JSX, and schema.org needs strings. Rather than
- * stringify React (which would emit markup into structured data) the text is
- * written once here, keyed by question, and the keys are asserted to line up.
- */
+function SearchBoxWrapper() {
+  return <SearchBox index={SEARCH_INDEX} />;
+}
+
 function faqText(q: string): string {
   const TEXT: Record<string, string> = {
+    "Is it really free?":
+      `Yes, and ${LICENSE} licensed. No account, no key, no quota. The data is public records, so gating it would cost every agent that might use it and buy nothing in return.`,
     "Where does the data come from?":
       `${SOURCES} public sources: company pages, public DNS, GitHub, registries, app stores, status pages and national company registries. Every fact stores the source URL and a short quote.`,
-    "Why is the current state free?":
-      "Because you could read their pricing page yourself. What you cannot get in a browser tab is what it said months ago, which requires having watched — and that is the paid part.",
     "Do you scrape G2, Capterra or Reddit?":
-      "No. Those sites block automated access and we do not defeat blocks, directly or through a provider. Published ratings are read from search results, and gaps are disclosed rather than guessed.",
-    "How often does it update?":
-      "Twice a day, at 00:00 and 12:00 UTC, identically for every customer.",
-    "Can an agent use this?":
-      `Yes — a REST API and an MCP server, so any agent can query the dataset. The free tier includes ${FREE_CALLS_PER_DAY} calls a day without a card.`,
+      "No. Those sites block automated access and this does not defeat blocks, directly or through a provider. Published ratings are read from search results, and gaps are disclosed rather than guessed.",
+    "Does it need a database?":
+      "No. It deploys to Vercel with no configuration and crawls public sources live. Adding a free Postgres and a scheduled workflow also keeps the change history, which only exists if something was watching.",
     "What if it is wrong?":
-      `Every number links to its source. Values that could not be read with confidence are marked rather than filled in. ${REFUND}`,
+      "Every number links to its source. Values that could not be read with confidence are marked, and an unresolved company identity says so rather than naming a plausible stranger. The source is open, so bugs are fixable.",
   };
   return TEXT[q] ?? q;
 }

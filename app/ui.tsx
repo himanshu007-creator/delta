@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { waveRule } from "@/lib/ascii";
 import { SITE_NAME } from "@/lib/site";
+import { REPO_URL } from "@/lib/project";
 import type { ArtPiece } from "@/lib/art";
 
 const STORAGE = "lede.theme";
@@ -242,7 +243,7 @@ export function SiteFooter() {
           <ul className="space-y-2 list-none p-0 m-0">
             <li><a className="foot-link" href="/stack">Vendor adoption</a></li>
             <li><a className="foot-link" href="/compare">Head-to-head</a></li>
-            <li><a className="foot-link" href="/#pricing">Pricing</a></li>
+            <li><a className="foot-link" href="/docs">API &amp; MCP</a></li>
           </ul>
         </div>
 
@@ -256,8 +257,9 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <p className="eyebrow mb-3">Legal</p>
+          <p className="eyebrow mb-3">Project</p>
           <ul className="space-y-2 list-none p-0 m-0">
+            <li><a className="foot-link" href={REPO_URL} rel="noopener">Source ↗</a></li>
             <li><a className="foot-link" href="/privacy">Privacy</a></li>
             <li><a className="foot-link" href="/terms">Terms</a></li>
           </ul>
@@ -266,8 +268,8 @@ export function SiteFooter() {
         <div>
           <p className="eyebrow mb-3">Method</p>
           <p className="t-micro muted m-0">
-            Public records only. Every fact links to the page it came from.
-            We do not scrape sites that keep us out, and we never touch LinkedIn.
+            Public records only, every fact linked to its source. Never a bypassed block,
+            never LinkedIn, never a profile of a person. Free and MIT licensed.
           </p>
         </div>
       </div>

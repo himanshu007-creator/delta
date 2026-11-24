@@ -6,11 +6,10 @@
  * REST route, the MCP server and the Skill all enumerate the same list without
  * any of them knowing how a query is implemented.
  *
- * `tier` encodes the one pricing decision that matters: **the present is free,
- * the past is paid.** A `public` query returns current state, which anyone can
- * already read off the company's own website and off our own public pages, so
- * charging for it would be charging for nothing. A `licensed` query reads the
- * change history, which cannot be regenerated without having watched.
+ * Everything here is free and unauthenticated. The only distinction left is
+ * whether a query needs the optional history store: `live` queries work on a
+ * bare deployment with no database at all, and `stored` queries report that
+ * the store is not configured rather than pretending to have data.
  */
 
 import { publicDomain } from "./domain";
@@ -32,19 +31,26 @@ import {
 } from "./store";
 
 export type QueryResult =
-  | { ok: true; data: unknown; meta: { units: number; sources: string[] } }
+  | { ok: true; data: unknown; meta: { sources: string[] } }
   | { ok: false; error: string; status: number };
 
-/** What the caller proved about themselves. */
-export type QueryCtx = { licenseKey: string | null };
+/**
+ * Per-call context.
+ *
+ * `watcher` is an opaque, caller-chosen id used only to scope a watchlist on a
+ * self-hosted deployment. It authenticates nothing and grants nothing — every
+ * query works without it.
+ */
+export type QueryCtx = { watcher: string | null };
 
 export type QueryDef = {
   name: string;
   describe: string;
-  /** Metered units charged against the licence BEFORE the work runs. */
-  units: number;
-  /** `public` needs no licence. `licensed` reads history and does. */
-  tier: "public" | "licensed";
+  /**
+   * `live` works with no database. `stored` needs the optional history store
+   * and says so plainly when it is absent.
+   */
+  tier: "live" | "stored";
   /** Parameter names, for the MCP tool schema and the Skill. */
   params: readonly { name: string; type: "string" | "number"; required: boolean; describe: string }[];
   run: (params: Record<string, unknown>, ctx: QueryCtx) => Promise<QueryResult>;
@@ -102,11 +108,10 @@ const changeOut = (c: StoredChange) => ({
 });
 
 /** Still genuinely unbuilt. Says so rather than returning an empty list. */
-const notBuilt = (name: string, units: number, describe: string): QueryDef => ({
+const notBuilt = (name: string, describe: string): QueryDef => ({
   name,
-  units,
   describe,
-  tier: "licensed",
+  tier: "stored",
   params: [DOMAIN_PARAM],
   async run() {
     return {
@@ -123,8 +128,7 @@ export const QUERIES: readonly QueryDef[] = [
     describe:
       "Everything currently known about one company: pricing tiers, vendor stack, releases, " +
       "hiring, security posture and legal entity, each with its source URL and a quote.",
-    units: 10,
-    tier: "public",
+    tier: "live",
     params: [DOMAIN_PARAM],
     async run(params) {
       const domain = needDomain(params);
@@ -144,7 +148,7 @@ export const QUERIES: readonly QueryDef[] = [
               facts: stored.data.map(factOut),
               count: stored.data.length,
             },
-            meta: { units: this.units, sources: [...new Set(stored.data.map((f) => f.kind))] },
+            meta: { sources: [...new Set(stored.data.map((f) => f.kind))] },
           };
         }
       }
@@ -174,7 +178,7 @@ export const QUERIES: readonly QueryDef[] = [
           unavailable: failures,
           checked: runs.length,
         },
-        meta: { units: this.units, sources },
+        meta: {  sources },
       };
     },
   },
@@ -184,8 +188,7 @@ export const QUERIES: readonly QueryDef[] = [
     describe:
       "What changed about a company and when, newest first — the before and after value, with " +
       "the source. This is the history that cannot be looked up anywhere else.",
-    units: 1,
-    tier: "licensed",
+    tier: "stored",
     params: [
       DOMAIN_PARAM,
       { name: "limit", type: "number", required: false, describe: "Max changes to return (default 50)." },
@@ -202,7 +205,7 @@ export const QUERIES: readonly QueryDef[] = [
       return {
         ok: true,
         data: { domain, changes: rows.map(changeOut), count: rows.length },
-        meta: { units: this.units, sources: [...new Set(rows.map((c) => c.kind))] },
+        meta: { sources: [...new Set(rows.map((c) => c.kind))] },
       };
     },
   },
@@ -212,8 +215,7 @@ export const QUERIES: readonly QueryDef[] = [
     describe:
       "Every recorded pricing change for a company — tier renames, price moves and features " +
       "crossing between tiers, with the date each was observed.",
-    units: 2,
-    tier: "licensed",
+    tier: "stored",
     params: [DOMAIN_PARAM],
     async run(params) {
       const domain = needDomain(params);
@@ -229,7 +231,7 @@ export const QUERIES: readonly QueryDef[] = [
       return {
         ok: true,
         data: { domain, changes: rows.map(changeOut), count: rows.length },
-        meta: { units: this.units, sources: ["pricing"] },
+        meta: { sources: ["pricing"] },
       };
     },
   },
@@ -239,8 +241,7 @@ export const QUERIES: readonly QueryDef[] = [
     describe:
       "Two companies side by side on current state: pricing, stack, licence, posture. " +
       "Returns only the paths where they actually differ.",
-    units: 5,
-    tier: "public",
+    tier: "live",
     params: [
       { name: "a", type: "string", required: true, describe: "First company domain." },
       { name: "b", type: "string", required: true, describe: "Second company domain." },
@@ -273,7 +274,7 @@ export const QUERIES: readonly QueryDef[] = [
       return {
         ok: true,
         data: { a, b, differences: rows, count: rows.length, factsA: ma.size, factsB: mb.size },
-        meta: { units: this.units, sources: ["index"] },
+        meta: { sources: ["index"] },
       };
     },
   },
@@ -283,8 +284,7 @@ export const QUERIES: readonly QueryDef[] = [
     describe:
       "Which tracked companies use a given vendor, read from their public DNS verification " +
       "records — back-office purchases that frontend script detection cannot see.",
-    units: 2,
-    tier: "public",
+    tier: "live",
     params: [
       { name: "vendor", type: "string", required: true, describe: "Vendor slug, e.g. anthropic, stripe, rippling." },
     ],
@@ -307,7 +307,7 @@ export const QUERIES: readonly QueryDef[] = [
           // count. Saying so is the difference between data and a claim.
           caveat: "A verification record proves a relationship with the vendor, not the size or price of it.",
         },
-        meta: { units: this.units, sources: ["stack.dns"] },
+        meta: { sources: ["stack.dns"] },
       };
     },
   },
@@ -315,27 +315,32 @@ export const QUERIES: readonly QueryDef[] = [
   {
     name: "my_changes",
     describe: "Everything that changed across your whole watchlist since a date, newest first.",
-    units: 1,
-    tier: "licensed",
+    tier: "stored",
     params: [
       { name: "since", type: "string", required: false, describe: "ISO date. Defaults to 7 days ago." },
       { name: "limit", type: "number", required: false, describe: "Max changes (default 100)." },
     ],
     async run(params, ctx) {
-      if (!ctx.licenseKey) return { ok: false, status: 402, error: "This query needs a licence key." };
+      if (!ctx.watcher) {
+        return {
+          ok: false,
+          status: 400,
+          error: "Pass a `watcher` id to scope a watchlist. Any string you choose; it is not a credential.",
+        };
+      }
       if (!storeConfigured()) return noStore(this.name);
 
       const raw = typeof params.since === "string" ? Date.parse(params.since) : NaN;
       const since = Number.isFinite(raw) ? new Date(raw) : new Date(Date.now() - 7 * 86_400_000);
 
-      const res = await watchlistChanges(ctx.licenseKey, since, limitOf(params, 100));
+      const res = await watchlistChanges(ctx.watcher, since, limitOf(params, 100));
       if (!res.ok) return { ok: false, status: 502, error: res.error };
 
       const rows = res.data ?? [];
       return {
         ok: true,
         data: { since: since.toISOString(), changes: rows.map(changeOut), count: rows.length },
-        meta: { units: this.units, sources: [...new Set(rows.map((c) => c.kind))] },
+        meta: { sources: [...new Set(rows.map((c) => c.kind))] },
       };
     },
   },
@@ -345,13 +350,18 @@ export const QUERIES: readonly QueryDef[] = [
     describe:
       "Add a company to your watchlist. It is collected on the next 12-hour window and " +
       "back-filled from archives after that.",
-    units: 1,
-    tier: "licensed",
+    tier: "stored",
     params: [DOMAIN_PARAM],
     async run(params, ctx) {
       const domain = needDomain(params);
       if (!domain) return { ok: false, status: 400, error: "A valid `domain` is required." };
-      if (!ctx.licenseKey) return { ok: false, status: 402, error: "This query needs a licence key." };
+      if (!ctx.watcher) {
+        return {
+          ok: false,
+          status: 400,
+          error: "Pass a `watcher` id to scope a watchlist. Any string you choose; it is not a credential.",
+        };
+      }
       if (!storeConfigured()) return noStore(this.name);
 
       // The company row is GLOBAL and deduped by domain, so adding one another
@@ -362,7 +372,7 @@ export const QUERIES: readonly QueryDef[] = [
       const adapters = adaptersFor({ domain });
       await registerSurfaces(domain, adapters.map((a) => a.kind), adapters.map((a) => a.cadence));
 
-      const watch = await watchCompany(ctx.licenseKey, domain);
+      const watch = await watchCompany(ctx.watcher, domain);
       if (!watch.ok) return { ok: false, status: 502, error: watch.error };
 
       return {
@@ -373,7 +383,7 @@ export const QUERIES: readonly QueryDef[] = [
           surfaces: adapters.length,
           nextWindow: "00:00 or 12:00 UTC, whichever comes first",
         },
-        meta: { units: this.units, sources: [] },
+        meta: { sources: [] },
       };
     },
   },
@@ -381,8 +391,7 @@ export const QUERIES: readonly QueryDef[] = [
   {
     name: "coverage",
     describe: "How much we currently hold: companies, surfaces, facts and recorded changes.",
-    units: 0,
-    tier: "public",
+    tier: "live",
     params: [],
     async run() {
       if (!storeConfigured()) return noStore(this.name);
@@ -391,15 +400,15 @@ export const QUERIES: readonly QueryDef[] = [
       return {
         ok: true,
         data: { ...(res.data?.[0] ?? {}), refresh: "00:00 and 12:00 UTC" },
-        meta: { units: 0, sources: ["index"] },
+        meta: { sources: ["index"] },
       };
     },
   },
 
-  notBuilt("media_perception", 2, "News volume and tone over time."),
-  notBuilt("mentions_feed", 2, "Where a company was mentioned, across sources."),
-  notBuilt("unannounced_signals", 2, "New subdomains, URLs and API endpoints before announcement."),
-  notBuilt("category_trends", 5, "Cross-company trends within a category."),
+  notBuilt("media_perception", "News volume and tone over time."),
+  notBuilt("mentions_feed", "Where a company was mentioned, across sources."),
+  notBuilt("unannounced_signals", "New subdomains, URLs and API endpoints before announcement."),
+  notBuilt("category_trends", "Cross-company trends within a category."),
 ] as const;
 
 export const byName = (n: string): QueryDef | undefined => QUERIES.find((q) => q.name === n);
@@ -409,7 +418,6 @@ export const catalogue = () =>
   QUERIES.map((q) => ({
     name: q.name,
     describe: q.describe,
-    units: q.units,
     tier: q.tier,
     params: q.params,
   }));

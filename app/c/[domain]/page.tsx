@@ -29,7 +29,6 @@ import { factLabel, publicDomain } from "@/lib/public-dossier";
 import { footprintOf, identityOf, interpret, type Signal } from "@/lib/interpret";
 import { countryName } from "@/lib/worldmap";
 import { FootprintMap, hasFootprint } from "../../footprint";
-import { CHECKOUT_URL } from "@/lib/offer";
 import { abs, SITE_NAME } from "@/lib/site";
 import { JsonLd } from "../../jsonld";
 import { SectionHead, SiteFooter } from "../../ui";
@@ -220,21 +219,17 @@ async function Dossier({ domain }: { domain: string }) {
         </section>
       )}
 
-      {/* --- The paywall, stated as the honest difference it is. */}
+      {/* --- What is NOT on this page, and why. Honest, not a paywall. */}
       <section className="mb-12">
-        <div className="card card-shell p-6 sm:flex sm:items-center sm:justify-between sm:gap-8">
-          <div>
-            <p className="eyebrow mb-2">The part you cannot look up</p>
-            <h2 className="t-h3 m-0">What did this page say last March?</h2>
-            <p className="t-body mt-2 mb-0" style={{ maxWidth: "48ch" }}>
-              Everything above is current state, and you could verify all of it yourself today.
-              What you cannot get is the version from three months ago — the tier that moved, the
-              vendor that appeared, the week the hiring stopped.
-            </p>
-          </div>
-          <div className="mt-5 sm:mt-0 shrink-0">
-            <a href={CHECKOUT_URL} className="btn btn-primary no-underline">See the history</a>
-          </div>
+        <div className="card card-shell p-6">
+          <p className="eyebrow mb-2">What this page cannot tell you</p>
+          <h2 className="t-h3 m-0">Everything above is today.</h2>
+          <p className="t-body mt-2 mb-0" style={{ maxWidth: "52ch" }}>
+            What moves a decision is what <strong>changed</strong> — the tier that moved, the vendor
+            that appeared, the week the hiring stopped. That needs a deployment that has been
+            watching, so it accrues from the day you run the crawl rather than being something you
+            can look up. The code for it is in the repo.
+          </p>
         </div>
       </section>
 

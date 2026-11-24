@@ -262,6 +262,106 @@ input:disabled, select:disabled, textarea:disabled { opacity: 0.55; cursor: not-
 :root[data-theme="dark"] .art-light { display: none; }
 .receipt { font-family: var(--font-mono); white-space: pre; line-height: 1.35; font-size: 13px; }
 
+/* --- Vertical rhythm ------------------------------------------------------
+   Sections were spaced with whatever utility was to hand — mb-10, mt-14,
+   mt-16, mt-20 — so the page had no beat and read as one undifferentiated
+   column. One scale, fluid with the viewport, applied everywhere. */
+.section { margin-block: clamp(3.5rem, 8vw, 6.5rem); }
+.section-tight { margin-block: clamp(2.5rem, 5vw, 4rem); }
+.section:first-of-type { margin-block-start: 0; }
+
+/* Prose has a measure. Past ~68 characters the eye loses the line start. */
+.measure { max-width: 60ch; }
+.measure-tight { max-width: 46ch; }
+
+/* The opening paragraph under a display heading. */
+.lede {
+  font-size: clamp(1.05rem, 1.6vw, 1.22rem);
+  line-height: 1.55;
+  color: var(--ink-muted);
+}
+
+/* A hairline divider that does not shout. */
+.rule { border: 0; border-top: 1px solid var(--border); margin-block: clamp(3rem, 7vw, 5rem); }
+
+/* --- Hero ----------------------------------------------------------------- */
+.hero { padding-block: clamp(2.5rem, 7vw, 5rem) 0; }
+.hero h1 { margin: 0; }
+
+/* The art sits in a band that breaks the text column, so the page has one
+   moment of width rather than being a single ribbon all the way down. */
+.band {
+  position: relative;
+  border-block: 1px solid var(--border);
+  padding-block: clamp(1.5rem, 4vw, 2.5rem);
+  margin-block: clamp(2.5rem, 6vw, 4rem);
+  overflow: hidden;
+}
+.band::after {
+  /* Fade the edges so the field ends rather than being chopped. */
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--bg), transparent 10%, transparent 90%, var(--bg));
+}
+.band-cap { position: relative; z-index: 1; margin: 1.25rem 0 0; }
+
+/* ASCII sized to its COLUMN COUNT.
+   A monospace glyph is ~0.6em wide, so N columns need a font-size of about
+   containerWidth / (N * 0.6) to fill the line exactly. At a fixed size the
+   108-column render overflowed and each glyph read as a block rather than a
+   step in a gradient. `cqw` measures the band, so this holds at any width. */
+.band { container-type: inline-size; }
+.art-wide,
+.art-narrow { color: var(--ocean); opacity: 0.85; }
+.art-wide { display: block; font-size: calc(100cqw / (190 * 0.605)); line-height: 1.2; }
+.art-narrow { display: none; }
+
+@container (max-width: 639px) {
+  .art-wide { display: none; }
+  .art-narrow { display: block; font-size: calc(100cqw / (76 * 0.605)); line-height: 1.2; }
+}
+
+/* --- Entry cards ---------------------------------------------------------- */
+.entry {
+  display: block;
+  padding: 1.35rem 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  transition: border-color 0.15s, transform 0.12s, box-shadow 0.15s;
+}
+.entry:hover {
+  border-color: var(--ocean);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.entry-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ocean);
+}
+.entry-title { font-size: 1.12rem; font-weight: 640; line-height: 1.25; margin: 0.5rem 0 0; }
+
+/* --- Stat strip ----------------------------------------------------------- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+@media (min-width: 720px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+.stat { background: var(--surface); padding: 1.1rem 1.2rem; }
+.stat-n { font-size: clamp(1.4rem, 3vw, 1.9rem); font-weight: 680; line-height: 1.1; letter-spacing: -0.02em; }
+.stat-l { font-size: 0.78rem; color: var(--ink-muted); margin-top: 0.3rem; }
+
 /* --- Nav layout ---------------------------------------------------------- */
 .nav-row {
   display: grid;

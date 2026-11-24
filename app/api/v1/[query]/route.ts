@@ -1,32 +1,40 @@
 /**
- * The metered API — and the only enforceable chokepoint in the product.
+ * The REST API. Free, unauthenticated, one named query per path.
  *
- * Client-side code cannot be gated, so this route is where a licence turns into
- * value. Two rules, both asserted by lib/license.test.ts:
+ * There is no licence check here any more and no metering: the project is open
+ * source and the data is public records, so gating it would only make it less
+ * useful without making it more defensible. What remains is the thing that
+ * always mattered — fixed, parameterised queries, never arbitrary input
+ * reaching a data source.
  *
- *  1. The licence is CHARGED BEFORE THE WORK. Charging afterwards lets a flood
- *     of concurrent requests all read the same stale count and slip through.
- *  2. An unlicensed request gets 402, never 200 with empty data.
- *
- * No `export const runtime` here: Cache Components is enabled in
- * next.config.ts and rejects it. The Node default is what we want anyway.
+ * No `export const runtime`: Cache Components is enabled in next.config.ts and
+ * rejects it. The Node default is what we want anyway.
  */
 
 import { NextResponse } from "next/server";
-import { useLicense } from "@/lib/license";
-import { byName, catalogue, type QueryCtx } from "@/lib/queries";
+import { byName, catalogue } from "@/lib/queries";
 
 export const maxDuration = 300;
 
-/** Licence key from a header, or the body. Never from a query string — those
- *  end up in logs, proxies and browser history. */
-function keyFrom(req: Request, body: Record<string, unknown>): unknown {
-  return (
-    req.headers.get("x-license-key") ??
-    req.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
-    body.licenseKey
-  );
-}
+/** CORS is open, because an unauthenticated public API that browsers cannot
+ *  call from a page is needlessly awkward. Nothing here is credentialed. */
+const CORS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET, POST, OPTIONS",
+  "access-control-allow-headers": "content-type, x-watcher",
+} as const;
+
+/**
+ * An optional, caller-chosen id used only to scope a watchlist.
+ *
+ * It is not a credential: it authenticates nothing, grants nothing, and any
+ * string works. It exists so a self-hosted deployment can keep more than one
+ * watchlist without inventing accounts.
+ */
+const watcherFrom = (req: Request, body: Record<string, unknown>): string | null => {
+  const v = req.headers.get("x-watcher") ?? body.watcher;
+  return typeof v === "string" && v.trim() ? v.trim().slice(0, 120) : null;
+};
 
 export async function POST(req: Request, ctx: RouteContext<"/api/v1/[query]">) {
   const { query } = await ctx.params;
@@ -35,7 +43,7 @@ export async function POST(req: Request, ctx: RouteContext<"/api/v1/[query]">) {
   if (!def) {
     return NextResponse.json(
       { error: `Unknown query "${query}".`, available: catalogue().map((q) => q.name) },
-      { status: 404 },
+      { status: 404, headers: CORS },
     );
   }
 
@@ -44,82 +52,22 @@ export async function POST(req: Request, ctx: RouteContext<"/api/v1/[query]">) {
     const text = await req.text();
     if (text) body = JSON.parse(text) as Record<string, unknown>;
   } catch {
-    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400, headers: CORS });
   }
 
-  const rawKey = keyFrom(req, body);
-
-  // A `public` query returns current state, which is already on our own public
-  // pages and on the company's own website. Charging for it would be charging
-  // for nothing, and refusing it would wall off the thing that sells the rest.
-  if (def.tier === "public") {
-    const result = await runFree(def, body, {
-      licenseKey: typeof rawKey === "string" ? rawKey : null,
-    });
-    if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });
-    return NextResponse.json({ query: def.name, ...result });
-  }
-
-  // (1) CHARGE FIRST. Everything below this line costs us money or goodwill.
-  const license = await useLicense(rawKey, def.units);
-  if (!license.ok) {
-    // OUR fault, not theirs: a misconfigured deploy must never read as
-    // "you haven't paid", or a bad env var looks like a billing problem.
-    if (license.reason === "unconfigured") {
-      return NextResponse.json(
-        { error: "Licensing isn't configured on this deployment.", reason: license.reason },
-        { status: 503 },
-      );
-    }
-    const why = license.reason === "shape"
-      ? "That licence key doesn't look right."
-      : "That licence key isn't recognised, or has been revoked.";
-    return NextResponse.json(
-      { error: why, reason: license.reason, remedy: "/#pricing" },
-      { status: 402 },
-    );
-  }
-
-  const result = await runQuery(def, body, {
-    licenseKey: typeof rawKey === "string" ? rawKey : null,
-  });
+  const result = await def.run(body, { watcher: watcherFrom(req, body) });
   if (!result.ok) {
-    return NextResponse.json({ error: result.error }, { status: result.status });
+    return NextResponse.json({ error: result.error }, { status: result.status, headers: CORS });
   }
 
-  return NextResponse.json({
-    query: def.name,
-    ...result,
-    meta: { ...result.meta, unitsUsed: license.rowsUsed },
-  });
+  return NextResponse.json({ query: def.name, ...result }, { headers: CORS });
 }
 
-/**
- * The UNMETERED path, for `public` queries only.
- *
- * Deliberately a different name from runQuery: lib/license.test.ts asserts
- * that useLicense is called before `runQuery`, and that assertion is only
- * meaningful if `runQuery` means "work we charge for". Giving the free path
- * its own name keeps the invariant checkable instead of merely textual.
- */
-async function runFree(
-  def: NonNullable<ReturnType<typeof byName>>,
-  body: Record<string, unknown>,
-  ctx: QueryCtx,
-) {
-  return def.run(body, ctx);
-}
-
-/** The METERED path. Kept as a named function so the ordering rule is testable. */
-async function runQuery(
-  def: NonNullable<ReturnType<typeof byName>>,
-  body: Record<string, unknown>,
-  ctx: QueryCtx,
-) {
-  return def.run(body, ctx);
-}
-
-/** The catalogue is public: discovery must not need a licence. */
+/** Discovery, same as the index. */
 export async function GET() {
-  return NextResponse.json({ queries: catalogue() });
+  return NextResponse.json({ queries: catalogue() }, { headers: CORS });
+}
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: CORS });
 }

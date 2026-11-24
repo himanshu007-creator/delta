@@ -45,7 +45,7 @@ const missing = () =>
 const footer = (canonical: string) =>
   `\n---\n\nSource: ${SITE_NAME} — ${abs(canonical)}\n` +
   `Public records only; every fact above links to the page it came from.\n` +
-  `Refreshed at 00:00 and 12:00 UTC. Full API and MCP server: ${abs("/#pricing")}\n`;
+  `Refreshed at 00:00 and 12:00 UTC. Free, unauthenticated API and MCP server: ${abs("/docs")}\n`;
 
 export async function GET(_req: Request, ctx: RouteContext<"/md/[...path]">) {
   const { path } = await ctx.params;
@@ -262,7 +262,7 @@ async function compare(raw: string) {
     `Full dossiers: ${abs(`/c/${a}`)} · ${abs(`/c/${b}`)}`,
     "",
     "This is today's snapshot. What moves a decision is which of them is CHANGING —",
-    `that history is the paid product: ${SITE_URL}/#pricing`,
+    `and that history only exists where a deployment has been watching: ${SITE_URL}/docs`,
     footer(`/compare/${raw.toLowerCase()}`),
   ];
   return md(lines.join("\n"));

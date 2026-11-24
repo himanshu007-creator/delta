@@ -46,13 +46,18 @@ import { assertStore, currentWindow, storeConfigured } from "./store";
   assert.notEqual(at("2026-11-19T12:00:00.000Z"), at("2026-11-20T00:00:00.000Z"));
 }
 
-// --- fail closed in production -------------------------------------------
+// --- the store is OPTIONAL, but the crawler is not ------------------------
+// It used to fail closed in production, which was right when every deployment
+// was ours. Now that anyone can deploy this, a missing database is the
+// documented zero-config path — so the app must serve without one, while the
+// CRAWLER must still refuse, because crawling into a void looks healthy and
+// loses history a 12h window only offers once.
 {
   const src = readFileSync(new URL("./store.ts", import.meta.url), "utf8");
-  assert.match(
-    src,
-    /NODE_ENV === "production"/,
-    "the store must fail CLOSED in production — crawling into a void looks healthy while losing history permanently",
+
+  assert.ok(
+    !/NODE_ENV === "production"/.test(src),
+    "the production-only gate must be gone: an unconfigured store is now a supported deployment",
   );
   assert.ok(
     src.includes("SUPABASE_SERVICE_ROLE_KEY"),
@@ -63,11 +68,17 @@ import { assertStore, currentWindow, storeConfigured } from "./store";
     "the service role must never be exposed to the browser — it bypasses RLS",
   );
 
-  // Behaviour, not just source. NODE_ENV is not writable under Node 26, so this
-  // asserts the branch that applies here rather than faking the other one —
-  // the production branch is covered by the source assertion above.
-  if (!storeConfigured() && process.env.NODE_ENV !== "production") {
-    assert.doesNotThrow(() => assertStore(), "development must tolerate an unconfigured store");
+  // Every read path must degrade rather than throw, or a keyless deployment
+  // 500s on its own landing page.
+  assert.ok(
+    /if \(!storeConfigured\(\)\) return \{ ok: false, error: "store not configured" \}/.test(src),
+    "rpc() must return a soft failure when unconfigured, never throw",
+  );
+
+  // assertStore is the crawler's guard, so it throws whenever there is no
+  // store — regardless of environment.
+  if (!storeConfigured()) {
+    assert.throws(() => assertStore(), /history store/, "the crawler must refuse without a store");
   }
 }
 
@@ -165,4 +176,4 @@ import { assertStore, currentWindow, storeConfigured } from "./store";
   );
 }
 
-console.log("✓ store: 12h window boundaries, fail-closed, constant-time cron auth, SKIP LOCKED claim, RLS on every table");
+console.log("✓ store: optional store degrades, crawler refuses, 12h windows, constant-time cron auth, SKIP LOCKED, RLS");

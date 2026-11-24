@@ -76,7 +76,7 @@ linked to the page it came from:
 - [Company dossiers](${abs("/c/linear.app")}): \`/c/{domain}\` — everything verifiable about one company now.
 - [Vendor adoption](${abs("/stack")}): \`/stack/{vendor}\` — which companies buy a given tool. ${vendors.length} vendors indexed.
 - [Head-to-head](${abs("/compare")}): \`/compare/{a}-vs-{b}\` — two companies side by side. ${pairs.length} comparisons.
-- [Pricing](${abs("/#pricing")}): plans, and what the free tier includes.
+- [API & MCP docs](${abs("/docs")}): how to connect an agent, and what self-hosting needs.
 - [Privacy](${abs("/privacy")}) · [Terms](${abs("/terms")})
 
 ## Index size
@@ -94,8 +94,8 @@ ${top.map((v) => `- [${v.vendor}](${abs(`/stack/${v.vendor}`)}): ${v.domains.len
 ## For agents
 
 A metered REST API and an MCP server expose the same named queries the site uses.
-See ${abs("/#pricing")}. The query catalogue is public and unauthenticated at
-\`${abs("/api/v1/company_dossier")}\` (GET lists the available queries; POST requires a licence key).
+Free, open source and unauthenticated — no key, no account, no quota.
+The query catalogue is at \`${abs("/api/v1")}\`; POST to \`/api/v1/{query}\` to run one.
 
 ## For agents
 

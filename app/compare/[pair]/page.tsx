@@ -202,7 +202,7 @@ async function Resolved({ params }: { params: PageProps<"/compare/[pair]">["para
             posture improved. We track both over time and tell you when either moves.
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-3">
-            <Link href="/#pricing" className="btn btn-primary no-underline">Track both</Link>
+            <Link href="/docs" className="btn btn-primary no-underline">Query both with an agent</Link>
             <Link href={`/c/${a}`} className="t-small no-underline">Full {A} dossier</Link>
             <Link href={`/c/${b}`} className="t-small no-underline">Full {B} dossier</Link>
           </div>

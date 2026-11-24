@@ -92,7 +92,7 @@ export default function CompanyIndex() {
         </p>
         <p className="t-micro muted mt-3">
           Looking for a company that is not here?{" "}
-          <Link href="/#pricing">Add it to a watchlist</Link> and it is collected on the next
+          <Link href="/docs">query it through the API</Link> and it is crawled live on the next
           window. The public pages work for any domain: try{" "}
           <Link href="/c/gymshark.com">/c/gymshark.com</Link>.
         </p>
