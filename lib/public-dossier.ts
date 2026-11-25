@@ -75,6 +75,34 @@ export const PHASE2_KINDS = [
   "financial.assets",
   "financial.cash",
   "financial.equity",
+  /*
+   * Eighteen adapters that were already written and had never run.
+   *
+   * Every one is handle-gated, and nothing promoted a handle until the
+   * resolution loop existed — so the catalogue advertised GitHub activity,
+   * npm adoption, status-page history and store ratings while the page showed
+   * none of it. Listing them here is free: the loop only fires an adapter
+   * whose `url()` resolves, so a company with no status page pays nothing for
+   * the status adapters.
+   */
+  "github.org",
+  "github.events",
+  "github.repo",
+  "github.license",
+  "github.languages",
+  "github.activity",
+  "github.releases",
+  "github.contributors",
+  "github.sbom",
+  "github.issues",
+  "repo.ecosystems",
+  "security.scorecard",
+  "reliability.status",
+  "reliability.incidents",
+  "adoption.npm",
+  "reviews.appstore",
+  "reviews.wordpress",
+  "attention.wikipedia",
 ] as const;
 
 /**
@@ -148,6 +176,11 @@ export function handlesFrom(domain: string, facts: readonly Fact[]): Company {
   if (legal && typeof legal.value === "string" && (legal.confidence ?? 0) >= 0.9) {
     c.legalName = legal.value;
   }
+
+  // The status page, which unlocks incident history and MTTR. Discovery
+  // already rejects a status host on someone else's domain.
+  const status = sole("discovered.status_host");
+  if (status) c.statusHost = status;
 
   const npm = sole("discovered.npm_org");
   if (npm) c.npm = npm;

@@ -20,6 +20,7 @@
  */
 
 import { factsFor } from "@/lib/cached-dossier";
+import { correlate } from "@/lib/correlate";
 import { footprintOf, identityOf, interpret, bigMoney, financialsOf, securityOf, hasSecurity, workforceOf, hasWorkforce } from "@/lib/interpret";
 import { publicDomain } from "@/lib/public-dossier";
 import { SEED, comparablePairs, parsePair, seedFor } from "@/lib/seed";
@@ -92,6 +93,7 @@ async function company(raw: string, site: Ctx) {
   const fin = financialsOf(facts);
   const sec = securityOf(facts);
   const work = workforceOf(facts);
+  const insights = correlate(facts);
 
   const lines: string[] = [`# ${domain}`, ""];
 
@@ -112,6 +114,31 @@ async function company(raw: string, site: Ctx) {
   if (h1) lines.push(`> ${h1}`, "");
 
   /*
+   * Cross-source patterns. Written so an agent summarising this page cannot
+   * quote the claim without the counter-reading: both are in the same block.
+   */
+  if (insights.length) {
+    lines.push("## Patterns across sources", "");
+    lines.push(
+      "Each pattern below combines observations from at least two independent sources. They are " +
+        "co-occurrences, NOT causes, and every one carries its alternative reading. Do not report a " +
+        "pattern without it.",
+      "",
+    );
+    for (const i of insights) {
+      lines.push(`### ${i.headline}`, "");
+      lines.push(`*Pattern strength: ${i.strength}.* ${i.soWhat}`, "");
+      for (const e of i.evidence) {
+        lines.push(`- ${e.label}: ${e.value}${e.source ? ` — ${e.source}` : ""}`);
+      }
+      lines.push("");
+      lines.push(`**Could also be:** ${i.alternative}`, "");
+      lines.push(`**Limitation:** ${i.limitation}`, "");
+    }
+  }
+
+  /*
+   * Hiring. The split is the signal  /*
    * Hiring. The split is the signal; the headcount of open roles is not.
    * An agent summarising this needs the caveat as much as the numbers.
    */

@@ -34,6 +34,7 @@ import { JsonLd } from "../../jsonld";
 import { SectionHead, SiteFooter } from "../../ui";
 import { AskAbout } from "../../ask";
 import { SiteNav } from "../../nav";
+import { correlate, type Insight } from "@/lib/correlate";
 
 export async function generateMetadata(props: PageProps<"/c/[domain]">) {
   // Built from the DOMAIN ALONE, on purpose. Calling the dossier here would
@@ -155,6 +156,7 @@ async function Dossier({ domain }: { domain: string }) {
   const fin = financialsOf(facts);
   const sec = securityOf(facts);
   const work = workforceOf(facts);
+  const insights = correlate(facts);
 
   return (
     <>
@@ -235,6 +237,24 @@ async function Dossier({ domain }: { domain: string }) {
           </p>
         </div>
       </section>
+
+      {/* --- Cross-source patterns. The only place two sources are combined,
+              so every one carries its counter-reading. */}
+      {insights.length > 0 && (
+        <section className="mb-12">
+          <SectionHead
+            eyebrow="patterns · two or more sources"
+            title={`${insights.length} thing${insights.length === 1 ? "" : "s"} worth noticing`}
+          />
+          <div className="grid gap-4">
+            {insights.map((i) => <InsightCard key={i.id} insight={i} />)}
+          </div>
+          <p className="t-micro muted mt-3">
+            Each pattern rests on observations from at least two independent sources and is reported as a
+            co-occurrence, never a cause. The alternative reading is shown with every one.
+          </p>
+        </section>
+      )}
 
       {/* --- Filed financials. Absent for a private company, and that
               absence is stated rather than left as an empty space. */}
@@ -657,6 +677,46 @@ function HiringSection({ work }: { work: Workforce }) {
         </p>
       </div>
     </section>
+  );
+}
+
+/**
+ * One correlated pattern.
+ *
+ * The alternative explanation is rendered at the same weight as the claim,
+ * not tucked into a tooltip. An inference whose counter-reading is hidden is
+ * being presented as a finding, and this is the one part of the product that
+ * combines sources rather than reporting them.
+ */
+function InsightCard({ insight }: { insight: Insight }) {
+  return (
+    <div className="card" data-tone={insight.tone === "neutral" ? undefined : insight.tone}>
+      <div className="flex items-baseline gap-2 flex-wrap">
+        <p className="eyebrow m-0">{insight.strength}</p>
+        <span className="t-micro muted mono">{insight.evidence.length} sources</span>
+      </div>
+      <h3 className="t-h3 mt-1 mb-2">{insight.headline}</h3>
+      <p className="t-body m-0">{insight.soWhat}</p>
+
+      <ul className="mt-4 grid gap-1.5">
+        {insight.evidence.map((e) => (
+          <li key={e.label} className="t-small flex gap-2 flex-wrap">
+            <span className="muted">{e.label}:</span>
+            <span className="mono">{e.value}</span>
+            {e.source && (
+              <a href={e.source} rel="nofollow noopener" target="_blank" className="t-micro muted">
+                source
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      <p className="t-small muted mt-4">
+        <strong>Could also be:</strong> {insight.alternative}
+      </p>
+      <p className="t-micro muted mt-1">{insight.limitation}</p>
+    </div>
   );
 }
 
