@@ -62,7 +62,11 @@ export const PUBLIC_KINDS = [
  * company costs nothing here: no CIK, no requests, no empty section.
  */
 export const PHASE2_KINDS = [
+  // Resolves the legal entity from a company name, which the insolvency
+  // register then needs. A chain, which is why passes are a loop.
+  "corporate.gleif",
   "jobs",
+  "legal.insolvency",
   "security.advisories.package",
   "security.advisories.repo",
   "financial.revenue",
@@ -113,6 +117,36 @@ export function handlesFrom(domain: string, facts: readonly Fact[]): Company {
       c.ats = { provider, token };
       break;
     }
+  }
+
+  /*
+   * A company NAME, for the registry lookup that resolves the legal entity.
+   *
+   * schema.org's `legalName` is preferred over a trading name because the
+   * registry is keyed on registered names. Either way GLEIF applies its own
+   * corroboration and refuses an ambiguous match, so a rough name here cannot
+   * become a wrong identity downstream.
+   */
+  const named =
+    facts.find((f) => f.path === "corporate.legal_name") ??
+    facts.find((f) => f.path === "corporate.trading_name");
+  if (named && typeof named.value === "string" && named.value.trim().length >= 4) {
+    c.name = named.value.trim();
+  }
+
+  /*
+   * The registered legal name, promoted ONLY when the registry match was
+   * corroborated.
+   *
+   * `corporate.legal_name` is written by the GLEIF resolver at confidence 1
+   * when it resolved soundly, and the ambiguous case writes
+   * `corporate.gleif.candidate_name` instead — which is deliberately not read
+   * here. A legal source answering about the wrong entity would report another
+   * company's insolvency, so a candidate is not good enough.
+   */
+  const legal = facts.find((f) => f.path === "corporate.legal_name");
+  if (legal && typeof legal.value === "string" && (legal.confidence ?? 0) >= 0.9) {
+    c.legalName = legal.value;
   }
 
   const npm = sole("discovered.npm_org");
@@ -190,30 +224,48 @@ export async function buildPublicDossier(domain: string): Promise<PublicDossier>
   });
 
   /*
-   * Phase two, on handles phase one resolved.
+   * Resolution passes, until nothing new unlocks.
    *
-   * It reuses the SAME deadline rather than taking a fresh one: the page's
-   * latency budget is the whole build, not per phase, so a slow phase one
-   * leaves phase two correspondingly less time instead of doubling the wait.
-   * A company with no resolved handle does no work here at all.
+   * This was two fixed phases and that was not enough, because dependencies
+   * are deeper than two: a homepage yields a company NAME, the name resolves a
+   * legal ENTITY in GLEIF, and only a registered entity can be queried against
+   * the insolvency register. With two phases the last step could never run, and
+   * the symptom was not an error — the section simply never appeared, which is
+   * the same silent failure that hid every handle-gated adapter before.
+   *
+   * So each pass re-derives handles from everything learned so far and runs
+   * whatever that unlocks. An adapter runs at most once. The bound is a hard
+   * stop, not a guess: three passes covers the longest real chain
+   * (domain -> name -> entity -> register) and a cycle cannot run away.
    */
-  const phase1Facts = run1.flatMap(({ r }) => (r && r.status === "ok" ? r.facts : []));
-  const resolved = handlesFrom(domain, phase1Facts);
-  const phase2 = (PHASE2_KINDS as readonly string[])
-    .map((k) => byKind(k))
-    .filter((a): a is NonNullable<typeof a> => !!a && a.url(resolved) !== null);
+  const MAX_PASSES = 3;
+  const laterRuns: typeof run1 = [];
+  const done = new Set(applicable.map((a) => a.kind));
+  let known = run1.flatMap(({ r }) => (r && r.status === "ok" ? r.facts : []));
 
-  const run2 = phase2.length
-    ? await pooled(phase2, 5, async (a) => {
-        try {
-          return { a, r: await runAdapter(a, resolved, { signal: deadline }) };
-        } catch {
-          return { a, r: null };
-        }
-      })
-    : [];
+  for (let pass = 0; pass < MAX_PASSES; pass++) {
+    const resolved = handlesFrom(domain, known);
+    const next = (PHASE2_KINDS as readonly string[])
+      .filter((k) => !done.has(k))
+      .map((k) => byKind(k))
+      .filter((a): a is NonNullable<typeof a> => !!a && a.url(resolved) !== null);
 
-  const runs = [...run1, ...run2];
+    if (next.length === 0) break;
+    for (const a of next) done.add(a.kind);
+
+    const batch = await pooled(next, 5, async (a) => {
+      try {
+        return { a, r: await runAdapter(a, resolved, { signal: deadline }) };
+      } catch {
+        return { a, r: null };
+      }
+    });
+
+    laterRuns.push(...batch);
+    known = [...known, ...batch.flatMap(({ r }) => (r && r.status === "ok" ? r.facts : []))];
+  }
+
+  const runs = [...run1, ...laterRuns];
 
   const byModule = new Map<string, Fact[]>();
   const sources: PublicDossier["sources"] = [];
@@ -260,6 +312,8 @@ export function factLabel(path: string): string {
     "corporate.trading_name": "Trading name",
     "corporate.company_number": "Company number",
     "corporate.vat_id": "VAT ID",
+    "legal.insolvency.notices": "Insolvency notices naming them",
+    "legal.insolvency.latest_notice": "Most recent insolvency notice",
     "hiring.focus": "Hiring concentrated in",
     "hiring.function.engineering": "Open engineering roles",
     "hiring.function.product": "Open product roles",

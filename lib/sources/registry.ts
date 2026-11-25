@@ -20,6 +20,7 @@ import { UNIVERSAL_ADAPTERS } from "./universal";
 import { SEC_ADAPTERS } from "./financial";
 import { SECURITY_ADAPTERS } from "./security";
 import { workforceFacts } from "./workforce";
+import { LEGAL_ADAPTERS } from "./legal";
 
 // --- shared extractors ------------------------------------------------------
 
@@ -122,6 +123,9 @@ export const ADAPTERS: readonly Adapter[] = [
   // Advisories against artefacts we know are theirs — a package they publish
   // or a repo they own. Never a keyword match on their name.
   ...SECURITY_ADAPTERS,
+  // Insolvency, gated on a corroborated registered name. The most damaging
+  // module to get wrong, so the most constrained.
+  ...LEGAL_ADAPTERS,
   // ---- Phase 1 spine ------------------------------------------------------
   {
     kind: "pricing", module: "2. Pricing", label: "Pricing page", cadence: "12h", tier: "A", format: "text",

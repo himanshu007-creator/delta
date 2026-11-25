@@ -246,6 +246,29 @@ async function Dossier({ domain }: { domain: string }) {
       {/* --- Hiring. What they are building, read off their own job board. */}
       {hasWorkforce(work) && <HiringSection work={work} />}
 
+      {/* --- Legal. Only ever about the registered entity we resolved. */}
+      {facts.get("legal.insolvency.notices") && (
+        <section className="mb-12">
+          <SectionHead eyebrow="legal · insolvency register" title="Insolvency register" />
+          <div className="card card-quiet">
+            <p className="t-body m-0">
+              {Number(facts.get("legal.insolvency.notices")?.value) > 0 ? (
+                <>
+                  <strong>{facts.get("legal.insolvency.notices")?.value}</strong> insolvency notice(s) in The
+                  Gazette name this registered entity in the notice title.
+                </>
+              ) : (
+                <>No insolvency notice in The Gazette names this registered entity.</>
+              )}
+            </p>
+            <p className="t-micro muted mt-2">
+              Searched against the registered legal name, and a notice counts only when it names the company
+              itself — a search for a bare brand returns notices about entirely different companies.
+            </p>
+          </div>
+        </section>
+      )}
+
       {/* --- Where next. The three things someone actually does from here. */}
       <WhereNext domain={domain} />
 

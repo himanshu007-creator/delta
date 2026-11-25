@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx lib/theme.test.ts && tsx lib/fetch.test.ts && tsx lib/sources/vendors.test.ts && tsx lib/sources/pricing.test.ts && tsx lib/sources/github.test.ts && tsx lib/sources/financial.test.ts && tsx lib/sources/security.test.ts && tsx lib/sources/workforce.test.ts && tsx lib/sources/registry.test.ts && tsx lib/sources/universal.test.ts && tsx lib/public-dossier.test.ts && tsx lib/store.test.ts && tsx lib/grounding.test.ts && tsx lib/signals.test.ts && tsx lib/limiter.test.ts",
+    "test": "tsx lib/theme.test.ts && tsx lib/fetch.test.ts && tsx lib/sources/vendors.test.ts && tsx lib/sources/pricing.test.ts && tsx lib/sources/github.test.ts && tsx lib/sources/financial.test.ts && tsx lib/sources/security.test.ts && tsx lib/sources/workforce.test.ts && tsx lib/sources/legal.test.ts && tsx lib/sources/registry.test.ts && tsx lib/sources/universal.test.ts && tsx lib/public-dossier.test.ts && tsx lib/store.test.ts && tsx lib/grounding.test.ts && tsx lib/signals.test.ts && tsx lib/limiter.test.ts",
     "samples": "tsx scripts/gen-samples.ts"
   },
   "dependencies": {
