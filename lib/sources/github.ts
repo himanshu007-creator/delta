@@ -28,7 +28,7 @@ import { asArr, asObj, asObjArr, num, quote, sum, type Adapter, type Company, ty
 const GH = "https://api.github.com";
 
 /** Read the token at call time; it may be added after the process starts. */
-const ghHeaders = (): Record<string, string> => {
+export const ghHeaders = (): Record<string, string> => {
   const t = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
   return {
     accept: "application/vnd.github+json",

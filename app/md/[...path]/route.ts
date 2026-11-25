@@ -20,7 +20,9 @@
  */
 
 import { factsFor } from "@/lib/cached-dossier";
-import { footprintOf, identityOf, interpret } from "@/lib/interpret";
+import { correlate } from "@/lib/correlate";
+import { coverageOf, coverageSummary, currencySymbol, isCurrencyCode, pricingLadderOf } from "@/lib/profile";
+import { footprintOf, identityOf, interpret, bigMoney, financialsOf, securityOf, hasSecurity, workforceOf, hasWorkforce } from "@/lib/interpret";
 import { publicDomain } from "@/lib/public-dossier";
 import { SEED, comparablePairs, parsePair, seedFor } from "@/lib/seed";
 import { isPageworthyVendor, prettyVendor, stackIndex, vendorRow } from "@/lib/stack-index";
@@ -89,6 +91,12 @@ async function company(raw: string, site: Ctx) {
   const id = identityOf(facts);
   const fp = footprintOf(facts);
   const signals = interpret(facts);
+  const fin = financialsOf(facts);
+  const sec = securityOf(facts);
+  const work = workforceOf(facts);
+  const insights = correlate(facts);
+  const coverage = coverageOf(facts);
+  const ladder = pricingLadderOf(facts);
 
   const lines: string[] = [`# ${domain}`, ""];
 
@@ -107,6 +115,282 @@ async function company(raw: string, site: Ctx) {
 
   const h1 = facts.get("positioning.h1")?.value;
   if (h1) lines.push(`> ${h1}`, "");
+
+  /*
+   * Coverage first. An agent summarising this page must be able to say what
+   * is NOT known, and a page that silently omits empty sections gives it no
+   * way to tell "nothing to report" from "we could not read it".
+   */
+  {
+    const sum = coverageSummary(coverage);
+    lines.push("## Coverage", "");
+    lines.push(
+      `${sum.available} of ${sum.total} intelligence areas are fully readable for this company ` +
+        `(${sum.partial} partial, ${sum.missing} not available). "Not available" means the public record ` +
+        `does not carry it — NOT that the company lacks it.`,
+      "",
+      "| Area | Status | Why |",
+      "|---|---|---|",
+    );
+    for (const c of coverage) {
+      const label = c.status === "available" ? "Available" : c.status === "partial" ? "Partial" : "Not available";
+      lines.push(`| ${c.label} | ${label} | ${c.detail}${c.asOf ? ` (as of ${c.asOf})` : ""} |`);
+    }
+    lines.push("");
+  }
+
+  // Ecosystem catalogue, counted from their own sitemap.
+  const integrations = facts.get("ecosystem.integrations.count")?.value;
+  if (integrations) {
+    const sample = String(facts.get("ecosystem.integrations.sample")?.value ?? "").split(",").filter(Boolean);
+    lines.push("## Ecosystem", "");
+    lines.push(
+      `**${integrations}** integration pages published under \`${domain}\`` +
+        `${sample.length ? `, e.g. ${sample.slice(0, 15).join(", ")}` : ""}.`,
+      "",
+      "Counted from integration pages in their own sitemap, excluding category and tag pages — entries " +
+        "rather than navigation, so the number is comparable between companies.",
+      "",
+    );
+  }
+
+  // Competitors the company names itself. Evidence, not our opinion.
+  const rivals = String(facts.get("market.competitors.named")?.value ?? "").split(",").filter(Boolean);
+  if (rivals.length) {
+    lines.push("## Competitors they name themselves", "");
+    lines.push(
+      `\`${domain}\` publishes comparison pages against **${rivals.length}** companies: ` +
+        `${rivals.join(", ")}.`,
+      "",
+      "Taken from comparison URLs in their own sitemap — the set they chose to name, not an inference. " +
+        "Names only: a URL slug is not a hostname, so no domain is guessed from it.",
+      "",
+    );
+  }
+
+  /*
+   * The ladder, already normalised to monthly equivalents upstream.
+   */
+  if (ladder) {
+    const sym = currencySymbol(ladder.currency);
+    const money = (m: number) => `${sym}${m / 100 % 1 === 0 ? (m / 100).toFixed(0) : (m / 100).toFixed(2)}`;
+    lines.push("## Pricing, normalised", "");
+    lines.push("| Tier | Monthly equivalent | Basis | Annual saving |", "|---|---|---|---|");
+    for (const t of ladder.tiers) {
+      lines.push(
+        `| ${t.name} | ${t.monthlyMinor !== null ? money(t.monthlyMinor) : "—"} | ` +
+          `${t.perSeat ? "per seat" : t.monthlyMinor !== null ? "flat" : "contact sales"} | ` +
+          `${t.annualDiscountPct !== null ? `${t.annualDiscountPct}%` : "—"} |`,
+      );
+    }
+    lines.push(
+      "",
+      `Monthly equivalents${isCurrencyCode(ladder.currency) ? ` in ${ladder.currency}` : ""}, so annually-billed and monthly-billed tiers compare ` +
+        `directly. Contact-sales tiers carry no number because none is published. Currency is what the ` +
+        `page served us and can depend on where the read originated.`,
+      "",
+    );
+  }
+
+  /*
+   * Cross-source patterns.  /*
+   * Cross-source patterns. Written so an agent summarising this page cannot
+   * quote the claim without the counter-reading: both are in the same block.
+   */
+  if (insights.length) {
+    lines.push("## Patterns across sources", "");
+    lines.push(
+      "Each pattern below combines observations from at least two independent sources. They are " +
+        "co-occurrences, NOT causes, and every one carries its alternative reading. Do not report a " +
+        "pattern without it.",
+      "",
+    );
+    for (const i of insights) {
+      lines.push(`### ${i.headline}`, "");
+      lines.push(`*Pattern strength: ${i.strength}.* ${i.soWhat}`, "");
+      for (const e of i.evidence) {
+        lines.push(`- ${e.label}: ${e.value}${e.source ? ` — ${e.source}` : ""}`);
+      }
+      lines.push("");
+      lines.push(`**Could also be:** ${i.alternative}`, "");
+      lines.push(`**Limitation:** ${i.limitation}`, "");
+    }
+  }
+
+  /*
+   * Hiring. The split is the signal  /*
+   * Hiring. The split is the signal; the headcount of open roles is not.
+   * An agent summarising this needs the caveat as much as the numbers.
+   */
+  if (hasWorkforce(work)) {
+    const total = work.functions.reduce((n, x) => n + x.count, 0) + work.unclassified;
+    lines.push("## Hiring", "");
+    lines.push(
+      `**${work.openRoles}** open roles on their own job board` +
+        `${work.focus ? `, concentrated in ${work.focus}` : ""}.`,
+      "",
+    );
+    if (work.functions.length) {
+      lines.push("| Function | Open roles |", "|---|---|");
+      for (const x of work.functions) lines.push(`| ${x.name} | ${x.count} |`);
+      if (work.unclassified) lines.push(`| unclassified | ${work.unclassified} |`);
+      lines.push("");
+    }
+    const newest = facts.get("hiring.newest_posting")?.value;
+    const momentum = facts.get("hiring.momentum_ratio")?.value;
+    if (newest) {
+      lines.push(
+        `Most recent posting: ${newest}.` +
+          (momentum ? ` The latest month is ${momentum}x the median of the months before it.` : ""),
+        "",
+      );
+    }
+    if (work.seniority.length) {
+      lines.push(
+        `Seniority named in the title: ${work.seniority.map((x) => `${x.count} ${x.name}`).join(", ")}.` +
+          `${work.remote ? ` ${work.remote} postings name a remote location.` : ""}`,
+        "",
+      );
+    }
+    lines.push(
+      `Functions are inferred from each posting's title and team, so they are a judgement rather than a ` +
+        `filing${total ? ` — ${work.unclassified} of ${total} could not be placed` : ""}. A posting ` +
+        `disappearing is NOT evidence of a layoff: boards drop and re-add roles constantly, and a removed ` +
+        `posting is also what a filled role looks like.`,
+      "",
+    );
+  }
+
+  /*
+   * Insolvency. Only ever about the registered entity, and a zero is a
+   * finding rather than a blank.
+   */
+  const insolvency = facts.get("legal.insolvency.notices")?.value;
+  if (insolvency !== undefined && insolvency !== null) {
+    const n = Number(insolvency);
+    lines.push("## Legal: insolvency register", "");
+    lines.push(
+      n > 0
+        ? `**${n}** insolvency notice(s) in The Gazette name this registered entity in the notice title.`
+        : `No insolvency notice in The Gazette names this registered entity.`,
+      "",
+      "Searched against the registered legal name. A notice counts only when it names the company itself — " +
+        "searching a bare brand returns notices about entirely different companies.",
+      "",
+    );
+  }
+
+  /*
+   * Security exposure.  /*
+   * Security exposure. Scoped to artefacts they own, and the two advisory
+   * feeds are reported separately because the same CVE appears in both.
+   */
+  if (hasSecurity(sec)) {
+    lines.push("## Security, publicly disclosed", "");
+    if (sec.count !== null && sec.subject) {
+      lines.push(
+        `**${sec.count}** public advisories are recorded against \`${sec.subject}\`, a package they publish` +
+          `${sec.bySeverity.length ? ` — ${sec.bySeverity.map((x) => `${x.count} ${x.severity}`).join(", ")}` : ""}.` +
+          `${sec.latest ? ` Most recent: ${sec.latest}.` : ""}`,
+        "",
+        "An advisory describes a version range and usually ships with its fix. This is a record of " +
+          "disclosure, not a claim that the package is unsafe today.",
+        "",
+      );
+    }
+    if (sec.disclosed !== null) {
+      lines.push(
+        `They have published **${sec.disclosed}** advisories themselves for \`${sec.disclosedSubject}\`` +
+          `${sec.disclosedLatest ? `, most recently ${sec.disclosedLatest}` : ""}. Counted separately: the ` +
+          `same CVEs appear in both feeds, so these must not be added together.`,
+        "",
+      );
+    }
+    if (sec.scorecard !== null) lines.push(`OpenSSF Scorecard: ${sec.scorecard}/10.`, "");
+    lines.push(
+      "Scope: only advisories filed against packages and repositories this company owns. Vulnerability " +
+        "feeds are never matched on a company name — that returns hundreds of unrelated products.",
+      "",
+    );
+  }
+
+  /*
+   * Financials, stated as filed. An agent reading this needs the same three
+   * states a person does: figures, an unresolved filer, or not a filer — and
+   * the last two must not look like missing data.
+   */
+  if (fin.figures.length) {
+    lines.push("## Financials, as filed", "");
+    if (fin.registrant && fin.cik) {
+      lines.push(
+        `Filed by **${fin.registrant}** (SEC CIK ${fin.cik}), identified because ` +
+          `${fin.filingsMatched ?? "its"} annual report(s) contain \`${domain}\` — not by name match.`,
+        "",
+      );
+    }
+    lines.push("| Figure | Amount | Year ended | Form | Filed | YoY |", "|---|---|---|---|---|---|");
+    for (const x of fin.figures.filter((y) => !y.stale)) {
+      lines.push(
+        `| ${x.label} | ${bigMoney(x.value, x.unit)} | ${x.periodEnd ?? "—"} | ${x.form ?? "—"} | ` +
+          `${x.filed ?? "—"} | ${x.yoyPct === null ? "—" : `${x.yoyPct >= 0 ? "+" : ""}${x.yoyPct}%`} |`,
+      );
+    }
+    /*
+     * Stale figures go BELOW the table with their own warning, so an agent
+     * summarising this cannot compute a margin across two different years.
+     */
+    const stale = fin.figures.filter((y) => y.stale);
+    if (stale.length) {
+      lines.push(
+        "",
+        "**Not comparable with the table above** — these are the company's last filed values for " +
+          "lines it no longer reports under the same tag:",
+        "",
+      );
+      for (const x of stale) {
+        lines.push(`- ${x.label}: ${bigMoney(x.value, x.unit)} (year ended ${x.periodEnd ?? "unknown"})`);
+      }
+      lines.push("");
+    }
+    lines.push("", "Exact values and source URLs are in the fact table below.", "");
+  } else if (fin.unresolvedCandidates) {
+    lines.push(
+      "## Financials, as filed",
+      "",
+      `Not resolved. Several filers mention \`${domain}\` and none is identifiable as its filer ` +
+        `(${fin.unresolvedCandidates}). No figures are attached, because a domain is often named by the ` +
+        `companies that merely use it.`,
+      "",
+    );
+  } else if (!fin.checked) {
+    lines.push(
+      "## Financials, as filed",
+      "",
+      source === "store"
+        ? `Unknown. The recorded history for \`${domain}\` was collected before this deployment started ` +
+          `checking filings, so it holds no answer either way. NOT a statement that the company is private.`
+        : `Unknown. The SEC filing index did not answer for \`${domain}\` on this read, so we cannot say ` +
+          `whether it files. This is a gap in our read, NOT a statement that the company is private.`,
+      "",
+    );
+  } else if (fin.cik) {
+    lines.push(
+      "## Financials, as filed",
+      "",
+      `\`${domain}\` files with the SEC as CIK ${fin.cik}` +
+        `${fin.registrant ? ` (${fin.registrant})` : ""}, but no figures came back on this read.`,
+      "",
+    );
+  } else {
+    lines.push(
+      "## Financials, as filed",
+      "",
+      `None. No US annual report names \`${domain}\`, which is the normal case for a private company. ` +
+        `Revenue is published only where a regulator-filed document supports it; there are no estimates ` +
+        `here, and funding is never reported as revenue.`,
+      "",
+    );
+  }
 
   if (fp.registered || fp.markets.length) {
     lines.push("## Where they are", "");

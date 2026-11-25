@@ -36,6 +36,19 @@ export type Company = {
   vscodeExt?: string;     // "GitHub.copilot"
   statusHost?: string;    // "www.githubstatus.com" — must be discovered, not guessed
   wikipedia?: string;     // "Notion_(productivity_software)"
+  /**
+   * SEC Central Index Key, 10 digits. Resolved by `corporate.sec` from the
+   * company's OWN filings, never from a name match — see lib/sources/financial.ts.
+   * Absent for every private company, which is why financial facts are absent too.
+   */
+  cik?: string;           // "0001477333"
+  /**
+   * Registered legal name WITH its company-type suffix, e.g. "Monzo Bank
+   * Limited". Only ever promoted from a corroborated registry match, because
+   * it is what the legal adapters query — and a legal source answering about
+   * the wrong entity is the most damaging error this product can make.
+   */
+  legalName?: string;
 };
 
 /** A single normalised observation. These are what we diff and what we sell. */

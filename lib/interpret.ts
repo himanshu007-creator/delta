@@ -394,3 +394,270 @@ export function footprintOf(f: FactMap): Footprint {
     basis,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Filed financials
+// ---------------------------------------------------------------------------
+
+export type FiledFigure = {
+  path: string;
+  label: string;
+  /** The figure exactly as filed. Never rounded for storage, only for display. */
+  value: number;
+  unit: string;
+  /** Year-over-year change, present only when two filed periods support it. */
+  yoyPct: number | null;
+  periodEnd: string | null;
+  form: string | null;
+  filed: string | null;
+  periods: number | null;
+  source: string | null;
+  /** Lower is better for this line (a net LOSS growing is not good news). */
+  invertTone?: boolean;
+  /**
+   * This figure's period is behind the company's latest reported period, so it
+   * must not be read alongside the current ones.
+   */
+  stale?: boolean;
+};
+
+export type Financials = {
+  /**
+   * Whether the SEC resolver actually RAN for this company.
+   *
+   * False means unknown, not "private". The page may only state that a
+   * company does not file once this is true — otherwise an aborted request
+   * reads as a finding, which is how Cloudflare came to be described as not a
+   * public filer.
+   */
+  checked: boolean;
+  /** The resolver ran and found no annual report naming this domain. */
+  notAFiler: boolean;
+  /** Null when the company is not a filer, which is the normal case. */
+  cik: string | null;
+  registrant: string | null;
+  /** Several filers mention the domain and none could be identified. */
+  unresolvedCandidates: string | null;
+  figures: FiledFigure[];
+  /** The most recent period any figure covers. The reference for staleness. */
+  latestPeriod: string | null;
+  /** At least one figure is from an earlier period than the latest. */
+  mixedPeriods: boolean;
+  /** The newest filing date across every figure — "last verified", honestly. */
+  lastFiled: string | null;
+  filingsMatched: number | null;
+};
+
+/**
+ * Financial facts, shaped for display.
+ *
+ * The only reason this is a view model rather than a table dump: a reader
+ * needs to know that every number here is a FILED number, and that the
+ * absence of numbers means "not a public filer" rather than "we could not
+ * find out". Those two are opposite claims and a bare empty table says the
+ * wrong one.
+ *
+ * There is deliberately no revenue estimate, no valuation and no funding
+ * total. Funding is not revenue, and an estimate is not a filing.
+ */
+export function financialsOf(f: FactMap): Financials {
+  /*
+   * Revenue is whichever TAG reports the later period.
+   *
+   * A filer may switch XBRL tags mid-life and the abandoned tag keeps
+   * answering with its last good year forever. NVIDIA's ASC 606 tag stops at
+   * FY2022 while `Revenues` runs to FY2026, so taking the first available tag
+   * froze revenue four years behind net income.
+   */
+  const revenuePath = (() => {
+    const candidates = ["financial.revenue", "financial.revenue_alt"].filter((pth) => num(f, pth) !== null);
+    if (candidates.length === 0) return null;
+    return candidates.sort((a, b) =>
+      (str(f, `${b}.period_end`) ?? "").localeCompare(str(f, `${a}.period_end`) ?? ""),
+    )[0];
+  })();
+
+  const LINES: { path: string; label: string; invertTone?: boolean }[] = [
+    ...(revenuePath ? [{ path: revenuePath, label: "Revenue" }] : []),
+    { path: "financial.net_income", label: "Net income" },
+    { path: "financial.cash", label: "Cash and equivalents" },
+    { path: "financial.assets", label: "Total assets" },
+    { path: "financial.equity", label: "Shareholders' equity" },
+  ];
+
+  const figures: FiledFigure[] = [];
+  for (const line of LINES) {
+    const value = num(f, line.path);
+    if (value === null) continue;
+    figures.push({
+      path: line.path,
+      label: line.label,
+      value,
+      unit: str(f, `${line.path}.unit`) ?? "USD",
+      yoyPct: num(f, `${line.path}.yoy_pct`),
+      periodEnd: str(f, `${line.path}.period_end`),
+      form: str(f, `${line.path}.form`),
+      filed: str(f, `${line.path}.filed`),
+      periods: num(f, `${line.path}.periods_available`),
+      source: src(f, line.path),
+      invertTone: line.invertTone,
+    });
+  }
+
+  const filedDates = figures.map((x) => x.filed).filter((d): d is string => !!d);
+
+  /*
+   * Period coherence.
+   *
+   * Figures from different years must never be read as one set. Side by side
+   * and unlabelled, a 2022 revenue next to a 2026 net income implies a margin
+   * that does not exist — a fabricated fact assembled from two true ones.
+   *
+   * So the latest period is the reference, anything behind it is marked, and
+   * the UI separates them. The figure is still shown, because an older filed
+   * number is real; what it must not do is pose as current.
+   */
+  const periods = figures.map((x) => x.periodEnd).filter((d): d is string => !!d);
+  const latestPeriod = periods.length ? periods.slice().sort().at(-1)! : null;
+  for (const x of figures) {
+    x.stale = !!latestPeriod && !!x.periodEnd && x.periodEnd < latestPeriod;
+  }
+
+  const filer = str(f, "corporate.sec.filer");
+
+  return {
+    checked: filer !== null,
+    notAFiler: filer === "false",
+    cik: str(f, "corporate.sec.cik"),
+    registrant: str(f, "corporate.sec.registrant"),
+    unresolvedCandidates: str(f, "corporate.sec.candidates"),
+    figures,
+    latestPeriod,
+    mixedPeriods: figures.some((x) => x.stale),
+    lastFiled: filedDates.length ? filedDates.sort().at(-1)! : null,
+    filingsMatched: num(f, "corporate.sec.filings_matched"),
+  };
+}
+
+/**
+ * Large money, at the scale a reader can hold in their head.
+ *
+ * Distinct from the `money` helper above, which converts MINOR units for
+ * pricing. A filing reports whole units, and a revenue line is nine digits —
+ * running it through the pricing formatter would divide it by a hundred.
+ *
+ * Exact to the dollar is what the fact table is for; a headline needs
+ * "$2.17B". Negatives are parenthesised the way a filing prints them, because
+ * a minus sign in front of a large number is easy to miss and the difference
+ * between a profit and a loss is the whole point of the line.
+ */
+export function bigMoney(value: number, unit = "USD"): string {
+  const sign = value < 0;
+  const n = Math.abs(value);
+  const [div, suffix] =
+    n >= 1e12 ? [1e12, "T"] : n >= 1e9 ? [1e9, "B"] : n >= 1e6 ? [1e6, "M"] : n >= 1e3 ? [1e3, "K"] : [1, ""];
+  const scaled = n / div;
+  const body = `${scaled.toFixed(scaled >= 100 || suffix === "" ? 0 : scaled >= 10 ? 1 : 2)}${suffix}`;
+  const prefix = unit === "USD" ? "$" : `${unit} `;
+  return sign ? `(${prefix}${body})` : `${prefix}${body}`;
+}
+
+// ---------------------------------------------------------------------------
+// Security exposure
+// ---------------------------------------------------------------------------
+
+export type SecurityPosture = {
+  /** What the advisories are about — a package they publish. */
+  subject: string | null;
+  count: number | null;
+  bySeverity: { severity: string; count: number }[];
+  worst: string | null;
+  maxCvss: number | null;
+  latest: string | null;
+  cves: string[];
+  /** Advisories the company published itself, for its own repository. */
+  disclosed: number | null;
+  disclosedSubject: string | null;
+  disclosedLatest: string | null;
+  /** OpenSSF Scorecard, already collected elsewhere in the catalog. */
+  scorecard: number | null;
+  dmarcPolicy: string | null;
+};
+
+/**
+ * Security posture, assembled so it cannot be read as a verdict.
+ *
+ * An advisory count is not a safety score, and the naive reading of it is
+ * backwards: a company that publishes advisories for its own code is running
+ * a disclosure process, which is what good looks like. So disclosures are
+ * kept separate from advisory counts and never summed — the same CVE appears
+ * in both feeds.
+ */
+export function securityOf(f: FactMap): SecurityPosture {
+  const bySeverity = (["critical", "high", "medium", "low"] as const)
+    .map((s) => ({ severity: s, count: num(f, `security.advisories.${s}`) ?? 0 }))
+    .filter((x) => x.count > 0);
+
+  return {
+    subject: str(f, "security.advisories.subject"),
+    count: num(f, "security.advisories.count"),
+    bySeverity,
+    worst: str(f, "security.advisories.worst_severity"),
+    maxCvss: num(f, "security.advisories.max_cvss"),
+    latest: str(f, "security.advisories.latest"),
+    cves: list(f, "security.advisories.cves"),
+    disclosed: num(f, "security.disclosures.count"),
+    disclosedSubject: str(f, "security.disclosures.subject"),
+    disclosedLatest: str(f, "security.disclosures.latest"),
+    scorecard: num(f, "security.scorecard.score"),
+    dmarcPolicy: str(f, "security.dmarc_policy"),
+  };
+}
+
+/** Anything worth drawing a section for. */
+export const hasSecurity = (s: SecurityPosture): boolean =>
+  s.count !== null || s.disclosed !== null || s.scorecard !== null;
+
+// ---------------------------------------------------------------------------
+// Workforce
+// ---------------------------------------------------------------------------
+
+export type Workforce = {
+  openRoles: number | null;
+  /** Classified functions, largest first. Excludes the unclassified bucket. */
+  functions: { name: string; count: number }[];
+  /** How many postings no rule could place. Shown, never hidden. */
+  unclassified: number;
+  seniority: { name: string; count: number }[];
+  remote: number | null;
+  focus: string | null;
+  locations: number | null;
+  source: string | null;
+};
+
+/**
+ * Hiring, shaped so the split is readable and its limits are visible.
+ *
+ * `unclassified` is deliberately part of the view model. A function breakdown
+ * that quietly drops what it could not place looks more authoritative than it
+ * is, and the reader has no way to tell a confident split from a lucky one.
+ */
+export function workforceOf(f: FactMap): Workforce {
+  const FUNCS = ["engineering", "product", "sales", "marketing", "operations", "finance", "leadership"] as const;
+  const SENS = ["leadership", "staff", "senior", "entry"] as const;
+
+  return {
+    openRoles: num(f, "hiring.open_roles"),
+    functions: FUNCS.map((name) => ({ name, count: num(f, `hiring.function.${name}`) ?? 0 }))
+      .filter((x) => x.count > 0)
+      .sort((a, b) => b.count - a.count),
+    unclassified: num(f, "hiring.function.other") ?? 0,
+    seniority: SENS.map((name) => ({ name, count: num(f, `hiring.seniority.${name}`) ?? 0 })).filter((x) => x.count > 0),
+    remote: num(f, "hiring.remote_roles"),
+    focus: str(f, "hiring.focus"),
+    locations: num(f, "hiring.locations.count"),
+    source: src(f, "hiring.open_roles"),
+  };
+}
+
+export const hasWorkforce = (w: Workforce): boolean => (w.openRoles ?? 0) > 0;

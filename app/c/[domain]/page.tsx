@@ -26,7 +26,7 @@ import { Suspense } from "react";
 import { factsFor } from "@/lib/cached-dossier";
 import { SEED, pairKey, seedFor } from "@/lib/seed";
 import { factLabel, publicDomain } from "@/lib/public-dossier";
-import { footprintOf, identityOf, interpret, type Signal } from "@/lib/interpret";
+import { bigMoney, financialsOf, footprintOf, hasSecurity, hasWorkforce, identityOf, interpret, securityOf, workforceOf, type Financials, type SecurityPosture, type Signal, type Workforce } from "@/lib/interpret";
 import { countryName } from "@/lib/worldmap";
 import { FootprintMap, hasFootprint } from "../../footprint";
 import { abs, SITE_NAME } from "@/lib/site";
@@ -34,6 +34,8 @@ import { JsonLd } from "../../jsonld";
 import { SectionHead, SiteFooter } from "../../ui";
 import { AskAbout } from "../../ask";
 import { SiteNav } from "../../nav";
+import { correlate, type Insight } from "@/lib/correlate";
+import { coverageOf, coverageSummary, currencySymbol, isCurrencyCode, pricingLadderOf, type Coverage, type PricingLadder } from "@/lib/profile";
 
 export async function generateMetadata(props: PageProps<"/c/[domain]">) {
   // Built from the DOMAIN ALONE, on purpose. Calling the dossier here would
@@ -152,6 +154,12 @@ async function Dossier({ domain }: { domain: string }) {
   const vendors = (facts.get("stack.vendors.list")?.value ?? "")
     .split(",").map((v) => v.trim()).filter(Boolean);
   const h1 = facts.get("positioning.h1")?.value ?? null;
+  const fin = financialsOf(facts);
+  const sec = securityOf(facts);
+  const work = workforceOf(facts);
+  const insights = correlate(facts);
+  const coverage = coverageOf(facts);
+  const ladder = pricingLadderOf(facts);
 
   return (
     <>
@@ -233,6 +241,126 @@ async function Dossier({ domain }: { domain: string }) {
         </div>
       </section>
 
+      {/* --- Coverage. What we know, what is partial, what is missing and
+              why — stated before any finding, so a reader can calibrate
+              everything below it. */}
+      <CoverageGrid coverage={coverage} />
+
+      {/* --- Cross-source patterns. The only place two sources are combined,
+              so every one carries its counter-reading. */}
+      {insights.length > 0 && (
+        <section className="mb-12">
+          <SectionHead
+            eyebrow="patterns · two or more sources"
+            title={`${insights.length} thing${insights.length === 1 ? "" : "s"} worth noticing`}
+          />
+          <div className="grid gap-4">
+            {insights.map((i) => <InsightCard key={i.id} insight={i} />)}
+          </div>
+          <p className="t-micro muted mt-3">
+            Each pattern rests on observations from at least two independent sources and is reported as a
+            co-occurrence, never a cause. The alternative reading is shown with every one.
+          </p>
+        </section>
+      )}
+
+      {/* --- Filed financials. Absent for a private company, and that
+              absence is stated rather than left as an empty space. */}
+      <FiledFinancials fin={fin} domain={domain} factSource={source} />
+
+      {/* --- Security exposure. Only ever about artefacts they publish. */}
+      {hasSecurity(sec) && <SecuritySection sec={sec} />}
+
+      {/* --- Hiring. What they are building, read off their own job board. */}
+      {hasWorkforce(work) && (
+        <HiringSection
+          work={work}
+          facts0={{
+            newestPosting: facts.get("hiring.newest_posting")?.value ?? null,
+            momentum: facts.get("hiring.momentum_ratio")?.value
+              ? Number(facts.get("hiring.momentum_ratio")?.value)
+              : null,
+          }}
+        />
+      )}
+
+      {/* --- Legal. Only ever about the registered entity we resolved. */}
+      {facts.get("legal.insolvency.notices") && (
+        <section className="mb-12">
+          <SectionHead eyebrow="legal · insolvency register" title="Insolvency register" />
+          <div className="card card-quiet">
+            <p className="t-body m-0">
+              {Number(facts.get("legal.insolvency.notices")?.value) > 0 ? (
+                <>
+                  <strong>{facts.get("legal.insolvency.notices")?.value}</strong> insolvency notice(s) in The
+                  Gazette name this registered entity in the notice title.
+                </>
+              ) : (
+                <>No insolvency notice in The Gazette names this registered entity.</>
+              )}
+            </p>
+            <p className="t-micro muted mt-2">
+              Searched against the registered legal name, and a notice counts only when it names the company
+              itself — a search for a bare brand returns notices about entirely different companies.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* --- Ecosystem. Catalogue size is the comparable number. */}
+      {facts.get("ecosystem.integrations.count") && (
+        <section className="mb-12">
+          <SectionHead
+            eyebrow="ecosystem"
+            title={`${facts.get("ecosystem.integrations.count")?.value} published integrations`}
+          />
+          <div className="card">
+            <ul className="flex flex-wrap gap-2">
+              {String(facts.get("ecosystem.integrations.sample")?.value ?? "")
+                .split(",")
+                .filter(Boolean)
+                .slice(0, 30)
+                .map((x) => <li key={x} className="chip">{x}</li>)}
+            </ul>
+            <p className="t-micro muted mt-3">
+              Counted from integration pages in their own sitemap. Category and tag pages are excluded, so
+              this is entries rather than navigation — the number a competitor can be compared against.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* --- Competitors, named by the company itself. */}
+      {facts.get("market.competitors.named") && (
+        <section className="mb-12">
+          <SectionHead
+            eyebrow="competitors · named by them"
+            title={`They compare themselves against ${facts.get("market.competitors.named_count")?.value} companies`}
+          />
+          <div className="card">
+            <ul className="flex flex-wrap gap-2">
+              {String(facts.get("market.competitors.named")?.value ?? "")
+                .split(",")
+                .filter(Boolean)
+                .map((name) => (
+                  <li key={name} className="chip">{name}</li>
+                ))}
+            </ul>
+            <p className="t-small muted mt-3">
+              Taken from comparison pages in their own sitemap, so this is the competitor set they chose to
+              name — not our opinion of who competes with them.
+            </p>
+            <p className="t-micro muted mt-2">
+              Shown as names, not links: a URL slug is not a hostname, and guessing one would point at the
+              wrong company while looking authoritative.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* --- The published ladder, normalised for comparison. */}
+      {ladder && <PricingLadderSection ladder={ladder} />}
+
       {/* --- Where next. The three things someone actually does from here. */}
       <WhereNext domain={domain} />
 
@@ -301,6 +429,478 @@ async function Dossier({ domain }: { domain: string }) {
  * the company's own site. Leaving a reader to find those via the back button
  * is what made every company page a dead end.
  */
+/**
+ * Filed financials.
+ *
+ * Three states, and the difference between them is the honest part:
+ *
+ *  - a resolved filer: real figures, each with its reporting period and the
+ *    filing it came from.
+ *  - several filers mention the domain and none is identifiable: shown as an
+ *    unresolved lead, with no figures attached to it. Publishing the
+ *    likeliest match is how a company gets another company's revenue.
+ *  - no filings at all: almost every private company. Said plainly, because
+ *    "no data" and "not a public filer" are different claims and a blank
+ *    space makes the wrong one.
+ */
+function FiledFinancials({
+  fin,
+  domain,
+  factSource,
+}: {
+  fin: Financials;
+  domain: string;
+  /** Where these facts came from, so "unknown" can name the real reason. */
+  factSource: "store" | "live";
+}) {
+  /*
+   * Not checked. Said as ignorance, not as a finding — the distinction the
+   * Cloudflare bug was made of.
+   */
+  if (!fin.checked) {
+    return (
+      <section className="mb-12">
+        <SectionHead eyebrow="financials" title="Not checked yet" />
+        <div className="card card-quiet">
+          {factSource === "store" ? (
+            <>
+              <p className="t-body m-0">
+                The recorded history for <span className="mono">{domain}</span> was collected before this
+                deployment started checking filings, so it holds no answer either way.
+              </p>
+              <p className="t-small muted mt-2">
+                It fills in on the next scheduled crawl. Naming the real reason matters more than looking
+                complete — this is not a statement that the company is private.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="t-body m-0">
+                We did not get a reply from the SEC filing index for <span className="mono">{domain}</span> on
+                this read, so we cannot say whether it files.
+              </p>
+              <p className="t-small muted mt-2">
+                This is our gap, not a statement about the company. Reload in a moment and it will usually
+                resolve.
+              </p>
+            </>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  // Checked, and genuinely not a filer. Now the claim is earned.
+  if (fin.notAFiler) {
+    return (
+      <section className="mb-12">
+        <SectionHead eyebrow="financials" title="No filed financials" />
+        <div className="card card-quiet">
+          <p className="t-body m-0">
+            No US annual report names <span className="mono">{domain}</span>, so there are no reported figures
+            to show.
+          </p>
+          <p className="t-small muted mt-2">
+            This is the normal case for a private company. We publish revenue only where a regulator-filed
+            document supports it — no estimates, and never a funding round reported as revenue.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  // A filer we identified, whose figures did not arrive on this read.
+  if (fin.figures.length === 0 && fin.cik) {
+    return (
+      <section className="mb-12">
+        <SectionHead eyebrow="financials" title="Filings found, figures still loading" />
+        <div className="card card-quiet">
+          <p className="t-body m-0">
+            <span className="mono">{domain}</span> files with the SEC as{" "}
+            <span className="mono">CIK {fin.cik}</span>
+            {fin.registrant ? ` (${fin.registrant})` : ""}, but the figures did not come back on this read.
+          </p>
+          <p className="t-small muted mt-2">
+            We would rather say that than show a blank, because an empty table looks like a company with no
+            revenue.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  if (fin.figures.length === 0) {
+    return (
+      <section className="mb-12">
+        <SectionHead eyebrow="financials" title="Filer not identified" />
+        <div className="card card-quiet">
+          <p className="t-body m-0">
+            Several companies name <span className="mono">{domain}</span> in their own annual reports, and none
+            of them could be identified as its filer.
+          </p>
+          <p className="t-small muted mt-2">
+            Holding: <span className="mono">{fin.unresolvedCandidates}</span>. We show no figures rather than
+            attach the likeliest one, because a domain is often mentioned by the companies that merely use it.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="mb-12">
+      <SectionHead
+        eyebrow="financials · as filed"
+        title={fin.registrant ? `${fin.registrant} reports` : "Reported financials"}
+      />
+      <div className="card">
+        <div className="stats">
+          {fin.figures.filter((x) => !x.stale).map((x) => (
+            <div key={x.path} className="entry">
+              <p className="t-micro muted mb-1">{x.label}</p>
+              <p className="t-h2 m-0 mono">{bigMoney(x.value, x.unit)}</p>
+              {x.yoyPct !== null && (
+                <p
+                  className="t-small m-0 mt-1"
+                  /* A net LOSS shrinking is good news, so tone follows the
+                     figure's sign as well as the direction of change. */
+                  data-tone={(x.value < 0 ? -x.yoyPct : x.yoyPct) >= 0 ? "good" : "warn"}
+                >
+                  {x.yoyPct >= 0 ? "+" : ""}
+                  {x.yoyPct}% year over year
+                </p>
+              )}
+              <p className="t-micro muted mt-1">
+                {x.periodEnd ? `year ended ${x.periodEnd}` : "annual"}
+                {x.form ? ` · ${x.form}` : ""}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Figures from an earlier period are shown, but SEPARATELY and
+            dated — never in the grid above, where a reader would compute a
+            margin across two different years. */}
+        {fin.mixedPeriods && (
+          <div className="mt-6">
+            <p className="t-micro muted mb-2">
+              Last reported in an earlier period — not comparable with the figures above
+            </p>
+            <ul className="flex flex-wrap gap-2">
+              {fin.figures.filter((x) => x.stale).map((x) => (
+                <li key={x.path} className="chip">
+                  {x.label}: {bigMoney(x.value, x.unit)}{" "}
+                  <span className="muted">(year ended {x.periodEnd})</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <p className="t-small muted mt-4">
+          Every figure is taken from the company&rsquo;s own filing as most recently reported, including
+          restatements of earlier years.
+          {fin.latestPeriod ? ` Latest reported period ends ${fin.latestPeriod}.` : ""}
+          {fin.lastFiled ? ` Last filing read: ${fin.lastFiled}.` : ""}
+          {fin.figures[0]?.periods ? ` ${fin.figures[0].periods} annual periods on file.` : ""}
+        </p>
+        <p className="t-micro muted mt-2">
+          {fin.cik ? (
+            <>
+              Identified as SEC filer{" "}
+              <a
+                href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${fin.cik}&type=10-K`}
+                rel="nofollow noopener"
+                target="_blank"
+                className="mono"
+              >
+                CIK {fin.cik}
+              </a>{" "}
+              because {fin.filingsMatched ?? "its"} annual report
+              {fin.filingsMatched === 1 ? "" : "s"} contain {domain} — not by matching its name.
+            </>
+          ) : null}
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Security exposure.
+ *
+ * Framed carefully, because the naive reading of an advisory count is
+ * backwards. A project that publishes advisories against its own code is
+ * running a disclosure process; one that publishes none may simply have no
+ * process. So the count is presented as disclosure activity about a named
+ * package, never as a safety grade, and the two feeds are never summed —
+ * the same CVE appears in both.
+ */
+function SecuritySection({ sec }: { sec: SecurityPosture }) {
+  return (
+    <section className="mb-12">
+      <SectionHead eyebrow="security · public advisories" title="What has been disclosed" />
+      <div className="card">
+        {sec.count !== null && sec.subject && (
+          <>
+            <p className="t-body m-0">
+              <strong>{sec.count}</strong> public advisor{sec.count === 1 ? "y" : "ies"} recorded against{" "}
+              <span className="mono">{sec.subject}</span>, a package they publish.
+            </p>
+            {sec.bySeverity.length > 0 && (
+              <ul className="flex flex-wrap gap-2 mt-3">
+                {sec.bySeverity.map((x) => (
+                  <li
+                    key={x.severity}
+                    className="chip"
+                    data-tone={x.severity === "critical" || x.severity === "high" ? "warn" : undefined}
+                  >
+                    {x.count} {x.severity}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="t-small muted mt-3">
+              {sec.latest ? `Most recent advisory ${sec.latest}. ` : ""}
+              {sec.maxCvss !== null ? `Highest CVSS ${sec.maxCvss}. ` : ""}
+              An advisory describes a version range and almost always ships with its fix, so this is a
+              record of disclosure — not a statement that the package is unsafe today.
+            </p>
+          </>
+        )}
+
+        {sec.disclosed !== null && (
+          <p className="t-small muted mt-4">
+            They have published <strong>{sec.disclosed}</strong> advisor{sec.disclosed === 1 ? "y" : "ies"}{" "}
+            themselves for <span className="mono">{sec.disclosedSubject}</span>
+            {sec.disclosedLatest ? `, most recently ${sec.disclosedLatest}` : ""}. Counted separately from the
+            figure above, which covers the same CVEs from the other side.
+          </p>
+        )}
+
+        {(sec.scorecard !== null || sec.dmarcPolicy) && (
+          <p className="t-small muted mt-2">
+            {sec.scorecard !== null ? `OpenSSF Scorecard ${sec.scorecard}/10. ` : ""}
+            {sec.dmarcPolicy ? `DMARC policy: ${sec.dmarcPolicy}.` : ""}
+          </p>
+        )}
+
+        <p className="t-micro muted mt-3">
+          Only advisories filed against packages and repositories this company owns. We never match a
+          vulnerability feed on a company&rsquo;s name — a search for one well-known vendor&rsquo;s name
+          returns hundreds of unrelated products.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Hiring.
+ *
+ * The open-role count alone is close to useless — nobody can act on "173
+ * roles". The split is the signal: 68 sales against 67 engineering says a
+ * company is in a go-to-market push, and that is a sentence a competitor can
+ * plan around.
+ *
+ * The unclassified count is shown rather than dropped. A breakdown that hides
+ * what it could not place reads as more certain than it is.
+ */
+function HiringSection({
+  work,
+  facts0,
+}: {
+  work: Workforce;
+  /** Velocity, which lives outside the workforce view model. */
+  facts0: { newestPosting: string | null; momentum: number | null };
+}) {
+  const total = work.functions.reduce((n, x) => n + x.count, 0) + work.unclassified;
+  return (
+    <section className="mb-12">
+      <SectionHead
+        eyebrow="hiring · their own job board"
+        title={
+          work.focus
+            ? `${work.openRoles} open roles, concentrated in ${work.focus}`
+            : `${work.openRoles} open roles`
+        }
+      />
+      <div className="card">
+        {work.functions.length > 0 && (
+          <ul className="flex flex-wrap gap-2">
+            {work.functions.map((x) => (
+              <li key={x.name} className="chip">
+                {x.count} {x.name}
+              </li>
+            ))}
+            {work.unclassified > 0 && (
+              <li className="chip muted">{work.unclassified} unclassified</li>
+            )}
+          </ul>
+        )}
+
+        {facts0.newestPosting && (
+          <p className="t-small muted mt-4">
+            Most recent posting {facts0.newestPosting}
+            {facts0.momentum !== null
+              ? ` — the latest month is ${facts0.momentum}× the median of the months before it`
+              : ""}
+            .
+          </p>
+        )}
+
+        {work.seniority.length > 0 && (
+          <p className="t-small muted mt-4">
+            Seniority named in the title:{" "}
+            {work.seniority.map((x) => `${x.count} ${x.name}`).join(", ")}.
+            {work.remote ? ` ${work.remote} postings name a remote location.` : ""}
+            {work.locations ? ` Across ${work.locations} locations.` : ""}
+          </p>
+        )}
+
+        <p className="t-micro muted mt-3">
+          Functions are inferred from each posting&rsquo;s title and team, so they are a judgement rather
+          than a filing{total ? ` — ${work.unclassified} of ${total} could not be placed` : ""}. A posting
+          disappearing is not evidence of a layoff: boards drop and re-add roles constantly, and a removed
+          posting is also what a filled role looks like.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * One correlated pattern.
+ *
+ * The alternative explanation is rendered at the same weight as the claim,
+ * not tucked into a tooltip. An inference whose counter-reading is hidden is
+ * being presented as a finding, and this is the one part of the product that
+ * combines sources rather than reporting them.
+ */
+function InsightCard({ insight }: { insight: Insight }) {
+  return (
+    <div className="card" data-tone={insight.tone === "neutral" ? undefined : insight.tone}>
+      <div className="flex items-baseline gap-2 flex-wrap">
+        <p className="eyebrow m-0">{insight.strength}</p>
+        <span className="t-micro muted mono">{insight.evidence.length} sources</span>
+      </div>
+      <h3 className="t-h3 mt-1 mb-2">{insight.headline}</h3>
+      <p className="t-body m-0">{insight.soWhat}</p>
+
+      <ul className="mt-4 grid gap-1.5">
+        {insight.evidence.map((e) => (
+          <li key={e.label} className="t-small flex gap-2 flex-wrap">
+            <span className="muted">{e.label}:</span>
+            <span className="mono">{e.value}</span>
+            {e.source && (
+              <a href={e.source} rel="nofollow noopener" target="_blank" className="t-micro muted">
+                source
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      <p className="t-small muted mt-4">
+        <strong>Could also be:</strong> {insight.alternative}
+      </p>
+      <p className="t-micro muted mt-1">{insight.limitation}</p>
+    </div>
+  );
+}
+
+/**
+ * Coverage.
+ *
+ * Rendered BEFORE any finding, because it is what makes the findings
+ * readable. A page that silently omits the sections it has no data for looks
+ * identical whether the company has nothing to report or we failed to read
+ * it, and the reader has no way to tell which.
+ */
+function CoverageGrid({ coverage }: { coverage: Coverage[] }) {
+  const sum = coverageSummary(coverage);
+  return (
+    <section className="mb-12">
+      <SectionHead
+        eyebrow="coverage"
+        title={`${sum.available} of ${sum.total} areas fully readable`}
+      />
+      <div className="stats">
+        {coverage.map((c) => (
+          <div key={c.key} className="entry">
+            <p className="t-micro muted mb-1">{c.label}</p>
+            <p
+              className="t-h3 m-0"
+              data-tone={c.status === "available" ? "good" : c.status === "partial" ? undefined : "warn"}
+            >
+              {c.status === "available" ? "Available" : c.status === "partial" ? "Partial" : "Not available"}
+            </p>
+            <p className="t-micro muted mt-1">{c.detail}</p>
+            {c.asOf && <p className="t-micro muted mono mt-1">as of {c.asOf}</p>}
+          </div>
+        ))}
+      </div>
+      <p className="t-micro muted mt-3">
+        &ldquo;Not available&rdquo; means the public record does not carry it, not that the company lacks
+        it. Each cell says which.
+      </p>
+    </section>
+  );
+}
+
+/**
+ * The published ladder, normalised.
+ *
+ * Every price is a monthly equivalent, so a tier billed annually and one
+ * billed monthly can sit in the same column — comparing them raw is a real
+ * bug the extractor already solves upstream. Contact-sales tiers show no
+ * number, because inventing one is the most tempting fabrication in
+ * competitive pricing work.
+ */
+function PricingLadderSection({ ladder }: { ladder: PricingLadder }) {
+  const money = (minor: number) => {
+    const major = minor / 100;
+    return `${currencySymbol(ladder.currency)}${major % 1 === 0 ? major.toFixed(0) : major.toFixed(2)}`;
+  };
+  return (
+    <section className="mb-12">
+      <SectionHead eyebrow="pricing · normalised" title={`${ladder.tiers.length} published tiers`} />
+      <div className="card">
+        <table className="fact-table">
+          <thead>
+            <tr>
+              <th scope="col">Tier</th>
+              <th scope="col">Monthly equivalent</th>
+              <th scope="col">Basis</th>
+              <th scope="col">Annual saving</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ladder.tiers.map((t) => (
+              <tr key={t.slug}>
+                <th scope="row">{t.name}</th>
+                <td className="mono">{t.monthlyMinor !== null ? money(t.monthlyMinor) : "—"}</td>
+                <td>{t.perSeat ? "per seat" : t.monthlyMinor !== null ? "flat" : "contact sales"}</td>
+                <td className="mono">{t.annualDiscountPct !== null ? `${t.annualDiscountPct}%` : "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="t-small muted mt-3">
+          Prices are monthly equivalents{isCurrencyCode(ladder.currency) ? ` in ${ladder.currency}` : ""}, so
+          annually-billed and monthly-billed tiers compare directly.
+          {ladder.hasCustom ? " Contact-sales tiers carry no number because none is published." : ""}
+        </p>
+        <p className="t-micro muted mt-2">
+          Currency is what the page served us and can depend on where the read originated — it is not a claim
+          about their home currency.
+          {ladder.basis ? ` Read from ${ladder.basis.replace("-", " ")}.` : ""}
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function WhereNext({ domain }: { domain: string }) {
   const seed = seedFor(domain);
   if (!seed) {

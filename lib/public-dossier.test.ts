@@ -8,7 +8,7 @@
 
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { factLabel, isPublicFact, publicDomain, PUBLIC_KINDS } from "./public-dossier";
+import { factLabel, isPublicFact, publicDomain, PHASE2_KINDS, PUBLIC_KINDS } from "./public-dossier";
 import { ADAPTERS } from "./sources/registry";
 
 // --- must be REFUSED -------------------------------------------------------
@@ -81,8 +81,39 @@ import { ADAPTERS } from "./sources/registry";
   for (const k of PUBLIC_KINDS) {
     assert.ok(kinds.has(k), `PUBLIC_KINDS names "${k}" but no such adapter exists`);
   }
-  // Public page budget: a stranger will not wait for 30 adapters.
-  assert.ok(PUBLIC_KINDS.length <= 12, `the public set must stay small, got ${PUBLIC_KINDS.length}`);
+  /*
+   * Public page budget: a stranger will not wait for 30 adapters.
+   *
+   * Raised from 12 to 14 when phase one took on the three GATE adapters —
+   * homepage discovery, careers discovery and the SEC resolver. They are not
+   * breadth; each one unlocks a whole phase-two module that was silent
+   * without it, and measured builds stayed at 4-5s against a 12s deadline.
+   *
+   * The cap is the point. Phase one is for gates and the fast facts a stranger
+   * sees first; anything that merely adds a number belongs in phase two, where
+   * it costs nothing for the companies it does not apply to.
+   */
+  assert.ok(PUBLIC_KINDS.length <= 14, `the public set must stay small, got ${PUBLIC_KINDS.length}`);
+
+  /*
+   * Every phase-two adapter must be handle-gated. One that applies to any
+   * domain would run for all of them and turn a bounded second phase into a
+   * second full crawl.
+   */
+  for (const k of PHASE2_KINDS) {
+    const a = ADAPTERS.find((x) => x.kind === k);
+    assert.ok(a, `PHASE2_KINDS names "${k}" but no such adapter exists`);
+    assert.equal(
+      a!.url({ domain: "example.com" }),
+      null,
+      `${k} is in phase two but applies to a bare domain — it would run for every company`,
+    );
+  }
+
+  // A kind cannot be in both phases, or it runs twice per dossier.
+  for (const k of PHASE2_KINDS) {
+    assert.ok(!(PUBLIC_KINDS as readonly string[]).includes(k), `${k} is in both phases`);
+  }
   // The free tier gives away the PRESENT, so nothing history-shaped belongs
   // here beyond domain age — history is the paid product.
   assert.ok(

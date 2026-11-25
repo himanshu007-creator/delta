@@ -23,6 +23,8 @@
  */
 
 import { asArr, asObj, asObjArr, decodeEntities, num, quote, type Adapter, type Company, type Fact } from "./types";
+import { competitorFacts } from "./competitors";
+import { ecosystemFacts } from "./ecosystem";
 
 // ---------------------------------------------------------------------------
 // handle discovery
@@ -89,7 +91,60 @@ const tldCountry = (domain: string): string | null => {
   return CCTLD_COUNTRY[tld] ?? null;
 };
 
+/**
+ * Scan a page for the handles that unlock the rest of the catalog.
+ *
+ * Shared by the homepage and the careers page because they carry different
+ * subsets: a homepage almost never links the job board, which is why ATS
+ * tokens went undiscovered and the whole hiring module stayed silent for every
+ * company whose careers page lives one click away.
+ */
+export function scanHandles(raw: string, url: string, domain: string): Fact[] {
+  const f: Fact[] = [];
+  const own = domain.replace(/^www\./, "");
+
+  for (const [name, re, why] of HANDLE_PATTERNS) {
+    const hits = new Set<string>();
+    for (const m of raw.matchAll(re)) {
+      const v = (m[1] ?? "").trim().replace(/\/$/, "");
+      if (!v || v.length > 60 || JUNK_HANDLE.test(v)) continue;
+      if (name.endsWith("_host") && !v.includes(own.split(".")[0])) continue;
+      hits.add(v);
+    }
+    if (hits.size) {
+      const list = [...hits].slice(0, 3);
+      f.push({
+        path: `discovered.${name}`, value: list.join(","), sourceUrl: url,
+        confidence: list.length === 1 ? 0.9 : 0.6,
+        quote: quote(why, 80),
+      });
+    }
+  }
+  return f;
+}
+
 export const UNIVERSAL_ADAPTERS: readonly Adapter[] = [
+  {
+    /*
+     * The careers page, read ONLY for handles.
+     *
+     * A homepage links the product; the job board is linked from /careers.
+     * Verified against three companies: linear.app -> jobs.ashbyhq.com/linear,
+     * notion.so -> jobs.ashbyhq.com/notion, vercel.com ->
+     * job-boards.greenhouse.io/vercel. Reading the token off their own page is
+     * evidence; guessing it from the company name is how one company's hiring
+     * gets attributed to another.
+     */
+    kind: "discover.careers",
+    module: "0. Discovery",
+    label: "Careers page handle discovery",
+    cadence: "weekly", tier: "A", format: "text",
+    url: (c) => `https://${c.domain}/careers`,
+    rate: { minIntervalMs: 2000 },
+    maxBytes: 6_000_000,
+    timeoutMs: 10_000,
+    extract: (_b, { raw, url, company }) => scanHandles(raw, url, company.domain),
+  },
   {
     kind: "discover",
     module: "0. Discovery",
@@ -142,7 +197,7 @@ export const UNIVERSAL_ADAPTERS: readonly Adapter[] = [
     url: (c) => `https://${c.domain}/sitemap.xml`,
     rate: { minIntervalMs: 2000 },
     maxBytes: 20_000_000,
-    extract: (_b, { raw, url }) => {
+    extract: (_b, { raw, url, company }) => {
       const locs = [...raw.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map((m) => decodeEntities(m[1]));
       if (!locs.length) return [];
 
@@ -150,6 +205,11 @@ export const UNIVERSAL_ADAPTERS: readonly Adapter[] = [
       // a handful of URLs as if that were the whole site.
       const isIndex = /<sitemapindex/i.test(raw);
       const f: Fact[] = [
+        // Competitors the company names in its own comparison URLs. The
+        // sitemap is already in hand, so this costs nothing.
+        ...competitorFacts(locs, company.domain, url),
+        // Integration catalogue, from the same sitemap. Also free.
+        ...ecosystemFacts(locs, company.domain, url),
         { path: "site.sitemap.urls", value: locs.length, sourceUrl: url, confidence: 1 },
         { path: "site.sitemap.is_index", value: isIndex, sourceUrl: url, confidence: 1 },
       ];
