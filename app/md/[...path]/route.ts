@@ -20,7 +20,7 @@
  */
 
 import { factsFor } from "@/lib/cached-dossier";
-import { footprintOf, identityOf, interpret, bigMoney, financialsOf, securityOf, hasSecurity } from "@/lib/interpret";
+import { footprintOf, identityOf, interpret, bigMoney, financialsOf, securityOf, hasSecurity, workforceOf, hasWorkforce } from "@/lib/interpret";
 import { publicDomain } from "@/lib/public-dossier";
 import { SEED, comparablePairs, parsePair, seedFor } from "@/lib/seed";
 import { isPageworthyVendor, prettyVendor, stackIndex, vendorRow } from "@/lib/stack-index";
@@ -91,6 +91,7 @@ async function company(raw: string, site: Ctx) {
   const signals = interpret(facts);
   const fin = financialsOf(facts);
   const sec = securityOf(facts);
+  const work = workforceOf(facts);
 
   const lines: string[] = [`# ${domain}`, ""];
 
@@ -111,6 +112,60 @@ async function company(raw: string, site: Ctx) {
   if (h1) lines.push(`> ${h1}`, "");
 
   /*
+   * Hiring. The split is the signal; the headcount of open roles is not.
+   * An agent summarising this needs the caveat as much as the numbers.
+   */
+  if (hasWorkforce(work)) {
+    const total = work.functions.reduce((n, x) => n + x.count, 0) + work.unclassified;
+    lines.push("## Hiring", "");
+    lines.push(
+      `**${work.openRoles}** open roles on their own job board` +
+        `${work.focus ? `, concentrated in ${work.focus}` : ""}.`,
+      "",
+    );
+    if (work.functions.length) {
+      lines.push("| Function | Open roles |", "|---|---|");
+      for (const x of work.functions) lines.push(`| ${x.name} | ${x.count} |`);
+      if (work.unclassified) lines.push(`| unclassified | ${work.unclassified} |`);
+      lines.push("");
+    }
+    if (work.seniority.length) {
+      lines.push(
+        `Seniority named in the title: ${work.seniority.map((x) => `${x.count} ${x.name}`).join(", ")}.` +
+          `${work.remote ? ` ${work.remote} postings name a remote location.` : ""}`,
+        "",
+      );
+    }
+    lines.push(
+      `Functions are inferred from each posting's title and team, so they are a judgement rather than a ` +
+        `filing${total ? ` — ${work.unclassified} of ${total} could not be placed` : ""}. A posting ` +
+        `disappearing is NOT evidence of a layoff: boards drop and re-add roles constantly, and a removed ` +
+        `posting is also what a filled role looks like.`,
+      "",
+    );
+  }
+
+  /*
+   * Insolvency. Only ever about the registered entity, and a zero is a
+   * finding rather than a blank.
+   */
+  const insolvency = facts.get("legal.insolvency.notices")?.value;
+  if (insolvency !== undefined && insolvency !== null) {
+    const n = Number(insolvency);
+    lines.push("## Legal: insolvency register", "");
+    lines.push(
+      n > 0
+        ? `**${n}** insolvency notice(s) in The Gazette name this registered entity in the notice title.`
+        : `No insolvency notice in The Gazette names this registered entity.`,
+      "",
+      "Searched against the registered legal name. A notice counts only when it names the company itself — " +
+        "searching a bare brand returns notices about entirely different companies.",
+      "",
+    );
+  }
+
+  /*
+   * Security exposure.  /*
    * Security exposure. Scoped to artefacts they own, and the two advisory
    * feeds are reported separately because the same CVE appears in both.
    */
