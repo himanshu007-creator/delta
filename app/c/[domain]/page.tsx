@@ -26,7 +26,7 @@ import { Suspense } from "react";
 import { factsFor } from "@/lib/cached-dossier";
 import { SEED, pairKey, seedFor } from "@/lib/seed";
 import { factLabel, publicDomain } from "@/lib/public-dossier";
-import { bigMoney, financialsOf, footprintOf, hasSecurity, identityOf, interpret, securityOf, type Financials, type SecurityPosture, type Signal } from "@/lib/interpret";
+import { bigMoney, financialsOf, footprintOf, hasSecurity, hasWorkforce, identityOf, interpret, securityOf, workforceOf, type Financials, type SecurityPosture, type Signal, type Workforce } from "@/lib/interpret";
 import { countryName } from "@/lib/worldmap";
 import { FootprintMap, hasFootprint } from "../../footprint";
 import { abs, SITE_NAME } from "@/lib/site";
@@ -154,6 +154,7 @@ async function Dossier({ domain }: { domain: string }) {
   const h1 = facts.get("positioning.h1")?.value ?? null;
   const fin = financialsOf(facts);
   const sec = securityOf(facts);
+  const work = workforceOf(facts);
 
   return (
     <>
@@ -241,6 +242,9 @@ async function Dossier({ domain }: { domain: string }) {
 
       {/* --- Security exposure. Only ever about artefacts they publish. */}
       {hasSecurity(sec) && <SecuritySection sec={sec} />}
+
+      {/* --- Hiring. What they are building, read off their own job board. */}
+      {hasWorkforce(work) && <HiringSection work={work} />}
 
       {/* --- Where next. The three things someone actually does from here. */}
       <WhereNext domain={domain} />
@@ -570,6 +574,63 @@ function SecuritySection({ sec }: { sec: SecurityPosture }) {
           Only advisories filed against packages and repositories this company owns. We never match a
           vulnerability feed on a company&rsquo;s name — a search for one well-known vendor&rsquo;s name
           returns hundreds of unrelated products.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Hiring.
+ *
+ * The open-role count alone is close to useless — nobody can act on "173
+ * roles". The split is the signal: 68 sales against 67 engineering says a
+ * company is in a go-to-market push, and that is a sentence a competitor can
+ * plan around.
+ *
+ * The unclassified count is shown rather than dropped. A breakdown that hides
+ * what it could not place reads as more certain than it is.
+ */
+function HiringSection({ work }: { work: Workforce }) {
+  const total = work.functions.reduce((n, x) => n + x.count, 0) + work.unclassified;
+  return (
+    <section className="mb-12">
+      <SectionHead
+        eyebrow="hiring · their own job board"
+        title={
+          work.focus
+            ? `${work.openRoles} open roles, concentrated in ${work.focus}`
+            : `${work.openRoles} open roles`
+        }
+      />
+      <div className="card">
+        {work.functions.length > 0 && (
+          <ul className="flex flex-wrap gap-2">
+            {work.functions.map((x) => (
+              <li key={x.name} className="chip">
+                {x.count} {x.name}
+              </li>
+            ))}
+            {work.unclassified > 0 && (
+              <li className="chip muted">{work.unclassified} unclassified</li>
+            )}
+          </ul>
+        )}
+
+        {work.seniority.length > 0 && (
+          <p className="t-small muted mt-4">
+            Seniority named in the title:{" "}
+            {work.seniority.map((x) => `${x.count} ${x.name}`).join(", ")}.
+            {work.remote ? ` ${work.remote} postings name a remote location.` : ""}
+            {work.locations ? ` Across ${work.locations} locations.` : ""}
+          </p>
+        )}
+
+        <p className="t-micro muted mt-3">
+          Functions are inferred from each posting&rsquo;s title and team, so they are a judgement rather
+          than a filing{total ? ` — ${work.unclassified} of ${total} could not be placed` : ""}. A posting
+          disappearing is not evidence of a layoff: boards drop and re-add roles constantly, and a removed
+          posting is also what a filled role looks like.
         </p>
       </div>
     </section>

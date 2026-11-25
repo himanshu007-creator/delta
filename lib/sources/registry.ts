@@ -19,6 +19,7 @@ import { IDENTITY_ADAPTERS } from "./identity";
 import { UNIVERSAL_ADAPTERS } from "./universal";
 import { SEC_ADAPTERS } from "./financial";
 import { SECURITY_ADAPTERS } from "./security";
+import { workforceFacts } from "./workforce";
 
 // --- shared extractors ------------------------------------------------------
 
@@ -87,6 +88,10 @@ function jobFacts(body: unknown, provider: string, url: string): Fact[] {
 
   return [
     { path: "hiring.open_roles", value: rows.length, sourceUrl: url, confidence: 1 },
+    // Function, seniority and remote split, from the rows already in hand —
+    // no extra request. "48 open roles" is not actionable; "31 engineering,
+    // 9 sales" is.
+    ...workforceFacts(rows, url),
     { path: "hiring.locations.count", value: byLoc.length, sourceUrl: url, confidence: 1 },
     ...byLoc.slice(0, 40).map(([loc, n]): Fact => ({ path: `geo.hiring.${loc.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 48)}`, value: n, sourceUrl: url, confidence: 0.9, quote: quote(loc, 60) })),
     ...byTeam.slice(0, 25).map(([team, n]): Fact => ({ path: `hiring.team.${team.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 48)}`, value: n, sourceUrl: url, confidence: 0.9, quote: quote(team, 60) })),

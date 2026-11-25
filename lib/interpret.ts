@@ -617,3 +617,47 @@ export function securityOf(f: FactMap): SecurityPosture {
 /** Anything worth drawing a section for. */
 export const hasSecurity = (s: SecurityPosture): boolean =>
   s.count !== null || s.disclosed !== null || s.scorecard !== null;
+
+// ---------------------------------------------------------------------------
+// Workforce
+// ---------------------------------------------------------------------------
+
+export type Workforce = {
+  openRoles: number | null;
+  /** Classified functions, largest first. Excludes the unclassified bucket. */
+  functions: { name: string; count: number }[];
+  /** How many postings no rule could place. Shown, never hidden. */
+  unclassified: number;
+  seniority: { name: string; count: number }[];
+  remote: number | null;
+  focus: string | null;
+  locations: number | null;
+  source: string | null;
+};
+
+/**
+ * Hiring, shaped so the split is readable and its limits are visible.
+ *
+ * `unclassified` is deliberately part of the view model. A function breakdown
+ * that quietly drops what it could not place looks more authoritative than it
+ * is, and the reader has no way to tell a confident split from a lucky one.
+ */
+export function workforceOf(f: FactMap): Workforce {
+  const FUNCS = ["engineering", "product", "sales", "marketing", "operations", "finance", "leadership"] as const;
+  const SENS = ["leadership", "staff", "senior", "entry"] as const;
+
+  return {
+    openRoles: num(f, "hiring.open_roles"),
+    functions: FUNCS.map((name) => ({ name, count: num(f, `hiring.function.${name}`) ?? 0 }))
+      .filter((x) => x.count > 0)
+      .sort((a, b) => b.count - a.count),
+    unclassified: num(f, "hiring.function.other") ?? 0,
+    seniority: SENS.map((name) => ({ name, count: num(f, `hiring.seniority.${name}`) ?? 0 })).filter((x) => x.count > 0),
+    remote: num(f, "hiring.remote_roles"),
+    focus: str(f, "hiring.focus"),
+    locations: num(f, "hiring.locations.count"),
+    source: src(f, "hiring.open_roles"),
+  };
+}
+
+export const hasWorkforce = (w: Workforce): boolean => (w.openRoles ?? 0) > 0;

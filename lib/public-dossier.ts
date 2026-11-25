@@ -43,6 +43,8 @@ export const PUBLIC_KINDS = [
    * module produced nothing for any company.
    */
   "discover",
+  // The job board is linked from /careers, not the homepage.
+  "discover.careers",
   // Decides whether this company files with the SEC at all. One request, and
   // it is the gate for every figure in PHASE2_KINDS.
   "corporate.sec",
@@ -60,6 +62,7 @@ export const PUBLIC_KINDS = [
  * company costs nothing here: no CIK, no requests, no empty section.
  */
 export const PHASE2_KINDS = [
+  "jobs",
   "security.advisories.package",
   "security.advisories.repo",
   "financial.revenue",
@@ -98,6 +101,19 @@ export function handlesFrom(domain: string, facts: readonly Fact[]): Company {
     const first = f.value.split(",")[0]?.trim();
     return first && !first.includes(",") ? first : null;
   };
+
+  /*
+   * The job board. Phase 0 found the token equals the company name 6 times in
+   * 7, but a guess is still a guess — this adopts only what discovery actually
+   * read off the homepage, and only when it found one candidate.
+   */
+  for (const provider of ["greenhouse", "lever", "ashby"] as const) {
+    const token = sole(`discovered.ats_${provider}`);
+    if (token) {
+      c.ats = { provider, token };
+      break;
+    }
+  }
 
   const npm = sole("discovered.npm_org");
   if (npm) c.npm = npm;
@@ -244,6 +260,20 @@ export function factLabel(path: string): string {
     "corporate.trading_name": "Trading name",
     "corporate.company_number": "Company number",
     "corporate.vat_id": "VAT ID",
+    "hiring.focus": "Hiring concentrated in",
+    "hiring.function.engineering": "Open engineering roles",
+    "hiring.function.product": "Open product roles",
+    "hiring.function.marketing": "Open marketing roles",
+    "hiring.function.sales": "Open sales roles",
+    "hiring.function.operations": "Open operations roles",
+    "hiring.function.finance": "Open finance roles",
+    "hiring.function.leadership": "Open leadership roles",
+    "hiring.function.other": "Roles we could not classify",
+    "hiring.seniority.leadership": "Leadership-level postings",
+    "hiring.seniority.staff": "Staff or principal postings",
+    "hiring.seniority.senior": "Senior postings",
+    "hiring.seniority.entry": "Entry-level postings",
+    "hiring.remote_roles": "Postings naming remote",
     "security.advisories.subject": "Advisories are about",
     "security.advisories.count": "Advisories against their package",
     "security.advisories.critical": "Critical advisories",
