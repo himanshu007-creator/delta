@@ -345,6 +345,8 @@ export function factLabel(path: string): string {
     "corporate.trading_name": "Trading name",
     "corporate.company_number": "Company number",
     "corporate.vat_id": "VAT ID",
+    "market.competitors.named_count": "Competitors they name themselves",
+    "market.competitors.named": "Named competitors",
     "legal.insolvency.notices": "Insolvency notices naming them",
     "legal.insolvency.latest_notice": "Most recent insolvency notice",
     "hiring.focus": "Hiring concentrated in",

@@ -23,6 +23,7 @@
  */
 
 import { asArr, asObj, asObjArr, decodeEntities, num, quote, type Adapter, type Company, type Fact } from "./types";
+import { competitorFacts } from "./competitors";
 
 // ---------------------------------------------------------------------------
 // handle discovery
@@ -195,7 +196,7 @@ export const UNIVERSAL_ADAPTERS: readonly Adapter[] = [
     url: (c) => `https://${c.domain}/sitemap.xml`,
     rate: { minIntervalMs: 2000 },
     maxBytes: 20_000_000,
-    extract: (_b, { raw, url }) => {
+    extract: (_b, { raw, url, company }) => {
       const locs = [...raw.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map((m) => decodeEntities(m[1]));
       if (!locs.length) return [];
 
@@ -203,6 +204,9 @@ export const UNIVERSAL_ADAPTERS: readonly Adapter[] = [
       // a handful of URLs as if that were the whole site.
       const isIndex = /<sitemapindex/i.test(raw);
       const f: Fact[] = [
+        // Competitors the company names in its own comparison URLs. The
+        // sitemap is already in hand, so this costs nothing.
+        ...competitorFacts(locs, company.domain, url),
         { path: "site.sitemap.urls", value: locs.length, sourceUrl: url, confidence: 1 },
         { path: "site.sitemap.is_index", value: isIndex, sourceUrl: url, confidence: 1 },
       ];

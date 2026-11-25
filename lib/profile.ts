@@ -148,6 +148,18 @@ export function coverageOf(f: FactMap): Coverage[] {
     asOf: null,
   });
 
+  // --- market ------------------------------------------------------------
+  const named = num(f, "market.competitors.named_count");
+  out.push({
+    key: "market",
+    label: "Competitive landscape",
+    status: named !== null && named > 0 ? "available" : "missing",
+    detail: named !== null && named > 0
+      ? `${named} competitors named by the company itself on its own comparison pages.`
+      : "They publish no comparison pages, so they name no competitors. Market share and TAM are not available from free public sources at all.",
+    asOf: null,
+  });
+
   return out;
 }
 

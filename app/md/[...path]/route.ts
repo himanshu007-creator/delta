@@ -139,6 +139,20 @@ async function company(raw: string, site: Ctx) {
     lines.push("");
   }
 
+  // Competitors the company names itself. Evidence, not our opinion.
+  const rivals = String(facts.get("market.competitors.named")?.value ?? "").split(",").filter(Boolean);
+  if (rivals.length) {
+    lines.push("## Competitors they name themselves", "");
+    lines.push(
+      `\`${domain}\` publishes comparison pages against **${rivals.length}** companies: ` +
+        `${rivals.join(", ")}.`,
+      "",
+      "Taken from comparison URLs in their own sitemap — the set they chose to name, not an inference. " +
+        "Names only: a URL slug is not a hostname, so no domain is guessed from it.",
+      "",
+    );
+  }
+
   /*
    * The ladder, already normalised to monthly equivalents upstream.
    */

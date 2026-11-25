@@ -297,6 +297,34 @@ async function Dossier({ domain }: { domain: string }) {
         </section>
       )}
 
+      {/* --- Competitors, named by the company itself. */}
+      {facts.get("market.competitors.named") && (
+        <section className="mb-12">
+          <SectionHead
+            eyebrow="competitors · named by them"
+            title={`They compare themselves against ${facts.get("market.competitors.named_count")?.value} companies`}
+          />
+          <div className="card">
+            <ul className="flex flex-wrap gap-2">
+              {String(facts.get("market.competitors.named")?.value ?? "")
+                .split(",")
+                .filter(Boolean)
+                .map((name) => (
+                  <li key={name} className="chip">{name}</li>
+                ))}
+            </ul>
+            <p className="t-small muted mt-3">
+              Taken from comparison pages in their own sitemap, so this is the competitor set they chose to
+              name — not our opinion of who competes with them.
+            </p>
+            <p className="t-micro muted mt-2">
+              Shown as names, not links: a URL slug is not a hostname, and guessing one would point at the
+              wrong company while looking authoritative.
+            </p>
+          </div>
+        </section>
+      )}
+
       {/* --- The published ladder, normalised for comparison. */}
       {ladder && <PricingLadderSection ladder={ladder} />}
 
