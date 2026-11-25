@@ -36,6 +36,13 @@ export const PUBLIC_KINDS = [
   "history.wayback",    // 1 req: domain age
   "sitemap",            // 1 req: scale and sections
   "identity.ai_stance", // 1 req (robots.txt)
+  /*
+   * Handle discovery. One homepage read, and it is what makes phase two
+   * possible at all: without it no npm package and no GitHub org is ever
+   * resolved, so every handle-gated adapter stayed silent and the security
+   * module produced nothing for any company.
+   */
+  "discover",
   // Decides whether this company files with the SEC at all. One request, and
   // it is the gate for every figure in PHASE2_KINDS.
   "corporate.sec",
@@ -53,6 +60,8 @@ export const PUBLIC_KINDS = [
  * company costs nothing here: no CIK, no requests, no empty section.
  */
 export const PHASE2_KINDS = [
+  "security.advisories.package",
+  "security.advisories.repo",
   "financial.revenue",
   "financial.revenue_alt",
   "financial.net_income",
@@ -73,6 +82,28 @@ export function handlesFrom(domain: string, facts: readonly Fact[]): Company {
   const c: Company = { domain };
   const cik = facts.find((f) => f.path === "corporate.sec.cik");
   if (cik && typeof cik.value === "string" && /^\d{10}$/.test(cik.value)) c.cik = cik.value;
+
+  /*
+   * Handles scraped off the homepage, adopted only at full confidence.
+   *
+   * Discovery marks a single candidate 0.9 and several candidates 0.6, because
+   * several links means it guessed. A guessed npm package would attach another
+   * project's vulnerabilities to this company, so only the unambiguous case is
+   * promoted and the rest stay as discovery facts a human can read.
+   */
+  const sole = (path: string): string | null => {
+    const f = facts.find((x) => x.path === path);
+    if (!f || typeof f.value !== "string") return null;
+    if ((f.confidence ?? 0) < 0.9) return null;
+    const first = f.value.split(",")[0]?.trim();
+    return first && !first.includes(",") ? first : null;
+  };
+
+  const npm = sole("discovered.npm_org");
+  if (npm) c.npm = npm;
+  const org = sole("discovered.github_org");
+  if (org) c.githubOrg = org;
+
   return c;
 }
 
@@ -213,6 +244,20 @@ export function factLabel(path: string): string {
     "corporate.trading_name": "Trading name",
     "corporate.company_number": "Company number",
     "corporate.vat_id": "VAT ID",
+    "security.advisories.subject": "Advisories are about",
+    "security.advisories.count": "Advisories against their package",
+    "security.advisories.critical": "Critical advisories",
+    "security.advisories.high": "High-severity advisories",
+    "security.advisories.medium": "Medium-severity advisories",
+    "security.advisories.low": "Low-severity advisories",
+    "security.advisories.worst_severity": "Worst advisory severity",
+    "security.advisories.max_cvss": "Highest CVSS score",
+    "security.advisories.latest": "Most recent advisory",
+    "security.advisories.cves": "CVE identifiers",
+    "security.disclosures.subject": "Disclosures are about",
+    "security.disclosures.count": "Advisories they published themselves",
+    "security.disclosures.latest": "Most recent self-disclosure",
+    "security.disclosures.worst_severity": "Worst severity disclosed",
     "corporate.sec.cik": "SEC filer (CIK)",
     "corporate.sec.registrant": "SEC registrant name",
     "corporate.sec.filings_matched": "Annual reports naming this domain",

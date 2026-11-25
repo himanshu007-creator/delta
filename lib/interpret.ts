@@ -561,3 +561,59 @@ export function bigMoney(value: number, unit = "USD"): string {
   const prefix = unit === "USD" ? "$" : `${unit} `;
   return sign ? `(${prefix}${body})` : `${prefix}${body}`;
 }
+
+// ---------------------------------------------------------------------------
+// Security exposure
+// ---------------------------------------------------------------------------
+
+export type SecurityPosture = {
+  /** What the advisories are about — a package they publish. */
+  subject: string | null;
+  count: number | null;
+  bySeverity: { severity: string; count: number }[];
+  worst: string | null;
+  maxCvss: number | null;
+  latest: string | null;
+  cves: string[];
+  /** Advisories the company published itself, for its own repository. */
+  disclosed: number | null;
+  disclosedSubject: string | null;
+  disclosedLatest: string | null;
+  /** OpenSSF Scorecard, already collected elsewhere in the catalog. */
+  scorecard: number | null;
+  dmarcPolicy: string | null;
+};
+
+/**
+ * Security posture, assembled so it cannot be read as a verdict.
+ *
+ * An advisory count is not a safety score, and the naive reading of it is
+ * backwards: a company that publishes advisories for its own code is running
+ * a disclosure process, which is what good looks like. So disclosures are
+ * kept separate from advisory counts and never summed — the same CVE appears
+ * in both feeds.
+ */
+export function securityOf(f: FactMap): SecurityPosture {
+  const bySeverity = (["critical", "high", "medium", "low"] as const)
+    .map((s) => ({ severity: s, count: num(f, `security.advisories.${s}`) ?? 0 }))
+    .filter((x) => x.count > 0);
+
+  return {
+    subject: str(f, "security.advisories.subject"),
+    count: num(f, "security.advisories.count"),
+    bySeverity,
+    worst: str(f, "security.advisories.worst_severity"),
+    maxCvss: num(f, "security.advisories.max_cvss"),
+    latest: str(f, "security.advisories.latest"),
+    cves: list(f, "security.advisories.cves"),
+    disclosed: num(f, "security.disclosures.count"),
+    disclosedSubject: str(f, "security.disclosures.subject"),
+    disclosedLatest: str(f, "security.disclosures.latest"),
+    scorecard: num(f, "security.scorecard.score"),
+    dmarcPolicy: str(f, "security.dmarc_policy"),
+  };
+}
+
+/** Anything worth drawing a section for. */
+export const hasSecurity = (s: SecurityPosture): boolean =>
+  s.count !== null || s.disclosed !== null || s.scorecard !== null;

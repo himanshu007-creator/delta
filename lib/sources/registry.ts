@@ -18,6 +18,7 @@ import { HEALTH_ADAPTERS } from "./health";
 import { IDENTITY_ADAPTERS } from "./identity";
 import { UNIVERSAL_ADAPTERS } from "./universal";
 import { SEC_ADAPTERS } from "./financial";
+import { SECURITY_ADAPTERS } from "./security";
 
 // --- shared extractors ------------------------------------------------------
 
@@ -113,6 +114,9 @@ export const ADAPTERS: readonly Adapter[] = [
   // Filed financials. Gated on a CIK resolved from the company's own filings,
   // so these are silent for every private company rather than estimated.
   ...SEC_ADAPTERS,
+  // Advisories against artefacts we know are theirs — a package they publish
+  // or a repo they own. Never a keyword match on their name.
+  ...SECURITY_ADAPTERS,
   // ---- Phase 1 spine ------------------------------------------------------
   {
     kind: "pricing", module: "2. Pricing", label: "Pricing page", cadence: "12h", tier: "A", format: "text",

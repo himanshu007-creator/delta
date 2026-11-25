@@ -20,7 +20,7 @@
  */
 
 import { factsFor } from "@/lib/cached-dossier";
-import { footprintOf, identityOf, interpret, bigMoney, financialsOf } from "@/lib/interpret";
+import { footprintOf, identityOf, interpret, bigMoney, financialsOf, securityOf, hasSecurity } from "@/lib/interpret";
 import { publicDomain } from "@/lib/public-dossier";
 import { SEED, comparablePairs, parsePair, seedFor } from "@/lib/seed";
 import { isPageworthyVendor, prettyVendor, stackIndex, vendorRow } from "@/lib/stack-index";
@@ -90,6 +90,7 @@ async function company(raw: string, site: Ctx) {
   const fp = footprintOf(facts);
   const signals = interpret(facts);
   const fin = financialsOf(facts);
+  const sec = securityOf(facts);
 
   const lines: string[] = [`# ${domain}`, ""];
 
@@ -108,6 +109,39 @@ async function company(raw: string, site: Ctx) {
 
   const h1 = facts.get("positioning.h1")?.value;
   if (h1) lines.push(`> ${h1}`, "");
+
+  /*
+   * Security exposure. Scoped to artefacts they own, and the two advisory
+   * feeds are reported separately because the same CVE appears in both.
+   */
+  if (hasSecurity(sec)) {
+    lines.push("## Security, publicly disclosed", "");
+    if (sec.count !== null && sec.subject) {
+      lines.push(
+        `**${sec.count}** public advisories are recorded against \`${sec.subject}\`, a package they publish` +
+          `${sec.bySeverity.length ? ` — ${sec.bySeverity.map((x) => `${x.count} ${x.severity}`).join(", ")}` : ""}.` +
+          `${sec.latest ? ` Most recent: ${sec.latest}.` : ""}`,
+        "",
+        "An advisory describes a version range and usually ships with its fix. This is a record of " +
+          "disclosure, not a claim that the package is unsafe today.",
+        "",
+      );
+    }
+    if (sec.disclosed !== null) {
+      lines.push(
+        `They have published **${sec.disclosed}** advisories themselves for \`${sec.disclosedSubject}\`` +
+          `${sec.disclosedLatest ? `, most recently ${sec.disclosedLatest}` : ""}. Counted separately: the ` +
+          `same CVEs appear in both feeds, so these must not be added together.`,
+        "",
+      );
+    }
+    if (sec.scorecard !== null) lines.push(`OpenSSF Scorecard: ${sec.scorecard}/10.`, "");
+    lines.push(
+      "Scope: only advisories filed against packages and repositories this company owns. Vulnerability " +
+        "feeds are never matched on a company name — that returns hundreds of unrelated products.",
+      "",
+    );
+  }
 
   /*
    * Financials, stated as filed. An agent reading this needs the same three

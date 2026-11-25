@@ -26,7 +26,7 @@ import { Suspense } from "react";
 import { factsFor } from "@/lib/cached-dossier";
 import { SEED, pairKey, seedFor } from "@/lib/seed";
 import { factLabel, publicDomain } from "@/lib/public-dossier";
-import { bigMoney, financialsOf, footprintOf, identityOf, interpret, type Financials, type Signal } from "@/lib/interpret";
+import { bigMoney, financialsOf, footprintOf, hasSecurity, identityOf, interpret, securityOf, type Financials, type SecurityPosture, type Signal } from "@/lib/interpret";
 import { countryName } from "@/lib/worldmap";
 import { FootprintMap, hasFootprint } from "../../footprint";
 import { abs, SITE_NAME } from "@/lib/site";
@@ -153,6 +153,7 @@ async function Dossier({ domain }: { domain: string }) {
     .split(",").map((v) => v.trim()).filter(Boolean);
   const h1 = facts.get("positioning.h1")?.value ?? null;
   const fin = financialsOf(facts);
+  const sec = securityOf(facts);
 
   return (
     <>
@@ -237,6 +238,9 @@ async function Dossier({ domain }: { domain: string }) {
       {/* --- Filed financials. Absent for a private company, and that
               absence is stated rather than left as an empty space. */}
       <FiledFinancials fin={fin} domain={domain} factSource={source} />
+
+      {/* --- Security exposure. Only ever about artefacts they publish. */}
+      {hasSecurity(sec) && <SecuritySection sec={sec} />}
 
       {/* --- Where next. The three things someone actually does from here. */}
       <WhereNext domain={domain} />
@@ -497,6 +501,75 @@ function FiledFinancials({
               {fin.filingsMatched === 1 ? "" : "s"} contain {domain} — not by matching its name.
             </>
           ) : null}
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Security exposure.
+ *
+ * Framed carefully, because the naive reading of an advisory count is
+ * backwards. A project that publishes advisories against its own code is
+ * running a disclosure process; one that publishes none may simply have no
+ * process. So the count is presented as disclosure activity about a named
+ * package, never as a safety grade, and the two feeds are never summed —
+ * the same CVE appears in both.
+ */
+function SecuritySection({ sec }: { sec: SecurityPosture }) {
+  return (
+    <section className="mb-12">
+      <SectionHead eyebrow="security · public advisories" title="What has been disclosed" />
+      <div className="card">
+        {sec.count !== null && sec.subject && (
+          <>
+            <p className="t-body m-0">
+              <strong>{sec.count}</strong> public advisor{sec.count === 1 ? "y" : "ies"} recorded against{" "}
+              <span className="mono">{sec.subject}</span>, a package they publish.
+            </p>
+            {sec.bySeverity.length > 0 && (
+              <ul className="flex flex-wrap gap-2 mt-3">
+                {sec.bySeverity.map((x) => (
+                  <li
+                    key={x.severity}
+                    className="chip"
+                    data-tone={x.severity === "critical" || x.severity === "high" ? "warn" : undefined}
+                  >
+                    {x.count} {x.severity}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="t-small muted mt-3">
+              {sec.latest ? `Most recent advisory ${sec.latest}. ` : ""}
+              {sec.maxCvss !== null ? `Highest CVSS ${sec.maxCvss}. ` : ""}
+              An advisory describes a version range and almost always ships with its fix, so this is a
+              record of disclosure — not a statement that the package is unsafe today.
+            </p>
+          </>
+        )}
+
+        {sec.disclosed !== null && (
+          <p className="t-small muted mt-4">
+            They have published <strong>{sec.disclosed}</strong> advisor{sec.disclosed === 1 ? "y" : "ies"}{" "}
+            themselves for <span className="mono">{sec.disclosedSubject}</span>
+            {sec.disclosedLatest ? `, most recently ${sec.disclosedLatest}` : ""}. Counted separately from the
+            figure above, which covers the same CVEs from the other side.
+          </p>
+        )}
+
+        {(sec.scorecard !== null || sec.dmarcPolicy) && (
+          <p className="t-small muted mt-2">
+            {sec.scorecard !== null ? `OpenSSF Scorecard ${sec.scorecard}/10. ` : ""}
+            {sec.dmarcPolicy ? `DMARC policy: ${sec.dmarcPolicy}.` : ""}
+          </p>
+        )}
+
+        <p className="t-micro muted mt-3">
+          Only advisories filed against packages and repositories this company owns. We never match a
+          vulnerability feed on a company&rsquo;s name — a search for one well-known vendor&rsquo;s name
+          returns hundreds of unrelated products.
         </p>
       </div>
     </section>
