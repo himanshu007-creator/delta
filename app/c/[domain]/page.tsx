@@ -26,7 +26,7 @@ import { Suspense } from "react";
 import { factsFor } from "@/lib/cached-dossier";
 import { SEED, pairKey, seedFor } from "@/lib/seed";
 import { factLabel, publicDomain } from "@/lib/public-dossier";
-import { footprintOf, identityOf, interpret, type Signal } from "@/lib/interpret";
+import { bigMoney, financialsOf, footprintOf, identityOf, interpret, type Financials, type Signal } from "@/lib/interpret";
 import { countryName } from "@/lib/worldmap";
 import { FootprintMap, hasFootprint } from "../../footprint";
 import { abs, SITE_NAME } from "@/lib/site";
@@ -152,6 +152,7 @@ async function Dossier({ domain }: { domain: string }) {
   const vendors = (facts.get("stack.vendors.list")?.value ?? "")
     .split(",").map((v) => v.trim()).filter(Boolean);
   const h1 = facts.get("positioning.h1")?.value ?? null;
+  const fin = financialsOf(facts);
 
   return (
     <>
@@ -233,6 +234,10 @@ async function Dossier({ domain }: { domain: string }) {
         </div>
       </section>
 
+      {/* --- Filed financials. Absent for a private company, and that
+              absence is stated rather than left as an empty space. */}
+      <FiledFinancials fin={fin} domain={domain} factSource={source} />
+
       {/* --- Where next. The three things someone actually does from here. */}
       <WhereNext domain={domain} />
 
@@ -301,6 +306,203 @@ async function Dossier({ domain }: { domain: string }) {
  * the company's own site. Leaving a reader to find those via the back button
  * is what made every company page a dead end.
  */
+/**
+ * Filed financials.
+ *
+ * Three states, and the difference between them is the honest part:
+ *
+ *  - a resolved filer: real figures, each with its reporting period and the
+ *    filing it came from.
+ *  - several filers mention the domain and none is identifiable: shown as an
+ *    unresolved lead, with no figures attached to it. Publishing the
+ *    likeliest match is how a company gets another company's revenue.
+ *  - no filings at all: almost every private company. Said plainly, because
+ *    "no data" and "not a public filer" are different claims and a blank
+ *    space makes the wrong one.
+ */
+function FiledFinancials({
+  fin,
+  domain,
+  factSource,
+}: {
+  fin: Financials;
+  domain: string;
+  /** Where these facts came from, so "unknown" can name the real reason. */
+  factSource: "store" | "live";
+}) {
+  /*
+   * Not checked. Said as ignorance, not as a finding — the distinction the
+   * Cloudflare bug was made of.
+   */
+  if (!fin.checked) {
+    return (
+      <section className="mb-12">
+        <SectionHead eyebrow="financials" title="Not checked yet" />
+        <div className="card card-quiet">
+          {factSource === "store" ? (
+            <>
+              <p className="t-body m-0">
+                The recorded history for <span className="mono">{domain}</span> was collected before this
+                deployment started checking filings, so it holds no answer either way.
+              </p>
+              <p className="t-small muted mt-2">
+                It fills in on the next scheduled crawl. Naming the real reason matters more than looking
+                complete — this is not a statement that the company is private.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="t-body m-0">
+                We did not get a reply from the SEC filing index for <span className="mono">{domain}</span> on
+                this read, so we cannot say whether it files.
+              </p>
+              <p className="t-small muted mt-2">
+                This is our gap, not a statement about the company. Reload in a moment and it will usually
+                resolve.
+              </p>
+            </>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  // Checked, and genuinely not a filer. Now the claim is earned.
+  if (fin.notAFiler) {
+    return (
+      <section className="mb-12">
+        <SectionHead eyebrow="financials" title="No filed financials" />
+        <div className="card card-quiet">
+          <p className="t-body m-0">
+            No US annual report names <span className="mono">{domain}</span>, so there are no reported figures
+            to show.
+          </p>
+          <p className="t-small muted mt-2">
+            This is the normal case for a private company. We publish revenue only where a regulator-filed
+            document supports it — no estimates, and never a funding round reported as revenue.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  // A filer we identified, whose figures did not arrive on this read.
+  if (fin.figures.length === 0 && fin.cik) {
+    return (
+      <section className="mb-12">
+        <SectionHead eyebrow="financials" title="Filings found, figures still loading" />
+        <div className="card card-quiet">
+          <p className="t-body m-0">
+            <span className="mono">{domain}</span> files with the SEC as{" "}
+            <span className="mono">CIK {fin.cik}</span>
+            {fin.registrant ? ` (${fin.registrant})` : ""}, but the figures did not come back on this read.
+          </p>
+          <p className="t-small muted mt-2">
+            We would rather say that than show a blank, because an empty table looks like a company with no
+            revenue.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  if (fin.figures.length === 0) {
+    return (
+      <section className="mb-12">
+        <SectionHead eyebrow="financials" title="Filer not identified" />
+        <div className="card card-quiet">
+          <p className="t-body m-0">
+            Several companies name <span className="mono">{domain}</span> in their own annual reports, and none
+            of them could be identified as its filer.
+          </p>
+          <p className="t-small muted mt-2">
+            Holding: <span className="mono">{fin.unresolvedCandidates}</span>. We show no figures rather than
+            attach the likeliest one, because a domain is often mentioned by the companies that merely use it.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="mb-12">
+      <SectionHead
+        eyebrow="financials · as filed"
+        title={fin.registrant ? `${fin.registrant} reports` : "Reported financials"}
+      />
+      <div className="card">
+        <div className="stats">
+          {fin.figures.filter((x) => !x.stale).map((x) => (
+            <div key={x.path} className="entry">
+              <p className="t-micro muted mb-1">{x.label}</p>
+              <p className="t-h2 m-0 mono">{bigMoney(x.value, x.unit)}</p>
+              {x.yoyPct !== null && (
+                <p
+                  className="t-small m-0 mt-1"
+                  /* A net LOSS shrinking is good news, so tone follows the
+                     figure's sign as well as the direction of change. */
+                  data-tone={(x.value < 0 ? -x.yoyPct : x.yoyPct) >= 0 ? "good" : "warn"}
+                >
+                  {x.yoyPct >= 0 ? "+" : ""}
+                  {x.yoyPct}% year over year
+                </p>
+              )}
+              <p className="t-micro muted mt-1">
+                {x.periodEnd ? `year ended ${x.periodEnd}` : "annual"}
+                {x.form ? ` · ${x.form}` : ""}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Figures from an earlier period are shown, but SEPARATELY and
+            dated — never in the grid above, where a reader would compute a
+            margin across two different years. */}
+        {fin.mixedPeriods && (
+          <div className="mt-6">
+            <p className="t-micro muted mb-2">
+              Last reported in an earlier period — not comparable with the figures above
+            </p>
+            <ul className="flex flex-wrap gap-2">
+              {fin.figures.filter((x) => x.stale).map((x) => (
+                <li key={x.path} className="chip">
+                  {x.label}: {bigMoney(x.value, x.unit)}{" "}
+                  <span className="muted">(year ended {x.periodEnd})</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <p className="t-small muted mt-4">
+          Every figure is taken from the company&rsquo;s own filing as most recently reported, including
+          restatements of earlier years.
+          {fin.latestPeriod ? ` Latest reported period ends ${fin.latestPeriod}.` : ""}
+          {fin.lastFiled ? ` Last filing read: ${fin.lastFiled}.` : ""}
+          {fin.figures[0]?.periods ? ` ${fin.figures[0].periods} annual periods on file.` : ""}
+        </p>
+        <p className="t-micro muted mt-2">
+          {fin.cik ? (
+            <>
+              Identified as SEC filer{" "}
+              <a
+                href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${fin.cik}&type=10-K`}
+                rel="nofollow noopener"
+                target="_blank"
+                className="mono"
+              >
+                CIK {fin.cik}
+              </a>{" "}
+              because {fin.filingsMatched ?? "its"} annual report
+              {fin.filingsMatched === 1 ? "" : "s"} contain {domain} — not by matching its name.
+            </>
+          ) : null}
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function WhereNext({ domain }: { domain: string }) {
   const seed = seedFor(domain);
   if (!seed) {

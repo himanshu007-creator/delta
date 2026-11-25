@@ -36,7 +36,45 @@ export const PUBLIC_KINDS = [
   "history.wayback",    // 1 req: domain age
   "sitemap",            // 1 req: scale and sections
   "identity.ai_stance", // 1 req (robots.txt)
+  // Decides whether this company files with the SEC at all. One request, and
+  // it is the gate for every figure in PHASE2_KINDS.
+  "corporate.sec",
 ] as const;
+
+/**
+ * Phase two: adapters that cannot run until phase one has resolved an identity.
+ *
+ * The dossier used to be a single flat pass with `{ domain }` as the whole
+ * company, which meant every adapter keyed on a HANDLE — a CIK, an npm name,
+ * an app id — returned null from `url()` and was skipped without a trace. The
+ * catalog looked twice as capable as the page actually was.
+ *
+ * These only run when phase one produced the handle they need, so a private
+ * company costs nothing here: no CIK, no requests, no empty section.
+ */
+export const PHASE2_KINDS = [
+  "financial.revenue",
+  "financial.revenue_alt",
+  "financial.net_income",
+  "financial.assets",
+  "financial.cash",
+  "financial.equity",
+] as const;
+
+/**
+ * Promote phase-one facts into handles phase two can key on.
+ *
+ * Deliberately narrow: a handle is only adopted from a fact we were willing to
+ * publish as sound. `corporate.sec.candidates` is the refusal case and carries
+ * no CIK, so an ambiguous registrant yields no financials rather than the
+ * financials of whichever company happened to sort first.
+ */
+export function handlesFrom(domain: string, facts: readonly Fact[]): Company {
+  const c: Company = { domain };
+  const cik = facts.find((f) => f.path === "corporate.sec.cik");
+  if (cik && typeof cik.value === "string" && /^\d{10}$/.test(cik.value)) c.cik = cik.value;
+  return c;
+}
 
 /** Bounded-concurrency map. Replaces the pooled() helper deleted with /api/research. */
 async function pooled<T, R>(items: readonly T[], limit: number, fn: (t: T) => Promise<R>): Promise<R[]> {
@@ -79,19 +117,56 @@ const DEADLINE_MS = 12_000;
 export async function buildPublicDossier(domain: string): Promise<PublicDossier> {
   const t0 = Date.now();
   const company: Company = { domain };
-  const applicable = adaptersFor(company).filter((a) => (PUBLIC_KINDS as readonly string[]).includes(a.kind));
+  /*
+   * The CIK resolver runs FIRST, not merely early.
+   *
+   * The pool is six wide. This adapter sat mid-list, so on a site with
+   * several slow sources all six slots stayed busy until the 12s deadline and
+   * the resolver never started at all — which then read as "we cannot say
+   * whether this company files" for companies that plainly do. It costs one
+   * request and gates every figure in phase two, so it gets a slot at t=0.
+   */
+  const applicable = adaptersFor(company)
+    .filter((a) => (PUBLIC_KINDS as readonly string[]).includes(a.kind))
+    .sort((a, b) => Number(b.kind === "corporate.sec") - Number(a.kind === "corporate.sec"));
 
   // A deadline, not a timeout per request: the page must paint even if a
   // third-party source is having a bad day.
   const deadline = AbortSignal.timeout(DEADLINE_MS);
 
-  const runs = await pooled(applicable, 6, async (a) => {
+  const run1 = await pooled(applicable, 6, async (a) => {
     try {
       return { a, r: await runAdapter(a, company, { signal: deadline }) };
     } catch {
       return { a, r: null };
     }
   });
+
+  /*
+   * Phase two, on handles phase one resolved.
+   *
+   * It reuses the SAME deadline rather than taking a fresh one: the page's
+   * latency budget is the whole build, not per phase, so a slow phase one
+   * leaves phase two correspondingly less time instead of doubling the wait.
+   * A company with no resolved handle does no work here at all.
+   */
+  const phase1Facts = run1.flatMap(({ r }) => (r && r.status === "ok" ? r.facts : []));
+  const resolved = handlesFrom(domain, phase1Facts);
+  const phase2 = (PHASE2_KINDS as readonly string[])
+    .map((k) => byKind(k))
+    .filter((a): a is NonNullable<typeof a> => !!a && a.url(resolved) !== null);
+
+  const run2 = phase2.length
+    ? await pooled(phase2, 5, async (a) => {
+        try {
+          return { a, r: await runAdapter(a, resolved, { signal: deadline }) };
+        } catch {
+          return { a, r: null };
+        }
+      })
+    : [];
+
+  const runs = [...run1, ...run2];
 
   const byModule = new Map<string, Fact[]>();
   const sources: PublicDossier["sources"] = [];
@@ -138,6 +213,30 @@ export function factLabel(path: string): string {
     "corporate.trading_name": "Trading name",
     "corporate.company_number": "Company number",
     "corporate.vat_id": "VAT ID",
+    "corporate.sec.cik": "SEC filer (CIK)",
+    "corporate.sec.registrant": "SEC registrant name",
+    "corporate.sec.filings_matched": "Annual reports naming this domain",
+    "corporate.sec.candidates": "Possible SEC registrants (unresolved)",
+    // Every financial label says "reported", because that is the only kind of
+    // financial number in this product. Nothing here is estimated or modelled.
+    "financial.revenue": "Revenue (reported)",
+    "financial.revenue.yoy_pct": "Revenue growth, year over year",
+    "financial.revenue.period_end": "Revenue period ended",
+    "financial.revenue.form": "Revenue reported on form",
+    "financial.revenue.filed": "Revenue filing date",
+    "financial.revenue.unit": "Revenue currency",
+    "financial.revenue.periods_available": "Annual revenue periods on file",
+    "financial.revenue_alt": "Revenue, total (reported)",
+    "financial.revenue_alt.yoy_pct": "Revenue growth, year over year",
+    "financial.revenue_alt.period_end": "Revenue period ended",
+    "financial.net_income": "Net income (reported)",
+    "financial.net_income.yoy_pct": "Net income change, year over year",
+    "financial.assets": "Total assets (reported)",
+    "financial.assets.yoy_pct": "Total assets change, year over year",
+    "financial.cash": "Cash and equivalents (reported)",
+    "financial.cash.yoy_pct": "Cash change, year over year",
+    "financial.equity": "Shareholders' equity (reported)",
+    "financial.equity.yoy_pct": "Equity change, year over year",
     "geo.registered_office": "Registered office",
     "geo.place_of_registration": "Place of registration",
     "contact.telephone": "Telephone",

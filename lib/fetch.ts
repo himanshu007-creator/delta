@@ -107,6 +107,18 @@ async function once(url: string, o: FetchOpts): Promise<FetchResult<string>> {
       body: o.body,
       signal,
       redirect: "follow",
+      /*
+       * Never let the framework cache a third-party response.
+       *
+       * Next patches `fetch` and, inside a cached scope, will store the
+       * response keyed by URL. That is the wrong layer for us: we cache whole
+       * dossiers deliberately, with a stated lifetime, and a fetch-level cache
+       * on top of that caches FAILURES too. A rate-limit interstitial from one
+       * busy moment then replays for every later request, which is how a
+       * public company came to be reported as "not a filer" — the request
+       * appeared to succeed and returned HTML forever.
+       */
+      cache: "no-store",
     });
 
     const retryAfterSec = parseDuration(res.headers.get("retry-after"));
@@ -235,6 +247,8 @@ export async function fetchBinary(
         method: o.method ?? "GET",
         headers: { "user-agent": BOT_UA, ...(o.accept ? { accept: o.accept } : {}), ...o.headers },
         body: o.body, signal, redirect: "follow",
+        // Same reasoning as above: our caching is at the dossier layer.
+        cache: "no-store",
       });
       const retryAfterSec = parseDuration(res.headers.get("retry-after"));
       if (res.status === 429 || res.status === 503) {

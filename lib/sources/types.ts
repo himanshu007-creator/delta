@@ -36,6 +36,12 @@ export type Company = {
   vscodeExt?: string;     // "GitHub.copilot"
   statusHost?: string;    // "www.githubstatus.com" — must be discovered, not guessed
   wikipedia?: string;     // "Notion_(productivity_software)"
+  /**
+   * SEC Central Index Key, 10 digits. Resolved by `corporate.sec` from the
+   * company's OWN filings, never from a name match — see lib/sources/financial.ts.
+   * Absent for every private company, which is why financial facts are absent too.
+   */
+  cik?: string;           // "0001477333"
 };
 
 /** A single normalised observation. These are what we diff and what we sell. */

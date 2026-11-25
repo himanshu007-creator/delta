@@ -20,7 +20,7 @@
  */
 
 import { factsFor } from "@/lib/cached-dossier";
-import { footprintOf, identityOf, interpret } from "@/lib/interpret";
+import { footprintOf, identityOf, interpret, bigMoney, financialsOf } from "@/lib/interpret";
 import { publicDomain } from "@/lib/public-dossier";
 import { SEED, comparablePairs, parsePair, seedFor } from "@/lib/seed";
 import { isPageworthyVendor, prettyVendor, stackIndex, vendorRow } from "@/lib/stack-index";
@@ -89,6 +89,7 @@ async function company(raw: string, site: Ctx) {
   const id = identityOf(facts);
   const fp = footprintOf(facts);
   const signals = interpret(facts);
+  const fin = financialsOf(facts);
 
   const lines: string[] = [`# ${domain}`, ""];
 
@@ -107,6 +108,84 @@ async function company(raw: string, site: Ctx) {
 
   const h1 = facts.get("positioning.h1")?.value;
   if (h1) lines.push(`> ${h1}`, "");
+
+  /*
+   * Financials, stated as filed. An agent reading this needs the same three
+   * states a person does: figures, an unresolved filer, or not a filer — and
+   * the last two must not look like missing data.
+   */
+  if (fin.figures.length) {
+    lines.push("## Financials, as filed", "");
+    if (fin.registrant && fin.cik) {
+      lines.push(
+        `Filed by **${fin.registrant}** (SEC CIK ${fin.cik}), identified because ` +
+          `${fin.filingsMatched ?? "its"} annual report(s) contain \`${domain}\` — not by name match.`,
+        "",
+      );
+    }
+    lines.push("| Figure | Amount | Year ended | Form | Filed | YoY |", "|---|---|---|---|---|---|");
+    for (const x of fin.figures.filter((y) => !y.stale)) {
+      lines.push(
+        `| ${x.label} | ${bigMoney(x.value, x.unit)} | ${x.periodEnd ?? "—"} | ${x.form ?? "—"} | ` +
+          `${x.filed ?? "—"} | ${x.yoyPct === null ? "—" : `${x.yoyPct >= 0 ? "+" : ""}${x.yoyPct}%`} |`,
+      );
+    }
+    /*
+     * Stale figures go BELOW the table with their own warning, so an agent
+     * summarising this cannot compute a margin across two different years.
+     */
+    const stale = fin.figures.filter((y) => y.stale);
+    if (stale.length) {
+      lines.push(
+        "",
+        "**Not comparable with the table above** — these are the company's last filed values for " +
+          "lines it no longer reports under the same tag:",
+        "",
+      );
+      for (const x of stale) {
+        lines.push(`- ${x.label}: ${bigMoney(x.value, x.unit)} (year ended ${x.periodEnd ?? "unknown"})`);
+      }
+      lines.push("");
+    }
+    lines.push("", "Exact values and source URLs are in the fact table below.", "");
+  } else if (fin.unresolvedCandidates) {
+    lines.push(
+      "## Financials, as filed",
+      "",
+      `Not resolved. Several filers mention \`${domain}\` and none is identifiable as its filer ` +
+        `(${fin.unresolvedCandidates}). No figures are attached, because a domain is often named by the ` +
+        `companies that merely use it.`,
+      "",
+    );
+  } else if (!fin.checked) {
+    lines.push(
+      "## Financials, as filed",
+      "",
+      source === "store"
+        ? `Unknown. The recorded history for \`${domain}\` was collected before this deployment started ` +
+          `checking filings, so it holds no answer either way. NOT a statement that the company is private.`
+        : `Unknown. The SEC filing index did not answer for \`${domain}\` on this read, so we cannot say ` +
+          `whether it files. This is a gap in our read, NOT a statement that the company is private.`,
+      "",
+    );
+  } else if (fin.cik) {
+    lines.push(
+      "## Financials, as filed",
+      "",
+      `\`${domain}\` files with the SEC as CIK ${fin.cik}` +
+        `${fin.registrant ? ` (${fin.registrant})` : ""}, but no figures came back on this read.`,
+      "",
+    );
+  } else {
+    lines.push(
+      "## Financials, as filed",
+      "",
+      `None. No US annual report names \`${domain}\`, which is the normal case for a private company. ` +
+        `Revenue is published only where a regulator-filed document supports it; there are no estimates ` +
+        `here, and funding is never reported as revenue.`,
+      "",
+    );
+  }
 
   if (fp.registered || fp.markets.length) {
     lines.push("## Where they are", "");
