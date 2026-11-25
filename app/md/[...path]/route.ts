@@ -21,6 +21,7 @@
 
 import { factsFor } from "@/lib/cached-dossier";
 import { correlate } from "@/lib/correlate";
+import { coverageOf, coverageSummary, currencySymbol, isCurrencyCode, pricingLadderOf } from "@/lib/profile";
 import { footprintOf, identityOf, interpret, bigMoney, financialsOf, securityOf, hasSecurity, workforceOf, hasWorkforce } from "@/lib/interpret";
 import { publicDomain } from "@/lib/public-dossier";
 import { SEED, comparablePairs, parsePair, seedFor } from "@/lib/seed";
@@ -94,6 +95,8 @@ async function company(raw: string, site: Ctx) {
   const sec = securityOf(facts);
   const work = workforceOf(facts);
   const insights = correlate(facts);
+  const coverage = coverageOf(facts);
+  const ladder = pricingLadderOf(facts);
 
   const lines: string[] = [`# ${domain}`, ""];
 
@@ -114,6 +117,54 @@ async function company(raw: string, site: Ctx) {
   if (h1) lines.push(`> ${h1}`, "");
 
   /*
+   * Coverage first. An agent summarising this page must be able to say what
+   * is NOT known, and a page that silently omits empty sections gives it no
+   * way to tell "nothing to report" from "we could not read it".
+   */
+  {
+    const sum = coverageSummary(coverage);
+    lines.push("## Coverage", "");
+    lines.push(
+      `${sum.available} of ${sum.total} intelligence areas are fully readable for this company ` +
+        `(${sum.partial} partial, ${sum.missing} not available). "Not available" means the public record ` +
+        `does not carry it — NOT that the company lacks it.`,
+      "",
+      "| Area | Status | Why |",
+      "|---|---|---|",
+    );
+    for (const c of coverage) {
+      const label = c.status === "available" ? "Available" : c.status === "partial" ? "Partial" : "Not available";
+      lines.push(`| ${c.label} | ${label} | ${c.detail}${c.asOf ? ` (as of ${c.asOf})` : ""} |`);
+    }
+    lines.push("");
+  }
+
+  /*
+   * The ladder, already normalised to monthly equivalents upstream.
+   */
+  if (ladder) {
+    const sym = currencySymbol(ladder.currency);
+    const money = (m: number) => `${sym}${m / 100 % 1 === 0 ? (m / 100).toFixed(0) : (m / 100).toFixed(2)}`;
+    lines.push("## Pricing, normalised", "");
+    lines.push("| Tier | Monthly equivalent | Basis | Annual saving |", "|---|---|---|---|");
+    for (const t of ladder.tiers) {
+      lines.push(
+        `| ${t.name} | ${t.monthlyMinor !== null ? money(t.monthlyMinor) : "—"} | ` +
+          `${t.perSeat ? "per seat" : t.monthlyMinor !== null ? "flat" : "contact sales"} | ` +
+          `${t.annualDiscountPct !== null ? `${t.annualDiscountPct}%` : "—"} |`,
+      );
+    }
+    lines.push(
+      "",
+      `Monthly equivalents${isCurrencyCode(ladder.currency) ? ` in ${ladder.currency}` : ""}, so annually-billed and monthly-billed tiers compare ` +
+        `directly. Contact-sales tiers carry no number because none is published. Currency is what the ` +
+        `page served us and can depend on where the read originated.`,
+      "",
+    );
+  }
+
+  /*
+   * Cross-source patterns.  /*
    * Cross-source patterns. Written so an agent summarising this page cannot
    * quote the claim without the counter-reading: both are in the same block.
    */

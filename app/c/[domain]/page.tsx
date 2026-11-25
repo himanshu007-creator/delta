@@ -35,6 +35,7 @@ import { SectionHead, SiteFooter } from "../../ui";
 import { AskAbout } from "../../ask";
 import { SiteNav } from "../../nav";
 import { correlate, type Insight } from "@/lib/correlate";
+import { coverageOf, coverageSummary, currencySymbol, isCurrencyCode, pricingLadderOf, type Coverage, type PricingLadder } from "@/lib/profile";
 
 export async function generateMetadata(props: PageProps<"/c/[domain]">) {
   // Built from the DOMAIN ALONE, on purpose. Calling the dossier here would
@@ -157,6 +158,8 @@ async function Dossier({ domain }: { domain: string }) {
   const sec = securityOf(facts);
   const work = workforceOf(facts);
   const insights = correlate(facts);
+  const coverage = coverageOf(facts);
+  const ladder = pricingLadderOf(facts);
 
   return (
     <>
@@ -238,6 +241,11 @@ async function Dossier({ domain }: { domain: string }) {
         </div>
       </section>
 
+      {/* --- Coverage. What we know, what is partial, what is missing and
+              why — stated before any finding, so a reader can calibrate
+              everything below it. */}
+      <CoverageGrid coverage={coverage} />
+
       {/* --- Cross-source patterns. The only place two sources are combined,
               so every one carries its counter-reading. */}
       {insights.length > 0 && (
@@ -288,6 +296,9 @@ async function Dossier({ domain }: { domain: string }) {
           </div>
         </section>
       )}
+
+      {/* --- The published ladder, normalised for comparison. */}
+      {ladder && <PricingLadderSection ladder={ladder} />}
 
       {/* --- Where next. The three things someone actually does from here. */}
       <WhereNext domain={domain} />
@@ -717,6 +728,98 @@ function InsightCard({ insight }: { insight: Insight }) {
       </p>
       <p className="t-micro muted mt-1">{insight.limitation}</p>
     </div>
+  );
+}
+
+/**
+ * Coverage.
+ *
+ * Rendered BEFORE any finding, because it is what makes the findings
+ * readable. A page that silently omits the sections it has no data for looks
+ * identical whether the company has nothing to report or we failed to read
+ * it, and the reader has no way to tell which.
+ */
+function CoverageGrid({ coverage }: { coverage: Coverage[] }) {
+  const sum = coverageSummary(coverage);
+  return (
+    <section className="mb-12">
+      <SectionHead
+        eyebrow="coverage"
+        title={`${sum.available} of ${sum.total} areas fully readable`}
+      />
+      <div className="stats">
+        {coverage.map((c) => (
+          <div key={c.key} className="entry">
+            <p className="t-micro muted mb-1">{c.label}</p>
+            <p
+              className="t-h3 m-0"
+              data-tone={c.status === "available" ? "good" : c.status === "partial" ? undefined : "warn"}
+            >
+              {c.status === "available" ? "Available" : c.status === "partial" ? "Partial" : "Not available"}
+            </p>
+            <p className="t-micro muted mt-1">{c.detail}</p>
+            {c.asOf && <p className="t-micro muted mono mt-1">as of {c.asOf}</p>}
+          </div>
+        ))}
+      </div>
+      <p className="t-micro muted mt-3">
+        &ldquo;Not available&rdquo; means the public record does not carry it, not that the company lacks
+        it. Each cell says which.
+      </p>
+    </section>
+  );
+}
+
+/**
+ * The published ladder, normalised.
+ *
+ * Every price is a monthly equivalent, so a tier billed annually and one
+ * billed monthly can sit in the same column — comparing them raw is a real
+ * bug the extractor already solves upstream. Contact-sales tiers show no
+ * number, because inventing one is the most tempting fabrication in
+ * competitive pricing work.
+ */
+function PricingLadderSection({ ladder }: { ladder: PricingLadder }) {
+  const money = (minor: number) => {
+    const major = minor / 100;
+    return `${currencySymbol(ladder.currency)}${major % 1 === 0 ? major.toFixed(0) : major.toFixed(2)}`;
+  };
+  return (
+    <section className="mb-12">
+      <SectionHead eyebrow="pricing · normalised" title={`${ladder.tiers.length} published tiers`} />
+      <div className="card">
+        <table className="fact-table">
+          <thead>
+            <tr>
+              <th scope="col">Tier</th>
+              <th scope="col">Monthly equivalent</th>
+              <th scope="col">Basis</th>
+              <th scope="col">Annual saving</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ladder.tiers.map((t) => (
+              <tr key={t.slug}>
+                <th scope="row">{t.name}</th>
+                <td className="mono">{t.monthlyMinor !== null ? money(t.monthlyMinor) : "—"}</td>
+                <td>{t.perSeat ? "per seat" : t.monthlyMinor !== null ? "flat" : "contact sales"}</td>
+                <td className="mono">{t.annualDiscountPct !== null ? `${t.annualDiscountPct}%` : "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="t-small muted mt-3">
+          Prices are monthly equivalents{isCurrencyCode(ladder.currency) ? ` in ${ladder.currency}` : ""}, so
+          annually-billed and monthly-billed tiers compare directly.
+          {ladder.hasCustom ? " Contact-sales tiers carry no number because none is published." : ""}
+        </p>
+        <p className="t-micro muted mt-2">
+          Currency is what the page served us and can depend on where the read originated — it is not a claim
+          about their home currency.
+          {ladder.basis ? ` Read from ${ladder.basis.replace("-", " ")}.` : ""}
+        </p>
+      </div>
+    </section>
   );
 }
 
