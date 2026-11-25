@@ -11,7 +11,7 @@
 
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { classifyFunction, classifySeniority, workforceFacts } from "./workforce";
+import { classifyFunction, classifySeniority, postingVelocityFacts, workforceFacts } from "./workforce";
 import type { Fact } from "./types";
 
 const board = JSON.parse(
@@ -114,4 +114,50 @@ const val = (f: Fact[], p: string) => f.find((x) => x.path === p)?.value;
   assert.equal(workforceFacts([], url).length, 0);
 }
 
-console.log("✓ workforce: 30 real postings classified, title beats department, nothing forced into a bucket");
+// --- hiring velocity, without a clock ------------------------------------
+{
+  const url = "https://api.ashbyhq.com/posting-api/job-board/x";
+  const dates = [
+    "2026-11-20T10:00:00Z", "2026-11-18T10:00:00Z", "2026-11-02T10:00:00Z",
+    "2026-10-15T10:00:00Z", "2026-10-02T10:00:00Z",
+    "2026-09-11T10:00:00Z",
+    "2026-08-01T10:00:00Z",
+    null,
+    "not-a-date",
+  ];
+  const f = postingVelocityFacts(dates, url);
+  const v = (p: string) => f.find((x) => x.path === p)?.value;
+
+  assert.equal(v("hiring.newest_posting"), "2026-11-20");
+  assert.equal(v("hiring.posted.2026-11"), 3);
+  assert.equal(v("hiring.posted.2026-10"), 2);
+  assert.equal(v("hiring.posted.2026-09"), 1);
+
+  /*
+   * Momentum compares the newest month to the median of those before it, so
+   * a 300-role company and a 12-role one are comparable. Prior months here
+   * are 2,1,1 -> median 1, newest 3 -> 3x.
+   */
+  assert.equal(v("hiring.momentum_ratio"), 3);
+
+  /*
+   * NO WALL CLOCK. Bucketing against "now" makes the output depend on when it
+   * ran, which poisons a cached scope and is rejected at prerender. The same
+   * board must always produce the same facts.
+   */
+  const again = postingVelocityFacts(dates, url);
+  assert.deepEqual(f, again, "the same input must always produce the same facts");
+  const srcText = readFileSync(new URL("./workforce.ts", import.meta.url), "utf8");
+  const velocity = srcText.slice(srcText.indexOf("export function postingVelocityFacts"));
+  assert.ok(!/Date\.now\(\)|new Date\(\)/.test(velocity), "velocity must not read the clock");
+
+  // Too little history for a median is no momentum claim at all.
+  assert.equal(
+    postingVelocityFacts(["2026-11-20T00:00:00Z", "2026-10-01T00:00:00Z"], url)
+      .find((x) => x.path === "hiring.momentum_ratio"),
+    undefined,
+  );
+  assert.deepEqual(postingVelocityFacts([null, "x"], url), []);
+}
+
+console.log("✓ workforce: 30 real postings classified, title beats department, velocity without a clock");

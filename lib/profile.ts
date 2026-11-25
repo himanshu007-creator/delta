@@ -87,13 +87,14 @@ export function coverageOf(f: FactMap): Coverage[] {
   const pricing = str(f, "pricing.visible") === "true";
   const api = has(f, "product.api.endpoints");
   const releases = anyPrefix(f, "product.github.") || has(f, "product.llmstxt.sections");
-  const productBits = [pricing, api, releases].filter(Boolean).length;
+  const integrations = (num(f, "ecosystem.integrations.count") ?? 0) > 0;
+  const productBits = [pricing, api, releases, integrations].filter(Boolean).length;
   out.push({
     key: "product",
     label: "Product intelligence",
     status: productBits >= 2 ? "available" : productBits === 1 ? "partial" : "missing",
     detail: productBits >= 2
-      ? "Published pricing, developer surface and release signals all readable."
+      ? "Published pricing, developer surface, release signals and integration catalogue readable."
       : productBits === 1
         ? "Only one product surface is public; the rest are behind a login or not published."
         : "No public pricing, API surface or release feed found.",

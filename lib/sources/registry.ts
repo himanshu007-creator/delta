@@ -19,7 +19,7 @@ import { IDENTITY_ADAPTERS } from "./identity";
 import { UNIVERSAL_ADAPTERS } from "./universal";
 import { SEC_ADAPTERS } from "./financial";
 import { SECURITY_ADAPTERS } from "./security";
-import { workforceFacts } from "./workforce";
+import { postingVelocityFacts, workforceFacts } from "./workforce";
 import { LEGAL_ADAPTERS } from "./legal";
 
 // --- shared extractors ------------------------------------------------------
@@ -54,22 +54,29 @@ function llmsFacts(md: string, url: string): Fact[] {
 
 /** Jobs, across the three boards Phase 0 confirmed. Geography falls out free. */
 function jobFacts(body: unknown, provider: string, url: string): Fact[] {
-  type Row = { title: string; location: string; team: string };
+  type Row = { title: string; location: string; team: string; posted: string | null };
   let rows: Row[] = [];
 
   if (provider === "greenhouse") {
     const j = asObj<{ jobs?: { title?: string; location?: { name?: string }; departments?: { name?: string }[] }[] }>(body);
-    rows = asObjArr<{ title?: string; location?: { name?: string }; departments?: { name?: string }[] }>(j.jobs).map((x) => ({
+    rows = asObjArr<{ title?: string; location?: { name?: string }; departments?: { name?: string }[]; updated_at?: string; first_published?: string }>(j.jobs).map((x) => ({
       title: x.title ?? "", location: x.location?.name ?? "", team: asObjArr<{ name?: string }>(x.departments)[0]?.name ?? "",
+      // Greenhouse exposes first_published on some boards and updated_at on
+      // all of them. Prefer the former: an edit is not a new role.
+      posted: x.first_published ?? x.updated_at ?? null,
     }));
   } else if (provider === "lever") {
-    const j = asObjArr<{ text?: string; categories?: { location?: string; team?: string } }>(body);
+    const j = asObjArr<{ text?: string; createdAt?: number; categories?: { location?: string; team?: string } }>(body);
     rows = j.map((x) => ({
       title: x.text ?? "", location: x.categories?.location ?? "", team: x.categories?.team ?? "",
+      // Lever stamps epoch milliseconds.
+      posted: typeof x.createdAt === "number" ? new Date(x.createdAt).toISOString() : null,
     }));
   } else {
-    const j = asObj<{ jobs?: { title?: string; location?: string; department?: string }[] }>(body);
-    rows = asObjArr<{ title?: string; location?: string; department?: string }>(j.jobs).map((x) => ({ title: x.title ?? "", location: x.location ?? "", team: x.department ?? "" }));
+    const j = asObj<{ jobs?: { title?: string; location?: string; department?: string; publishedAt?: string }[] }>(body);
+    rows = asObjArr<{ title?: string; location?: string; department?: string; publishedAt?: string }>(j.jobs).map((x) => ({
+      title: x.title ?? "", location: x.location ?? "", team: x.department ?? "", posted: x.publishedAt ?? null,
+    }));
   }
 
   const tally = (pick: (r: Row) => string) => {
@@ -93,6 +100,9 @@ function jobFacts(body: unknown, provider: string, url: string): Fact[] {
     // no extra request. "48 open roles" is not actionable; "31 engineering,
     // 9 sales" is.
     ...workforceFacts(rows, url),
+    // Hiring velocity from the posting dates already in this response — the
+    // only change-shaped signal available without recorded history.
+    ...postingVelocityFacts(rows.map((r) => r.posted), url),
     { path: "hiring.locations.count", value: byLoc.length, sourceUrl: url, confidence: 1 },
     ...byLoc.slice(0, 40).map(([loc, n]): Fact => ({ path: `geo.hiring.${loc.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 48)}`, value: n, sourceUrl: url, confidence: 0.9, quote: quote(loc, 60) })),
     ...byTeam.slice(0, 25).map(([team, n]): Fact => ({ path: `hiring.team.${team.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 48)}`, value: n, sourceUrl: url, confidence: 0.9, quote: quote(team, 60) })),

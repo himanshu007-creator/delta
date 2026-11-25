@@ -24,6 +24,7 @@
 
 import { asArr, asObj, asObjArr, decodeEntities, num, quote, type Adapter, type Company, type Fact } from "./types";
 import { competitorFacts } from "./competitors";
+import { ecosystemFacts } from "./ecosystem";
 
 // ---------------------------------------------------------------------------
 // handle discovery
@@ -207,6 +208,8 @@ export const UNIVERSAL_ADAPTERS: readonly Adapter[] = [
         // Competitors the company names in its own comparison URLs. The
         // sitemap is already in hand, so this costs nothing.
         ...competitorFacts(locs, company.domain, url),
+        // Integration catalogue, from the same sitemap. Also free.
+        ...ecosystemFacts(locs, company.domain, url),
         { path: "site.sitemap.urls", value: locs.length, sourceUrl: url, confidence: 1 },
         { path: "site.sitemap.is_index", value: isIndex, sourceUrl: url, confidence: 1 },
       ];

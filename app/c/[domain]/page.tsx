@@ -272,7 +272,17 @@ async function Dossier({ domain }: { domain: string }) {
       {hasSecurity(sec) && <SecuritySection sec={sec} />}
 
       {/* --- Hiring. What they are building, read off their own job board. */}
-      {hasWorkforce(work) && <HiringSection work={work} />}
+      {hasWorkforce(work) && (
+        <HiringSection
+          work={work}
+          facts0={{
+            newestPosting: facts.get("hiring.newest_posting")?.value ?? null,
+            momentum: facts.get("hiring.momentum_ratio")?.value
+              ? Number(facts.get("hiring.momentum_ratio")?.value)
+              : null,
+          }}
+        />
+      )}
 
       {/* --- Legal. Only ever about the registered entity we resolved. */}
       {facts.get("legal.insolvency.notices") && (
@@ -292,6 +302,29 @@ async function Dossier({ domain }: { domain: string }) {
             <p className="t-micro muted mt-2">
               Searched against the registered legal name, and a notice counts only when it names the company
               itself — a search for a bare brand returns notices about entirely different companies.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* --- Ecosystem. Catalogue size is the comparable number. */}
+      {facts.get("ecosystem.integrations.count") && (
+        <section className="mb-12">
+          <SectionHead
+            eyebrow="ecosystem"
+            title={`${facts.get("ecosystem.integrations.count")?.value} published integrations`}
+          />
+          <div className="card">
+            <ul className="flex flex-wrap gap-2">
+              {String(facts.get("ecosystem.integrations.sample")?.value ?? "")
+                .split(",")
+                .filter(Boolean)
+                .slice(0, 30)
+                .map((x) => <li key={x} className="chip">{x}</li>)}
+            </ul>
+            <p className="t-micro muted mt-3">
+              Counted from integration pages in their own sitemap. Category and tag pages are excluded, so
+              this is entries rather than navigation — the number a competitor can be compared against.
             </p>
           </div>
         </section>
@@ -673,7 +706,14 @@ function SecuritySection({ sec }: { sec: SecurityPosture }) {
  * The unclassified count is shown rather than dropped. A breakdown that hides
  * what it could not place reads as more certain than it is.
  */
-function HiringSection({ work }: { work: Workforce }) {
+function HiringSection({
+  work,
+  facts0,
+}: {
+  work: Workforce;
+  /** Velocity, which lives outside the workforce view model. */
+  facts0: { newestPosting: string | null; momentum: number | null };
+}) {
   const total = work.functions.reduce((n, x) => n + x.count, 0) + work.unclassified;
   return (
     <section className="mb-12">
@@ -697,6 +737,16 @@ function HiringSection({ work }: { work: Workforce }) {
               <li className="chip muted">{work.unclassified} unclassified</li>
             )}
           </ul>
+        )}
+
+        {facts0.newestPosting && (
+          <p className="t-small muted mt-4">
+            Most recent posting {facts0.newestPosting}
+            {facts0.momentum !== null
+              ? ` — the latest month is ${facts0.momentum}× the median of the months before it`
+              : ""}
+            .
+          </p>
         )}
 
         {work.seniority.length > 0 && (

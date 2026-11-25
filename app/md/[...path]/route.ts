@@ -139,6 +139,21 @@ async function company(raw: string, site: Ctx) {
     lines.push("");
   }
 
+  // Ecosystem catalogue, counted from their own sitemap.
+  const integrations = facts.get("ecosystem.integrations.count")?.value;
+  if (integrations) {
+    const sample = String(facts.get("ecosystem.integrations.sample")?.value ?? "").split(",").filter(Boolean);
+    lines.push("## Ecosystem", "");
+    lines.push(
+      `**${integrations}** integration pages published under \`${domain}\`` +
+        `${sample.length ? `, e.g. ${sample.slice(0, 15).join(", ")}` : ""}.`,
+      "",
+      "Counted from integration pages in their own sitemap, excluding category and tag pages — entries " +
+        "rather than navigation, so the number is comparable between companies.",
+      "",
+    );
+  }
+
   // Competitors the company names itself. Evidence, not our opinion.
   const rivals = String(facts.get("market.competitors.named")?.value ?? "").split(",").filter(Boolean);
   if (rivals.length) {
@@ -220,6 +235,15 @@ async function company(raw: string, site: Ctx) {
       for (const x of work.functions) lines.push(`| ${x.name} | ${x.count} |`);
       if (work.unclassified) lines.push(`| unclassified | ${work.unclassified} |`);
       lines.push("");
+    }
+    const newest = facts.get("hiring.newest_posting")?.value;
+    const momentum = facts.get("hiring.momentum_ratio")?.value;
+    if (newest) {
+      lines.push(
+        `Most recent posting: ${newest}.` +
+          (momentum ? ` The latest month is ${momentum}x the median of the months before it.` : ""),
+        "",
+      );
     }
     if (work.seniority.length) {
       lines.push(

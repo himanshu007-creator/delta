@@ -160,3 +160,76 @@ export function workforceFacts(
 
   return facts;
 }
+
+
+/**
+ * Hiring velocity, from the posting dates already in the board response.
+ *
+ * This is the one change-shaped signal available WITHOUT recorded history:
+ * the board stamps every posting with when it went up, so a single fetch
+ * shows whether hiring is accelerating. Normally that needs two crawls weeks
+ * apart.
+ *
+ * Deliberately NO wall clock. Bucketing against "now" would make the output
+ * depend on when it was computed, which breaks a cached scope and is rejected
+ * at prerender. Buckets are calendar months taken from the data itself, so
+ * the same board always produces the same facts.
+ */
+export function postingVelocityFacts(
+  dates: readonly (string | null)[],
+  url: string,
+): Fact[] {
+  const months = new Map<string, number>();
+  let newest = "";
+
+  for (const d of dates) {
+    if (!d) continue;
+    const iso = d.slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) continue;
+    if (iso > newest) newest = iso;
+    const m = iso.slice(0, 7);
+    months.set(m, (months.get(m) ?? 0) + 1);
+  }
+
+  if (!newest) return [];
+
+  const facts: Fact[] = [
+    {
+      path: "hiring.newest_posting",
+      value: newest,
+      sourceUrl: url,
+      confidence: 1,
+      quote: quote(`Most recent posting went up ${newest}`),
+    },
+  ];
+
+  // The six most recent calendar months that actually contain postings.
+  const recent = [...months.entries()].sort((a, b) => b[0].localeCompare(a[0])).slice(0, 6);
+  for (const [month, n] of recent) {
+    facts.push({ path: `hiring.posted.${month}`, value: n, sourceUrl: url, confidence: 1 });
+  }
+
+  /*
+   * Momentum: the newest month against the median of the months before it.
+   * A ratio rather than a raw count, so a 300-role company and a 12-role one
+   * are comparable — and only when there is enough history on the board to
+   * make a median meaningful.
+   */
+  if (recent.length >= 3) {
+    const prior = recent.slice(1).map(([, n]) => n).sort((a, b) => a - b);
+    const median = prior[Math.floor(prior.length / 2)];
+    if (median > 0) {
+      facts.push({
+        path: "hiring.momentum_ratio",
+        value: Math.round((recent[0][1] / median) * 100) / 100,
+        sourceUrl: url,
+        confidence: 0.8,
+        quote: quote(
+          `${recent[0][1]} postings in ${recent[0][0]} against a median of ${median} in the ${prior.length} months before`,
+        ),
+      });
+    }
+  }
+
+  return facts;
+}
